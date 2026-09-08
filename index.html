@@ -166,7 +166,7 @@
     <p>A little side-scrolling walk through our years together — from a first glance at Xiamen Airport to a lakeside wedding. Stroll right, gather every memory, and meet the family along the way. 💗</p>
     <button class="btn" id="startBtn">Begin our journey</button>
     <div class="sub">Move with A / D or ← / → · tap the arrows on mobile · 🔊 tap to enable sound</div>
-    <div class="sub" style="margin-top:8px;font-size:11px;opacity:.4">Music: “Town Theme” by remaxim (<a href="https://opengameart.org/content/town-theme" target="_blank" rel="noopener" style="color:inherit">OpenGameArt</a>, CC-BY-SA 3.0)</div>
+    <div class="sub" style="margin-top:8px;font-size:11px;opacity:.4">Music: “Rest (For A Bit)” by The Orchestral Movement of 1932 (<a href="https://opengameart.org/content/emotional-mood-piece" target="_blank" rel="noopener" style="color:inherit">OpenGameArt</a>, CC-BY 3.0)</div>
   </div>
 
   <div class="overlay hidden" id="endOverlay">
@@ -344,15 +344,16 @@ bindTouch(document.getElementById('btnR'),'right');
 if('ontouchstart' in window){ document.getElementById('touch').style.display='flex'; }
 
 /* ---------------- AUDIO ----------------
-   Primary background: "Town Theme" by remaxim (CC-BY-SA 3.0 / GPL, OpenGameArt.org),
-   transcoded to audio/town_theme.mp3. Attribution is REQUIRED (see credit on the
-   start/end overlays). Played on a looping HTMLAudioElement with a gentle fade-in.
+   Primary background: "Emotional Mood Piece" — "Rest (For A Bit)" by
+   The Orchestral Movement of 1932 (jacksontorreal) & fourstones, CC-BY 3.0
+   (via OpenGameArt.org / ccMixter). Attribution REQUIRED (see credit on the
+   start overlay). Played on a looping HTMLAudioElement with a gentle fade-in.
    A very quiet procedural arpeggio (WebAudio) sits underneath as light texture,
    and the collectible pickup chime is procedural. */
 let audioCtx=null, musicGain=null, musicTimer=null, currentMood=null;
 let bgMusic=null, bgStarted=false;
-const MUSIC_SRC = 'audio/town_theme.mp3';
-const MUSIC_TARGET_VOL = 0.45;
+const MUSIC_SRC = 'audio/mood_piece.mp3';
+const MUSIC_TARGET_VOL = 0.5;
 
 function startBgTrack(){
   if(bgStarted) return;
