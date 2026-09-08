@@ -232,7 +232,15 @@ const gameTimeline = [
     weather:"golden_hour",
     title:"Sparkling Moments",
     eventNote:"Scenic vineyard views and mountain relaxation together.",
-    collectible:{ name:"Wine Glass", icon:"wine" } },
+    collectible:{ name:"Wine Glass", icon:"wine" },
+    // Explicit declarative scenery (overrides deriveScenery). Add/remove/reorder
+    // layers here freely — back-to-front, each with its own parallax `speed`.
+    scenery:{ layers:[
+      { kind:"mountains", speed:0.14, opts:{ snow:true, peaks:[[40,420,300],[380,500,340]] } },
+      { kind:"mountains", speed:0.22, opts:{ color:"#c9a86a", peaks:[[120,360,200],[520,420,240]] } },
+      { kind:"vineyard",  speed:0.55, opts:{} },
+      { kind:"trees",     speed:0.7,  opts:{ density:4, scale:0.8 } },
+    ] } },
   { id:6, date:"June 2022", location:"Orlando — Disney World & Universal",
     partyMembers:["husband","wife","creamy_dog"], backgroundType:"theme_park_castles",
     weather:"bright_sunny",
@@ -548,82 +556,149 @@ function puff(x,y,r){
   ctx.fill();
 }
 
-/* far parallax scenery — depends on backgroundType */
-function drawFar(pal, bg){
-  const speed=0.25;
-  const off = state.camX*speed;
-  ctx.fillStyle=pal.far;
-  const gy=groundY();
-  const type=bg.backgroundType;
+/* =====================================================================
+   DECLARATIVE LAYERED SCENERY
+   ---------------------------------------------------------------------
+   Each timeline event can carry an optional `scenery` object:
+     scenery: {
+       sky: ["#top","#bottom"],           // optional; else derived from weather palette
+       layers: [                          // painted back-to-front
+         { kind:"mountains", speed:0.18, opts:{...} },
+         { kind:"trees",     speed:0.5,  opts:{density:8} },
+         ...
+       ],
+       ground: "#hex"                     // optional; else palette.ground
+     }
+   `speed` is the parallax factor (0 = infinitely far, 1 = moves with the ground).
+   If an event has no `scenery`, one is derived from its `backgroundType`+`weather`
+   (see deriveScenery) so older data keeps working. Layers are looked up by name in
+   LAYER_DRAW, so adding a new scene = add a painter + reference it in event.scenery.
+   ===================================================================== */
 
-  ctx.save();
-  ctx.translate(-off%W - W, 0); // tile 3x for safety
-  for(let tile=0; tile<3; tile++){
-    const base=tile*W;
-    if(type==='airport_terminal'){
-      // terminal skyline blocks
-      for(let i=0;i<6;i++){ const bx=base+80+i*160; roundRect(bx,gy-140,120,140,8); ctx.fill(); }
-    } else if(type==='park_and_city' || type==='suburban_driveway'){
-      // distant hills + a few towers
-      hill(base, gy, W, 120); ctx.fill();
-      for(let i=0;i<4;i++){ const bx=base+120+i*260; ctx.fillRect(bx,gy-190,60,190); }
-    } else if(type==='ocean_ferry_cruise'){
-      hill(base, gy, W, 70); ctx.fill();
-    } else if(type==='mountain_resort_vineyard'){
-      mountain(base+60, gy, 380, 240); ctx.fill();
-      mountain(base+360, gy, 460, 300); ctx.fill();
-    } else if(type==='theme_park_castles'){
-      castle(base+180, gy); castle(base+520, gy);
-    } else if(type==='cozy_winter_city'){
-      for(let i=0;i<6;i++){ const bx=base+60+i*150; roundRect(bx,gy-160-((i%2)*30),110,160+((i%2)*30),6); ctx.fill(); }
-    } else if(type==='cozy_indoor_care'){
-      // soft wall
-      ctx.fillRect(base,gy-260,W,260);
-    } else if(type==='lakeside_trees_wedding'){
-      mountain(base+80, gy, 400, 180); ctx.fill();
-      hill(base, gy, W, 90); ctx.fill();
-    } else {
-      hill(base, gy, W, 100); ctx.fill();
+// ---- fine-grained layer painters. Each fills a tile [base .. base+W] at ground gy.
+// `pal` = current interpolated palette, `o` = layer opts.
+const LAYER_DRAW = {
+  // distant mountain range with ridge shading + optional snow caps
+  mountains(base, gy, pal, o){
+    const col=o.color||pal.far; const peaks=o.peaks||[[60,380,240],[360,460,300]];
+    for(const [px,pw,ph] of peaks){
+      ctx.fillStyle=col; mountain(base+px, gy, pw, ph); ctx.fill();
+      // shaded right face
+      ctx.fillStyle='rgba(0,0,0,0.10)';
+      ctx.beginPath(); ctx.moveTo(base+px+pw*0.5, gy-ph); ctx.lineTo(base+px+pw, gy); ctx.lineTo(base+px+pw*0.5, gy); ctx.closePath(); ctx.fill();
+      if(o.snow){ ctx.fillStyle='rgba(255,255,255,0.9)';
+        ctx.beginPath(); ctx.moveTo(base+px+pw*0.5, gy-ph);
+        ctx.lineTo(base+px+pw*0.5-ph*0.13, gy-ph*0.72); ctx.lineTo(base+px+pw*0.5+ph*0.13, gy-ph*0.72);
+        ctx.closePath(); ctx.fill(); }
     }
-  }
+  },
+  // rolling hills band
+  hills(base, gy, pal, o){
+    ctx.fillStyle=o.color||pal.far;
+    hill(base, gy, W, o.h||110); ctx.fill();
+    if(o.h2){ ctx.fillStyle='rgba(0,0,0,0.06)'; hill(base+W*0.3, gy, W*0.8, o.h2); ctx.fill(); }
+  },
+  // distant city skyline of towers with lit windows
+  skyline(base, gy, pal, o){
+    const col=o.color||pal.far; const n=o.count||6;
+    for(let i=0;i<n;i++){
+      const bx=base+40+i*((W-80)/n); const bw=(o.w||70); const bh=(o.h||150)+((i*53)%70);
+      ctx.fillStyle=col; roundRect(bx,gy-bh,bw,bh,4); ctx.fill();
+      // windows
+      ctx.fillStyle=o.lit||'rgba(255,240,190,0.5)';
+      for(let wy=gy-bh+10; wy<gy-14; wy+=14)
+        for(let wx=bx+6; wx<bx+bw-8; wx+=12)
+          if(((wx+wy)|0)%3!==0) ctx.fillRect(wx,wy,6,7);
+    }
+  },
+  // airport terminal: long low glass building + control tower
+  terminal(base, gy, pal, o){
+    const col=o.color||pal.far;
+    ctx.fillStyle=col; roundRect(base+30,gy-120,W-60,120,8); ctx.fill();
+    // glass strip
+    ctx.fillStyle='rgba(200,230,255,0.4)'; ctx.fillRect(base+40,gy-96,W-80,26);
+    // control tower
+    ctx.fillStyle=col; ctx.fillRect(base+W*0.7,gy-210,26,210);
+    ctx.fillStyle='rgba(210,235,255,0.85)'; roundRect(base+W*0.7-8,gy-224,42,26,6); ctx.fill();
+  },
+  // trees with layered foliage clumps + trunk
+  trees(base, gy, pal, o){
+    const n=o.density||7; const col=o.color||pal.mid;
+    for(let i=0;i<n;i++){ const x=base+70+i*((W-120)/n); const s=(o.scale||1)*(0.85+((i*37)%40)/100);
+      tree(x, gy, s, col);
+      // darker underside clump
+      ctx.fillStyle='rgba(0,0,0,0.08)'; ctx.beginPath(); ctx.arc(x, gy-42*s, 20*s, 0.1, Math.PI-0.1); ctx.fill();
+    }
+  },
+  // vineyard rows receding
+  vineyard(base, gy, pal, o){
+    const col=o.color||pal.mid;
+    for(let i=0;i<10;i++){ const x=base+40+i*130;
+      ctx.fillStyle=col; ctx.fillRect(x,gy-40,90,40);
+      ctx.fillStyle='rgba(0,0,0,0.10)'; ctx.fillRect(x,gy-40,90,8);
+      // vine posts
+      ctx.fillStyle='rgba(90,70,50,0.5)'; ctx.fillRect(x+10,gy-52,4,14); ctx.fillRect(x+76,gy-52,4,14);
+    }
+  },
+  // theme-park castles
+  castles(base, gy, pal, o){ castle(base+180, gy); castle(base+W*0.62, gy); },
+  // cozy winter city: snow-topped buildings + a few bare trees
+  winterCity(base, gy, pal, o){
+    const col=o.color||pal.far;
+    for(let i=0;i<6;i++){ const bx=base+50+i*((W-80)/6); const bh=150+((i%2)*34);
+      ctx.fillStyle=col; roundRect(bx,gy-bh,100,bh,6); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(bx-2,gy-bh-4,104,8);   // snow cap
+      ctx.fillStyle=o.lit||'rgba(255,236,180,0.55)';
+      for(let wy=gy-bh+14; wy<gy-16; wy+=16) for(let wx=bx+10; wx<bx+90; wx+=16)
+        if(((wx*wy)|0)%2===0) ctx.fillRect(wx,wy,7,8);
+    }
+  },
+  // ferry: distant coastline + sailboats
+  sailboats(base, gy, pal, o){ for(let i=0;i<4;i++) sailboat(base+140+i*260, gy-10); },
+  // cozy indoor: warm wall + window with sill
+  indoorCare(base, gy, pal, o){
+    ctx.fillStyle=o.wall||'rgba(120,96,80,0.35)'; ctx.fillRect(base,gy-260,W,260);
+    ctx.fillStyle='rgba(180,205,235,0.5)'; roundRect(base+W*0.55,gy-210,200,150,10); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillRect(base+W*0.55,gy-64,210,10);   // sill
+  },
+};
+
+// tiling + parallax wrapper for a single layer
+function drawSceneryLayer(kind, speed, pal, opts){
+  const fn=LAYER_DRAW[kind]; if(!fn) return;
+  const gy=groundY(); const off=state.camX*speed;
+  ctx.save();
+  ctx.translate(-off%W - W, 0);   // 3× tiling for seamless wrap
+  for(let tile=0; tile<3; tile++) fn(tile*W, gy, pal, opts||{});
   ctx.restore();
 }
 
-/* mid parallax scenery */
-function drawMid(pal, bg){
-  const speed=0.55;
-  const off=state.camX*speed;
-  const gy=groundY();
-  const type=bg.backgroundType;
-  ctx.save();
-  ctx.translate(-off%W - W, 0);
-  ctx.fillStyle=pal.mid;
-  for(let tile=0; tile<3; tile++){
-    const base=tile*W;
-    if(type==='park_and_city'||type==='lakeside_trees_wedding'||type==='suburban_driveway'){
-      for(let i=0;i<7;i++){ tree(base+70+i*170, gy, 0.9+ (i%3)*0.15, pal.mid); }
-    } else if(type==='mountain_resort_vineyard'){
-      // vineyard rows
-      for(let i=0;i<10;i++){ ctx.fillStyle=pal.mid; ctx.fillRect(base+40+i*130,gy-40,90,40);
-        ctx.fillStyle='rgba(0,0,0,0.08)'; ctx.fillRect(base+40+i*130,gy-40,90,8); }
-    } else if(type==='ocean_ferry_cruise'){
-      // distant sailboats
-      for(let i=0;i<4;i++){ sailboat(base+140+i*260, gy-10); }
-    } else if(type==='airport_terminal'){
-      for(let i=0;i<5;i++){ ctx.fillStyle=pal.mid; roundRect(base+60+i*200,gy-90,150,90,6); ctx.fill(); }
-    } else if(type==='cozy_winter_city'){
-      for(let i=0;i<8;i++){ tree(base+90+i*150, gy, 0.8, '#e9eef6'); }
-    } else if(type==='theme_park_castles'){
-      for(let i=0;i<6;i++){ ctx.fillStyle=pal.mid; tent(base+120+i*200, gy); }
-    } else if(type==='cozy_indoor_care'){
-      // window + furniture silhouettes
-      ctx.fillStyle='rgba(255,255,255,0.25)'; roundRect(base+120,gy-200,180,150,10); ctx.fill();
-    } else {
-      for(let i=0;i<6;i++){ tree(base+90+i*180, gy, 0.9, pal.mid); }
-    }
-  }
+// derive a scenery spec from legacy backgroundType when event.scenery is absent
+function deriveScenery(ev){
+  const t=ev.backgroundType;
+  const M={
+    airport_terminal:      [ {kind:'terminal',speed:0.25}, {kind:'skyline',speed:0.5,opts:{count:5,h:90}} ],
+    park_and_city:         [ {kind:'hills',speed:0.2,opts:{h:120,h2:80}}, {kind:'skyline',speed:0.4,opts:{count:4,w:60,h:150}}, {kind:'trees',speed:0.55,opts:{density:7}} ],
+    suburban_driveway:     [ {kind:'hills',speed:0.2,opts:{h:110}}, {kind:'trees',speed:0.55,opts:{density:6}} ],
+    ocean_ferry_cruise:    [ {kind:'hills',speed:0.2,opts:{h:70}}, {kind:'sailboats',speed:0.5} ],
+    mountain_resort_vineyard:[ {kind:'mountains',speed:0.18,opts:{snow:true}}, {kind:'vineyard',speed:0.55} ],
+    theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.45} ],
+    cozy_winter_city:      [ {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
+    cozy_indoor_care:      [ {kind:'indoorCare',speed:0.3} ],
+    lakeside_trees_wedding:[ {kind:'mountains',speed:0.18,opts:{peaks:[[80,400,180]]}}, {kind:'hills',speed:0.28,opts:{h:90}}, {kind:'trees',speed:0.55,opts:{density:8}} ],
+  };
+  return { layers: M[t] || [ {kind:'hills',speed:0.2,opts:{h:100}}, {kind:'trees',speed:0.55,opts:{density:6}} ] };
+}
+function sceneryFor(ev){ return ev.scenery || (ev.__scenery ||= deriveScenery(ev)); }
+
+// draw every layer of one segment's scenery at a given global alpha (for cross-fade)
+function drawSegmentScenery(ev, pal, alpha){
+  const sc=sceneryFor(ev);
+  ctx.save(); ctx.globalAlpha=alpha;
+  for(const L of sc.layers) drawSceneryLayer(L.kind, L.speed, pal, L.opts);
   ctx.restore();
 }
+
 
 /* shapes */
 function roundRect(x,y,w,h,r){ ctx.beginPath();
@@ -965,8 +1040,19 @@ function render(){
   drawSky(pal);
   drawSun(pal, bg);
   drawClouds(pal);
-  drawFar(pal, bg);
-  drawMid(pal, bg);
+
+  // layered scenery with cross-fade between adjacent segments near the boundary
+  const segF = state.hero.x / SEGMENT_W;
+  const iA = Math.max(0, Math.min(gameTimeline.length-1, Math.floor(segF)));
+  const iB = Math.min(gameTimeline.length-1, iA+1);
+  const frac = segF - Math.floor(segF);
+  const FADE = 0.15;                                  // last 15% of a segment cross-fades
+  drawSegmentScenery(gameTimeline[iA], pal, 1);       // current segment, full
+  if(iB!==iA && frac > 1-FADE){                       // approaching next: fade it in
+    const a=(frac-(1-FADE))/FADE;
+    drawSegmentScenery(gameTimeline[iB], pal, a);
+  }
+
   drawGround(pal, bg);
   drawSpecialObjects();
   drawCollectibles();
