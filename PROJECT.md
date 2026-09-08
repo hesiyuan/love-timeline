@@ -22,6 +22,19 @@ A side-scrolling HTML5 Canvas RPG-style game celebrating a multi-year romantic t
 - Weather FX (rain, snow), collectibles with glow + sparkle/heart particles + procedural WebAudio chime + memory toast.
 - HUD (date/title/location/memory counter/party), milestone progress bar, procedural mood-shifting music, start/end overlays with memory recap.
 
+## Character sprites (CC0 pixel art)
+- Husband = **"Classic Hero / Mr. Man"** by GrafxKid (CC0) — https://opengameart.org/content/classic-hero
+- Wife = **"Mrs. Man"** by knekko (CC0, female version of Mr. Man) — https://opengameart.org/content/mrs-man
+- Creamy = **"Dog Walk sprite"** (Pixelart Dog Walk) by kirard (CC0) — https://opengameart.org/content/dog-walk-sprite-and-bone
+- All CC0 (public domain, attribution not required — credited here anyway).
+- Walk frames were pre-sliced with Pillow (tan bg → transparent for the humans; 9-frame vertical strip for the dog)
+  into `assets/{husband,wife,creamy}_walk_*.png`, then embedded in `index.html` as base64 data-URIs in the
+  `const SPRITES` block (keeps the game a single self-contained file — no extra HTTP requests, no CORS).
+- `drawSprite()` cycles frames with `walkPhase`, keeps the walk-bob, mirrors horizontally on facing, and holds
+  a neutral frame when idle. If a sprite fails to load, it falls back to the original vector shapes.
+- Original sprite sheets kept in `assets/{husband,wife,creamy}.png` for provenance / re-slicing.
+- To re-generate embedded frames: re-slice into `assets/*_walk_*.png`, base64 them into the `SPRITES` object.
+
 ## Hosting / DNS
 - **GitHub Pages**: deploy from branch `main`, folder `/` (root). Custom domain `love.jacksonhe.com`. HTTPS enforced.
 - **DNS at GoDaddy**: CNAME record — Name=`love`, Value=`hesiyuan.github.io` (NOT the full subdomain).
