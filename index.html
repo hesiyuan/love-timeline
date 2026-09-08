@@ -342,14 +342,45 @@ bindTouch(document.getElementById('btnL'),'left');
 bindTouch(document.getElementById('btnR'),'right');
 if('ontouchstart' in window){ document.getElementById('touch').style.display='flex'; }
 
-/* ---------------- AUDIO (WebAudio, procedural, no files) ---------------- */
+/* ---------------- AUDIO ----------------
+   Primary background: a real CC0 tranquil loop (audio/calm_loop.ogg,
+   "Calm Track" by pmiller, Public Domain / CC0, OpenGameArt.org),
+   played on a looping HTMLAudioElement with a gentle fade-in.
+   A very quiet procedural arpeggio (WebAudio) sits underneath as light texture,
+   and the collectible pickup chime is procedural. */
 let audioCtx=null, musicGain=null, musicTimer=null, currentMood=null;
+let bgMusic=null, bgStarted=false;
+const MUSIC_SRC = 'audio/calm_loop.ogg';
+const MUSIC_TARGET_VOL = 0.45;
+
+function startBgTrack(){
+  if(bgStarted) return;
+  bgStarted=true;
+  try{
+    bgMusic = new Audio(MUSIC_SRC);
+    bgMusic.loop = true;
+    bgMusic.preload = 'auto';
+    bgMusic.volume = 0;
+    const p = bgMusic.play();
+    if(p && p.catch) p.catch(()=>{ bgStarted=false; }); // will retry on next gesture
+    // gentle fade-in to target volume
+    let v=0;
+    const fade=setInterval(()=>{
+      if(!bgMusic){ clearInterval(fade); return; }
+      v=Math.min(MUSIC_TARGET_VOL, v+0.02);
+      bgMusic.volume=v;
+      if(v>=MUSIC_TARGET_VOL) clearInterval(fade);
+    }, 120);
+  }catch(e){ bgStarted=false; }
+}
+
 function ensureAudio(){
+  startBgTrack();               // real tranquil loop (primary)
   if(audioCtx) return;
   try{
     audioCtx = new (window.AudioContext||window.webkitAudioContext)();
     musicGain = audioCtx.createGain();
-    musicGain.gain.value = 0.06;
+    musicGain.gain.value = 0.018;  // quiet texture layer under the real track
     musicGain.connect(audioCtx.destination);
     startMusic();
   }catch(e){ /* audio optional */ }
