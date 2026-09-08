@@ -25,7 +25,7 @@ A side-scrolling HTML5 Canvas RPG-style game celebrating a multi-year romantic t
 ## Character sprites (CC0 pixel art)
 - Husband = **"Classic Hero / Mr. Man"** by GrafxKid (CC0) — https://opengameart.org/content/classic-hero
 - Wife = **"Mrs. Man"** by knekko (CC0, female version of Mr. Man) — https://opengameart.org/content/mrs-man
-- Creamy = **"Dog Walk sprite"** (Pixelart Dog Walk) by kirard (CC0) — https://opengameart.org/content/dog-walk-sprite-and-bone
+- Creamy = **fluffy white dog** from "Dog Spritesheets" (spritesheet_white) by Jason of GDN (CC0) — https://opengameart.org/content/dog-spritesheets (walk row sliced; reads as a white Pomeranian)
 - All CC0 (public domain, attribution not required — credited here anyway).
 - Walk frames were pre-sliced with Pillow (tan bg → transparent for the humans; 9-frame vertical strip for the dog)
   into `assets/{husband,wife,creamy}_walk_*.png`, then embedded in `index.html` as base64 data-URIs in the
