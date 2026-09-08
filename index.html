@@ -134,6 +134,19 @@
   .overlay .sub{ margin-top:16px; font-size:12px; opacity:.55; }
   .hidden{ display:none !important; }
   #endStats{ margin-top:18px; font-size:14px; opacity:.9; line-height:1.7; }
+
+  /* mute button — clickable even though #hud is pointer-events:none */
+  #muteBtn{
+    pointer-events:auto; cursor:pointer;
+    width:40px; height:40px; flex:0 0 auto;
+    border-radius:12px; border:1px solid var(--hud-border);
+    background:rgba(255,255,255,0.08); color:#fff; font-size:19px;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s ease, transform .1s ease;
+  }
+  #muteBtn:hover{ background:rgba(255,143,177,.28); }
+  #muteBtn:active{ transform:scale(.92); }
+  #muteBtn.muted{ opacity:.6; }
 </style>
 </head>
 <body>
@@ -146,9 +159,12 @@
       <div class="title" id="hTitle">The First Glance</div>
       <div class="loc" id="hLoc">Xiamen Airport</div>
     </div>
-    <div id="hud-right" class="panel">
-      <div class="items"><span id="hItems">0</span><small> / <span id="hTotal">9</span> memories</small></div>
-      <div class="party" id="hParty">🧑</div>
+    <div id="hud-right" class="panel" style="display:flex;align-items:center;gap:12px">
+      <button id="muteBtn" title="Mute / unmute music" aria-label="Mute or unmute music">🔊</button>
+      <div style="text-align:right">
+        <div class="items"><span id="hItems">0</span><small> / <span id="hTotal">9</span> memories</small></div>
+        <div class="party" id="hParty">🧑</div>
+      </div>
     </div>
   </div>
 
@@ -1018,6 +1034,23 @@ function endGame(){
 
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('replayBtn').addEventListener('click', startGame);
+
+/* ---------------- MUTE / UNMUTE ---------------- */
+let isMuted = false;
+function applyMute(){
+  if(bgMusic) bgMusic.muted = isMuted;
+  if(musicGain) musicGain.gain.value = isMuted ? 0 : 0.018;
+  const btn=document.getElementById('muteBtn');
+  btn.textContent = isMuted ? '🔇' : '🔊';
+  btn.classList.toggle('muted', isMuted);
+  btn.title = isMuted ? 'Unmute music' : 'Mute music';
+}
+document.getElementById('muteBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  ensureAudio();            // in case audio hasn't started yet, start it (then toggle)
+  isMuted = !isMuted;
+  applyMute();
+});
 
 /* kick the render loop (idles until running) */
 loadSprites();
