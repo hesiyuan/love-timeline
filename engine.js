@@ -179,9 +179,31 @@ document.getElementById('muteBtn').addEventListener('click', (e)=>{
   applyMute();
 });
 
-/* kick the render loop (idles until running) */
-loadSprites();
-WardrobeManager.load();
-(function(){ const b=document.getElementById('versionBadge'); if(b) b.textContent='v'+GAME_VERSION; })();
-updateHUD();
-loop();
+/* kick things off: load the timeline JSON, then boot the engine */
+async function loadTimeline(){
+  try{
+    const res = await fetch('timeline.json?v=' + GAME_VERSION, { cache: 'no-cache' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    gameTimeline = await res.json();
+  }catch(e){
+    console.error('Failed to load timeline.json:', e);
+    gameTimeline = [];   // guard; boot() will show a message
+  }
+  WORLD_W = SEGMENT_W * gameTimeline.length;
+}
+
+async function boot(){
+  await loadTimeline();
+  if(!gameTimeline.length){
+    const b=document.getElementById('versionBadge');
+    if(b) b.textContent = 'v'+GAME_VERSION+' — failed to load timeline.json';
+    return;
+  }
+  loadSprites();
+  WardrobeManager.load();
+  const b=document.getElementById('versionBadge'); if(b) b.textContent='v'+GAME_VERSION;
+  updateHUD();
+  document.getElementById('hTotal').textContent = gameTimeline.length;  // in case markup default differs
+  loop();
+}
+boot();
