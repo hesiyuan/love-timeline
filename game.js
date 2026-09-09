@@ -672,6 +672,100 @@ function loadSprites(){
   if(pending===0) SPRITE_IMGS.ready=true;
 }
 
+/* =====================================================================
+   WARDROBE / CHARACTER-STATE SYSTEM
+   ---------------------------------------------------------------------
+   Manages which OUTFIT each character wears and swaps their sprite frames
+   as timeline milestones are hit. Outfit frames live in OUTFIT_SPRITES
+   (sprites.js) keyed "<who>_<outfit>"; the base walk frames in SPRITES are
+   the "casual" outfit. All frame arrays are decoded into SPRITE_IMGS under
+   the same keys so the existing drawSprite() pipeline is reused unchanged.
+
+   To add a future outfit:
+     1. add its frames to OUTFIT_SPRITES as "<who>_<newoutfit>" in sprites.js
+     2. add the outfit name to OUTFITS below
+     3. map the milestone (event index) -> outfit in MILESTONE_OUTFITS
+   ===================================================================== */
+const OUTFITS = ['casual', 'wedding', 'cozy'];   // 'casual' == base SPRITES frames
+
+// timeline event INDEX (0-based) -> outfit. Unlisted indices inherit the
+// most recent lower index's outfit (so you only mark the CHANGE points).
+const MILESTONE_OUTFITS = {
+  0: 'casual',    // The First Glance ... through
+  6: 'wedding',   // idx6 = "Legally Married" (Dec 2022) -> tux & gown
+  7: 'cozy',      // idx7 = "In Sickness and In Health" (recovery home) -> cozy
+  8: 'wedding',   // idx8 = "Grand Wedding Ceremony" -> gown & tux again
+};
+
+const WardrobeManager = {
+  current: { husband: 'casual', wife: 'casual' },   // live outfit per character
+  loaded: false,
+
+  // decode every outfit's frames into SPRITE_IMGS under "<who>_<outfit>" keys
+  load(){
+    if(this.loaded) return;
+    // base frames are the casual outfit — alias them
+    SPRITE_IMGS['husband_casual'] = SPRITE_IMGS.husband;
+    SPRITE_IMGS['wife_casual']    = SPRITE_IMGS.wife;
+    if(typeof OUTFIT_SPRITES !== 'undefined'){
+      for(const key in OUTFIT_SPRITES){          // e.g. "husband_wedding"
+        SPRITE_IMGS[key] = OUTFIT_SPRITES[key].map(src=>{ const im=new Image(); im.src=src; return im; });
+      }
+    }
+    this.loaded = true;
+  },
+
+  // resolve the outfit for a given timeline event index (carry-forward)
+  outfitForEvent(idx){
+    let outfit = 'casual';
+    for(let i=0; i<=idx; i++){ if(MILESTONE_OUTFITS[i]) outfit = MILESTONE_OUTFITS[i]; }
+    return outfit;
+  },
+
+  // frame array for a character's CURRENT outfit (falls back to base frames)
+  framesFor(who){
+    const key = `${who}_${this.current[who]}`;
+    return SPRITE_IMGS[key] && SPRITE_IMGS[key].length ? SPRITE_IMGS[key] : SPRITE_IMGS[who];
+  },
+
+  // called every frame from update(); swaps + fires transition FX on change
+  syncToEvent(idx){
+    const target = this.outfitForEvent(idx);
+    for(const who of ['husband','wife']){
+      if(this.current[who] !== target){
+        this.current[who] = target;
+        this._transition(who, target);
+      }
+    }
+  },
+
+  // lightweight sparkle "poof" at the character during an outfit change
+  _transition(who, outfit){
+    if(!state.running) return;
+    const gy = groundY();
+    // screen-x of this character (hero at hero.x; wife trails 62px behind)
+    const baseX = (who === 'wife') ? state.hero.x - 62 : state.hero.x;
+    const sx = baseX - state.camX;
+    const cy = gy - 40;
+    const palette = outfit === 'wedding' ? ['#fff6d8','#ffe27a','#ffffff']
+                  : outfit === 'cozy'    ? ['#ffd1a6','#ffb877','#fff0dc']
+                  :                        ['#ff8fb1','#ffd27a','#ffffff'];
+    for(let i=0;i<30;i++){
+      const a=Math.random()*Math.PI*2, sp=1.2+Math.random()*3.2;
+      state.particles.push({
+        x:sx, y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-1.2, life:1,
+        heart:Math.random()<0.25,
+        col:palette[(Math.random()*palette.length)|0],
+      });
+    }
+    // frame-pop: a brief scale-punch on this character
+    state.wardrobePop = state.wardrobePop || {};
+    state.wardrobePop[who] = 1;   // decays in update()
+  },
+
+  reset(){ this.current.husband='casual'; this.current.wife='casual'; }
+};
+
 // draw one sprite: feet at (x, gy), scaled to displayH, mirrored if facing<0, frame-cycled
 function drawSprite(frames, x, gy, displayH, walkPhase, facing, moving, speedMul){
   if(!frames || !frames.length) return false;
@@ -694,8 +788,17 @@ function drawSprite(frames, x, gy, displayH, walkPhase, facing, moving, speedMul
 
 function drawHuman(x, gy, opts){
   const moving = opts.moving!==false;
-  const frames = SPRITE_IMGS[opts.who] || [];
-  if(drawSprite(frames, x, gy, 72, opts.walkPhase, opts.facing, moving, 1.4)) return;
+  // resolve frames from the wardrobe (current outfit) — falls back to base frames
+  const frames = (WardrobeManager.loaded ? WardrobeManager.framesFor(opts.who) : SPRITE_IMGS[opts.who]) || [];
+  // frame-pop: brief scale punch right after an outfit change
+  const pop = (state.wardrobePop && state.wardrobePop[opts.who]) || 0;
+  if(pop > 0){
+    const s = 1 + pop*0.28;                 // up to +28% then eases back
+    ctx.save(); ctx.translate(x, gy); ctx.scale(s, s); ctx.translate(-x, -gy);
+    const drawn = drawSprite(frames, x, gy, 72, opts.walkPhase, opts.facing, moving, 1.4);
+    ctx.restore();
+    if(drawn) return;
+  } else if(drawSprite(frames, x, gy, 72, opts.walkPhase, opts.facing, moving, 1.4)) return;
   // ---- fallback: original vector figure (used until sprites load) ----
   const bob=Math.abs(Math.sin(opts.walkPhase))*3; const y=gy-bob;
   ctx.save(); ctx.translate(x,0);
@@ -811,6 +914,15 @@ function update(){
   if(ev.partyMembers.includes('wife')) state.wifeActive=true;
   if(ev.partyMembers.includes('creamy_dog')) state.creamyActive=true;
 
+  // wardrobe: swap outfits + fire transition FX when a milestone changes them
+  WardrobeManager.syncToEvent(seg);
+  // decay the frame-pop punch
+  if(state.wardrobePop){
+    for(const who in state.wardrobePop){
+      state.wardrobePop[who] = Math.max(0, state.wardrobePop[who] - 0.06);
+    }
+  }
+
   // mood/music by weather
   if(currentMood!==ev.weather){ currentMood=ev.weather; }
 
@@ -909,6 +1021,8 @@ function startGame(){
   state.hero.x=200; state.camX=0; state.currentEvent=0;
   state.collected=new Set(); state.particles=[]; state.finished=false;
   state.wifeActive=false; state.creamyActive=false;
+  state.wardrobePop={};
+  WardrobeManager.reset();
   document.getElementById('startOverlay').classList.add('hidden');
   document.getElementById('endOverlay').classList.add('hidden');
   updateHUD();
@@ -952,5 +1066,6 @@ document.getElementById('muteBtn').addEventListener('click', (e)=>{
 
 /* kick the render loop (idles until running) */
 loadSprites();
+WardrobeManager.load();
 updateHUD();
 loop();
