@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "date": "May 27, 2020",
+    "location": "Xiamen Airport → Vancouver Flight",
+    "partyMembers": ["husband"],
+    "backgroundType": "airport_terminal",
+    "weather": "clear_day",
+    "title": "The First Glance",
+    "eventNote": "First met at Xiamen Airport, both preparing to fly to Vancouver.",
+    "collectible": { "name": "Boarding Pass", "icon": "ticket" }
+  },
+  {
+    "id": 2,
+    "date": "June 27, 2020",
+    "location": "Stanley Park & Safeway Lot, Vancouver",
+    "partyMembers": ["husband", "wife"],
+    "backgroundType": "park_and_city",
+    "weather": "sunset",
+    "title": "Declaration of Love",
+    "eventNote": "A confession of love at the Safeway parking lot after a day in Stanley Park.",
+    "collectible": { "name": "Warm Water Bottle", "icon": "water_bottle" }
+  },
+  {
+    "id": 3,
+    "date": "Creamy's Arrival",
+    "location": "Vancouver (Arrival from Taiwan)",
+    "partyMembers": ["husband", "wife", "creamy_dog"],
+    "backgroundType": "suburban_driveway",
+    "specialObject": "red_tesla_trunk",
+    "weather": "sunny",
+    "title": "Creamy Joins the Family",
+    "eventNote": "Met Creamy arriving from Taiwan in a red Tesla trunk. Shy at first, then sprinting all around her new home!",
+    "collectible": { "name": "Creamy's Leash", "icon": "dog_bone" }
+  },
+  {
+    "id": 4,
+    "date": "November 2021",
+    "location": "Ferry Cruise to Nanaimo",
+    "partyMembers": ["husband", "wife", "creamy_dog"],
+    "backgroundType": "ocean_ferry_cruise",
+    "weather": "cloudy_coastal",
+    "title": "Island Getaway",
+    "eventNote": "Cruising over cloudy waters together toward Nanaimo.",
+    "collectible": { "name": "Ferry Ticket", "icon": "ship" }
+  },
+  {
+    "id": 5,
+    "date": "2021 / 2022",
+    "location": "Sparkling Hill Resort & Wine Country",
+    "partyMembers": ["husband", "wife", "creamy_dog"],
+    "backgroundType": "mountain_resort_vineyard",
+    "weather": "golden_hour",
+    "title": "Sparkling Moments",
+    "eventNote": "Scenic vineyard views and mountain relaxation together.",
+    "collectible": { "name": "Wine Glass", "icon": "wine" },
+    "scenery": {
+      "layers": [
+        { "kind": "mountains", "speed": 0.14, "opts": { "snow": true, "peaks": [[40, 420, 300], [380, 500, 340]] } },
+        { "kind": "mountains", "speed": 0.22, "opts": { "color": "#c9a86a", "peaks": [[120, 360, 200], [520, 420, 240]] } },
+        { "kind": "vineyard", "speed": 0.55, "opts": {} },
+        { "kind": "trees", "speed": 0.7, "opts": { "density": 4, "scale": 0.8 } }
+      ]
+    }
+  },
+  {
+    "id": 6,
+    "date": "June 2022",
+    "location": "Orlando — Disney World & Universal",
+    "partyMembers": ["husband", "wife", "creamy_dog"],
+    "backgroundType": "theme_park_castles",
+    "weather": "bright_sunny",
+    "title": "Magical Celebration",
+    "eventNote": "Fun trips with friends through Disney World and Universal Studios.",
+    "collectible": { "name": "Magic Wand", "icon": "star" }
+  },
+  {
+    "id": 7,
+    "date": "December 22, 2022",
+    "location": "British Columbia, Canada",
+    "partyMembers": ["husband", "wife", "creamy_dog"],
+    "backgroundType": "cozy_winter_city",
+    "weather": "snow_light",
+    "title": "Legally Married",
+    "eventNote": "Official legal marriage celebration in BC.",
+    "collectible": { "name": "Marriage Certificate", "icon": "scroll" }
+  },
+  {
+    "id": 8,
+    "date": "August 2023",
+    "location": "Hospital Room & Recovery Home",
+    "partyMembers": ["husband", "wife", "creamy_dog"],
+    "backgroundType": "cozy_indoor_care",
+    "weather": "gentle_rain",
+    "title": "In Sickness and In Health",
+    "eventNote": "Taking care of my wife alongside her mother for a week of recovery.",
+    "collectible": { "name": "Warm Soup & Care", "icon": "heart" }
+  },
+  {
+    "id": 9,
+    "date": "October 22, 2023",
+    "location": "Lakeside Celebration, China",
+    "partyMembers": ["husband", "wife", "creamy_dog"],
+    "backgroundType": "lakeside_trees_wedding",
+    "weather": "vibrant_daylight",
+    "title": "Grand Wedding Ceremony",
+    "eventNote": "A grand wedding by the lake, surrounded by green trees, friends, and family.",
+    "collectible": { "name": "Wedding Rings", "icon": "rings" }
+  }
+]
