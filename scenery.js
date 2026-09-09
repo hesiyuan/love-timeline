@@ -114,28 +114,20 @@ const LAYER_DRAW = {
     ctx.fillStyle=col; ctx.fillRect(base+W*0.7,gy-210,26,210);
     ctx.fillStyle='rgba(210,235,255,0.85)'; roundRect(base+W*0.7-8,gy-224,42,26,6); ctx.fill();
   },
-  // animated takeoff: a plane taxis low, rotates, then climbs across the sky and loops.
+  // animated flight: a plane climbs across the sky (already airborne) and loops.
   // screenSpace layer — positions itself from state.time (independent of camera).
   airplane(base, gy, pal, o){
-    const period = o.period || 520;          // frames per full takeoff cycle
+    const period = o.period || 520;          // frames per full fly-by cycle
     const t = (state.time % period) / period; // 0..1 progress through the cycle
-    const runwayY = gy - 40;                  // ground/taxi height
+    const startY = gy - 70;                   // enters low on the left, already flying
     const climbTop = H * 0.12;                // how high it climbs
-    // phase split: 0..0.18 taxi on runway, 0.18..0.8 climb+cross, 0.8..1 gone (pause)
-    let x, y, ang;
-    if(t < 0.18){                             // taxiing along the runway (left third)
-      const p = t/0.18;
-      x = -60 + p * (W*0.28);
-      y = runwayY; ang = 0;
-    } else if(t < 0.82){                       // rotate + climb across to upper right
-      const p = (t-0.18)/0.64;
-      x = W*0.28 + p * (W*0.9);
-      y = runwayY - (p*p) * (runwayY - climbTop);  // ease-in climb
-      ang = -0.34 * Math.min(1, p*2.2);            // nose up, capped
-    } else {                                   // off-screen; brief pause before next
-      return;
-    }
-    drawPlane(x, y, ang, o.scale || 1, t);
+    // 0..0.82 climb + cross the sky; 0.82..1 off-screen (brief gap before next)
+    if(t >= 0.82) return;
+    const p = t / 0.82;
+    const x = -60 + p * (W + 120);            // left edge to off the right edge
+    const y = startY - (p*p) * (startY - climbTop);   // ease-in climb
+    const ang = -0.34 * Math.min(1, p*2.2);           // nose up, capped
+    drawPlane(x, y, ang, o.scale || 1, Math.max(0.25, p));
   },
   // trees with layered foliage clumps + trunk
   trees(base, gy, pal, o){
