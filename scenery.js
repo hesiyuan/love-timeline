@@ -114,6 +114,29 @@ const LAYER_DRAW = {
     ctx.fillStyle=col; ctx.fillRect(base+W*0.7,gy-210,26,210);
     ctx.fillStyle='rgba(210,235,255,0.85)'; roundRect(base+W*0.7-8,gy-224,42,26,6); ctx.fill();
   },
+  // animated takeoff: a plane taxis low, rotates, then climbs across the sky and loops.
+  // screenSpace layer — positions itself from state.time (independent of camera).
+  airplane(base, gy, pal, o){
+    const period = o.period || 520;          // frames per full takeoff cycle
+    const t = (state.time % period) / period; // 0..1 progress through the cycle
+    const runwayY = gy - 40;                  // ground/taxi height
+    const climbTop = H * 0.12;                // how high it climbs
+    // phase split: 0..0.18 taxi on runway, 0.18..0.8 climb+cross, 0.8..1 gone (pause)
+    let x, y, ang;
+    if(t < 0.18){                             // taxiing along the runway (left third)
+      const p = t/0.18;
+      x = -60 + p * (W*0.28);
+      y = runwayY; ang = 0;
+    } else if(t < 0.82){                       // rotate + climb across to upper right
+      const p = (t-0.18)/0.64;
+      x = W*0.28 + p * (W*0.9);
+      y = runwayY - (p*p) * (runwayY - climbTop);  // ease-in climb
+      ang = -0.34 * Math.min(1, p*2.2);            // nose up, capped
+    } else {                                   // off-screen; brief pause before next
+      return;
+    }
+    drawPlane(x, y, ang, o.scale || 1, t);
+  },
   // trees with layered foliage clumps + trunk
   trees(base, gy, pal, o){
     const n=o.density||7; const col=o.color||pal.mid;
@@ -159,7 +182,11 @@ const LAYER_DRAW = {
 // tiling + parallax wrapper for a single layer
 function drawSceneryLayer(kind, speed, pal, opts){
   const fn=LAYER_DRAW[kind]; if(!fn) return;
-  const gy=groundY(); const off=state.camX*speed;
+  const gy=groundY();
+  // screen-space layers (e.g. an animated airplane) draw ONCE in screen coords,
+  // not tiled/parallax-scrolled — the painter positions itself from state.time.
+  if(opts && opts.screenSpace){ fn(0, gy, pal, opts||{}); return; }
+  const off=state.camX*speed;
   ctx.save();
   ctx.translate(-off%W - W, 0);   // 3× tiling for seamless wrap
   for(let tile=0; tile<3; tile++) fn(tile*W, gy, pal, opts||{});
@@ -170,7 +197,7 @@ function drawSceneryLayer(kind, speed, pal, opts){
 function deriveScenery(ev){
   const t=ev.backgroundType;
   const M={
-    airport_terminal:      [ {kind:'terminal',speed:0.25}, {kind:'skyline',speed:0.5,opts:{count:5,h:90}} ],
+    airport_terminal:      [ {kind:'skyline',speed:0.5,opts:{count:5,h:90}}, {kind:'terminal',speed:0.25}, {kind:'airplane',speed:0,opts:{screenSpace:true,scale:1.1}} ],
     park_and_city:         [ {kind:'hills',speed:0.2,opts:{h:120,h2:80}}, {kind:'skyline',speed:0.4,opts:{count:4,w:60,h:150}}, {kind:'trees',speed:0.55,opts:{density:7}} ],
     suburban_driveway:     [ {kind:'hills',speed:0.2,opts:{h:110}}, {kind:'trees',speed:0.55,opts:{density:6}} ],
     ocean_ferry_cruise:    [ {kind:'hills',speed:0.2,opts:{h:70}}, {kind:'sailboats',speed:0.5} ],
@@ -224,6 +251,35 @@ function tent(x,gy){ ctx.beginPath(); ctx.moveTo(x-40,gy); ctx.lineTo(x,gy-70); 
 function sailboat(x,y){ ctx.fillStyle='rgba(255,255,255,0.8)';
   ctx.beginPath(); ctx.moveTo(x,y-40); ctx.lineTo(x,y); ctx.lineTo(x+26,y); ctx.closePath(); ctx.fill();
   ctx.fillStyle='rgba(60,40,30,0.7)'; ctx.fillRect(x-14,y,44,8); }
+
+// side-view airliner (nose pointing right), rotated by `ang`, scaled by `s`.
+// `t` (cycle progress) fades a short contrail behind it once airborne.
+function drawPlane(x, y, ang, s, t){
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s, s);
+  // contrail (only once climbing)
+  if(t > 0.2){
+    const g=ctx.createLinearGradient(-16,0,-90,0);
+    g.addColorStop(0,'rgba(255,255,255,0.5)'); g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=g; ctx.fillRect(-90,-2,78,4);
+  }
+  // fuselage
+  ctx.fillStyle='#eef2f7';
+  roundRect(-20,-5,44,10,5); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(20,-4); ctx.lineTo(30,0); ctx.lineTo(20,4); ctx.closePath(); ctx.fill(); // nose
+  // tail fin
+  ctx.beginPath(); ctx.moveTo(-20,-4); ctx.lineTo(-26,-16); ctx.lineTo(-14,-4); ctx.closePath(); ctx.fill();
+  // wing
+  ctx.fillStyle='#cfd8e3';
+  ctx.beginPath(); ctx.moveTo(-2,2); ctx.lineTo(-16,14); ctx.lineTo(2,4); ctx.closePath(); ctx.fill();
+  // windows
+  ctx.fillStyle='#7fb3e0';
+  for(let wx=-12; wx<14; wx+=6) ctx.fillRect(wx,-2,3,3);
+  // accent stripe
+  ctx.strokeStyle='#e0556b'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(-18,1); ctx.lineTo(22,1); ctx.stroke();
+  ctx.restore();
+}
 
 /* ground / path */
 function drawGround(pal, bg){
