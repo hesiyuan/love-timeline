@@ -786,19 +786,26 @@ function drawSprite(frames, x, gy, displayH, walkPhase, facing, moving, speedMul
   return true;
 }
 
+// On-screen character heights in px, from real-world height (wife 160cm = 72px baseline).
+// husband 180cm -> 72 * (180/160) = 81px. Adjust here to re-tune relative heights.
+const HUMAN_HEIGHTS = { wife: 72, husband: 81 };
+
 function drawHuman(x, gy, opts){
   const moving = opts.moving!==false;
   // resolve frames from the wardrobe (current outfit) — falls back to base frames
   const frames = (WardrobeManager.loaded ? WardrobeManager.framesFor(opts.who) : SPRITE_IMGS[opts.who]) || [];
+  // per-character on-screen height (real-world scale): wife 160cm -> 72px baseline,
+  // husband 180cm -> 72 * 180/160 = 81px. Sprite art is unchanged; pixel-art stays crisp.
+  const dh = HUMAN_HEIGHTS[opts.who] || 72;
   // frame-pop: brief scale punch right after an outfit change
   const pop = (state.wardrobePop && state.wardrobePop[opts.who]) || 0;
   if(pop > 0){
     const s = 1 + pop*0.28;                 // up to +28% then eases back
     ctx.save(); ctx.translate(x, gy); ctx.scale(s, s); ctx.translate(-x, -gy);
-    const drawn = drawSprite(frames, x, gy, 72, opts.walkPhase, opts.facing, moving, 1.4);
+    const drawn = drawSprite(frames, x, gy, dh, opts.walkPhase, opts.facing, moving, 1.4);
     ctx.restore();
     if(drawn) return;
-  } else if(drawSprite(frames, x, gy, 72, opts.walkPhase, opts.facing, moving, 1.4)) return;
+  } else if(drawSprite(frames, x, gy, dh, opts.walkPhase, opts.facing, moving, 1.4)) return;
   // ---- fallback: original vector figure (used until sprites load) ----
   const bob=Math.abs(Math.sin(opts.walkPhase))*3; const y=gy-bob;
   ctx.save(); ctx.translate(x,0);
