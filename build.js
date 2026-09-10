@@ -14,6 +14,7 @@
 const fs = require('fs');
 const path = require('path');
 const DIR = __dirname;
+const SRC = path.join(DIR, 'src');   // source modules live in src/; bundle is written to root
 
 // dependency-ordered module list (same order as the old <script> tags)
 const MODULES = [
@@ -37,14 +38,14 @@ function minify(src) {
 }
 
 // read version from config.js so the bundle self-reports and index.html can match
-const configSrc = fs.readFileSync(path.join(DIR, 'config.js'), 'utf8');
+const configSrc = fs.readFileSync(path.join(SRC, 'config.js'), 'utf8');
 const vm = configSrc.match(/GAME_VERSION\s*=\s*['"]([^'"]+)['"]/);
 const version = vm ? vm[1] : 'dev';
 
-let bundle = `/* game.bundle.js — BUILT ARTIFACT (do not edit). Run \`node build.js\` after editing modules. v${version} */\n`;
+let bundle = `/* game.bundle.js — BUILT ARTIFACT (do not edit). Run \`node build.js\` after editing src/ modules. v${version} */\n`;
 let rawTotal = 0;
 for (const m of MODULES) {
-  const src = fs.readFileSync(path.join(DIR, m), 'utf8');
+  const src = fs.readFileSync(path.join(SRC, m), 'utf8');
   rawTotal += Buffer.byteLength(src);
   bundle += `\n/* ==== ${m} ==== */\n` + minify(src);
 }
