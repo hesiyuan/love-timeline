@@ -151,30 +151,69 @@ const LAYER_DRAW = {
   // theme-park castles
   castles(base, gy, pal, o){ castle(base+180, gy); castle(base+W*0.62, gy); },
   // cozy winter city: snow-topped buildings + a few bare trees
-  // Vancouver-style winter skyline: many slim glass towers of varied heights with a
-  // few tall standouts, snow caps + lit windows. Deterministic per-tile so it tiles seamlessly.
+  // Vancouver-style winter skyline: towers packed ADJACENT (continuous block), colors
+  // alternating across a palette, each tower one of three styles — glassy, brutalist
+  // (grotesque), or creative (varied rooflines). Deterministic per-index so tiles wrap.
   winterCity(base, gy, pal, o){
-    const col = o.color || pal.far;
-    const dark = 'rgba(0,0,0,0.10)';        // shaded right face for depth
-    const lit = o.lit || 'rgba(255,236,180,0.6)';
-    const N = o.count || 13;                 // towers per tile (dense)
-    const slot = W / N;
-    for(let i=0;i<N;i++){
-      // deterministic pseudo-random from index so every tile matches (seamless wrap)
-      const r1 = ((i*73)%100)/100, r2 = ((i*149)%100)/100, r3 = ((i*211)%100)/100;
-      const bw = Math.round(36 + r1*30);              // slim towers (36–66 wide)
-      let bh = Math.round(150 + r2*140);              // 150–290
-      if(i % 5 === 2) bh = Math.round(300 + r3*140);  // standout tower 300–440
-      const bx = Math.round(base + i*slot + (slot-bw)/2);
+    // tower body color palette (cool winter glass/concrete tones), cycled per index
+    const PAL = ['#8f9bb0', '#7c8aa2', '#a2adc0', '#6f7d95', '#97a2b6'];
+    const GLASS = '#8fb2d6';                 // glassy tint
+    const BRUT  = '#5f6473';                 // grotesque/brutalist concrete
+    const snow  = 'rgba(255,255,255,0.92)';
+    const dark  = 'rgba(0,0,0,0.12)';
+    const lit   = o.lit || 'rgba(255,236,180,0.6)';
+    const glassWin = 'rgba(190,225,255,0.5)';
+
+    let x = base;                            // walk left→right, no gaps (adjacent)
+    let i = 0;
+    while(x < base + W){
+      const r1=((i*73)%100)/100, r2=((i*149)%100)/100, r3=((i*211)%100)/100, r4=((i*307)%100)/100;
+      const bw = Math.round(44 + r1*40);              // 44–84 wide
+      let bh = Math.round(160 + r2*150);              // 160–310
+      if(i % 4 === 1) bh = Math.round(320 + r3*150);  // standout 320–470
+      const style = i % 3;                             // 0 glassy, 1 brutalist, 2 creative
       const topY = gy - bh;
-      ctx.fillStyle = col; ctx.fillRect(bx, topY, bw, bh);                                  // body
-      ctx.fillStyle = dark; ctx.fillRect(bx + Math.round(bw*0.66), topY, Math.round(bw*0.34), bh); // shaded face
-      ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.fillRect(bx-2, topY-4, bw+4, 6);         // snow cap
-      if(i % 5 === 2){ ctx.fillStyle = col; ctx.fillRect(bx + Math.round(bw/2) - 1, topY-16, 2, 14); } // antenna
-      ctx.fillStyle = lit;                                                                  // lit windows
-      for(let wy = topY+12; wy < gy-14; wy += 14)
-        for(let wx = bx+6; wx < bx+bw-6; wx += 10)
-          if(((wx*3 + wy*7 + i*13) % 5) < 2) ctx.fillRect(wx, wy, 5, 7);
+
+      if(style === 0){
+        // GLASSY: blue tint, shaded right, dense large window grid
+        ctx.fillStyle = GLASS; ctx.fillRect(x, topY, bw, bh);
+        ctx.fillStyle = dark; ctx.fillRect(x + Math.round(bw*0.62), topY, Math.round(bw*0.38), bh);
+        ctx.fillStyle = glassWin;
+        for(let wy=topY+10; wy<gy-12; wy+=12) for(let wx=x+5; wx<x+bw-5; wx+=9) ctx.fillRect(wx,wy,6,8);
+        ctx.fillStyle = snow; ctx.fillRect(x-1, topY-4, bw+2, 5);
+      } else if(style === 1){
+        // BRUTALIST/GROTESQUE: dark blocky concrete, stepped shoulders, sparse slit windows
+        ctx.fillStyle = BRUT; ctx.fillRect(x, topY, bw, bh);
+        ctx.fillStyle = 'rgba(0,0,0,0.16)'; ctx.fillRect(x + Math.round(bw*0.7), topY, Math.round(bw*0.3), bh);
+        // blocky shoulder setbacks
+        ctx.fillStyle = BRUT; ctx.fillRect(x-4, topY+Math.round(bh*0.18), bw+8, Math.round(bh*0.10));
+        ctx.fillStyle = lit;
+        for(let wy=topY+18; wy<gy-16; wy+=20) for(let wx=x+8; wx<x+bw-8; wx+=14)
+          if(((wx+wy+i)|0)%3===0) ctx.fillRect(wx,wy,4,10);   // tall slit windows
+        ctx.fillStyle = snow; ctx.fillRect(x-1, topY-3, bw+2, 4);
+      } else {
+        // CREATIVE: palette color + a varied roofline (spire / stepped / tapered crown)
+        ctx.fillStyle = PAL[i % PAL.length]; ctx.fillRect(x, topY, bw, bh);
+        ctx.fillStyle = dark; ctx.fillRect(x + Math.round(bw*0.66), topY, Math.round(bw*0.34), bh);
+        const roof = i % 3;   // reuse index for roof variety
+        if(r4 < 0.34){        // spire
+          ctx.fillStyle = PAL[i % PAL.length];
+          ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x+bw/2, topY-Math.round(bw*0.7)); ctx.lineTo(x+bw, topY); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = snow; ctx.fillRect(x+Math.round(bw/2)-1, topY-Math.round(bw*0.7), 2, Math.round(bw*0.3));
+        } else if(r4 < 0.67){ // stepped crown
+          ctx.fillStyle = PAL[i % PAL.length]; ctx.fillRect(x+Math.round(bw*0.2), topY-Math.round(bh*0.08), Math.round(bw*0.6), Math.round(bh*0.08));
+          ctx.fillStyle = snow; ctx.fillRect(x+Math.round(bw*0.2)-1, topY-Math.round(bh*0.08)-3, Math.round(bw*0.6)+2, 4);
+        } else {              // tapered top (trapezoid cap)
+          ctx.fillStyle = PAL[i % PAL.length];
+          ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x+Math.round(bw*0.2), topY-Math.round(bh*0.1)); ctx.lineTo(x+Math.round(bw*0.8), topY-Math.round(bh*0.1)); ctx.lineTo(x+bw, topY); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = snow; ctx.fillRect(x+Math.round(bw*0.2), topY-Math.round(bh*0.1)-3, Math.round(bw*0.6), 4);
+        }
+        ctx.fillStyle = lit;
+        for(let wy=topY+12; wy<gy-14; wy+=14) for(let wx=x+6; wx<x+bw-6; wx+=10)
+          if(((wx*3+wy*7+i*13)%5)<2) ctx.fillRect(wx,wy,5,7);
+      }
+      x += bw;   // ADJACENT — next tower butts against this one
+      i++;
     }
   },
   // ferry: distant coastline + sailboats
