@@ -130,9 +130,9 @@ function drawSprite(frames, x, gy, displayH, walkPhase, facing, moving, speedMul
   const w = img.naturalWidth*scale, h=displayH;
   ctx.save();
   ctx.imageSmoothingEnabled=false; // crisp pixel art
-  ctx.translate(Math.round(x), Math.round(gy - bob));
+  ctx.translate(x, gy - bob);
   if(facing<0) ctx.scale(-1,1);
-  ctx.drawImage(img, Math.round(-w/2), Math.round(-h), Math.round(w), Math.round(h));
+  ctx.drawImage(img, -w/2, -h, w, h);
   ctx.restore();
   return true;
 }
