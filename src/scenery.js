@@ -151,14 +151,30 @@ const LAYER_DRAW = {
   // theme-park castles
   castles(base, gy, pal, o){ castle(base+180, gy); castle(base+W*0.62, gy); },
   // cozy winter city: snow-topped buildings + a few bare trees
+  // Vancouver-style winter skyline: many slim glass towers of varied heights with a
+  // few tall standouts, snow caps + lit windows. Deterministic per-tile so it tiles seamlessly.
   winterCity(base, gy, pal, o){
-    const col=o.color||pal.far;
-    for(let i=0;i<6;i++){ const bx=base+50+i*((W-80)/6); const bh=150+((i%2)*34);
-      ctx.fillStyle=col; roundRect(bx,gy-bh,100,bh,6); ctx.fill();
-      ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(bx-2,gy-bh-4,104,8);   // snow cap
-      ctx.fillStyle=o.lit||'rgba(255,236,180,0.55)';
-      for(let wy=gy-bh+14; wy<gy-16; wy+=16) for(let wx=bx+10; wx<bx+90; wx+=16)
-        if(((wx*wy)|0)%2===0) ctx.fillRect(wx,wy,7,8);
+    const col = o.color || pal.far;
+    const dark = 'rgba(0,0,0,0.10)';        // shaded right face for depth
+    const lit = o.lit || 'rgba(255,236,180,0.6)';
+    const N = o.count || 13;                 // towers per tile (dense)
+    const slot = W / N;
+    for(let i=0;i<N;i++){
+      // deterministic pseudo-random from index so every tile matches (seamless wrap)
+      const r1 = ((i*73)%100)/100, r2 = ((i*149)%100)/100, r3 = ((i*211)%100)/100;
+      const bw = Math.round(36 + r1*30);              // slim towers (36–66 wide)
+      let bh = Math.round(150 + r2*140);              // 150–290
+      if(i % 5 === 2) bh = Math.round(300 + r3*140);  // standout tower 300–440
+      const bx = Math.round(base + i*slot + (slot-bw)/2);
+      const topY = gy - bh;
+      ctx.fillStyle = col; ctx.fillRect(bx, topY, bw, bh);                                  // body
+      ctx.fillStyle = dark; ctx.fillRect(bx + Math.round(bw*0.66), topY, Math.round(bw*0.34), bh); // shaded face
+      ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.fillRect(bx-2, topY-4, bw+4, 6);         // snow cap
+      if(i % 5 === 2){ ctx.fillStyle = col; ctx.fillRect(bx + Math.round(bw/2) - 1, topY-16, 2, 14); } // antenna
+      ctx.fillStyle = lit;                                                                  // lit windows
+      for(let wy = topY+12; wy < gy-14; wy += 14)
+        for(let wx = bx+6; wx < bx+bw-6; wx += 10)
+          if(((wx*3 + wy*7 + i*13) % 5) < 2) ctx.fillRect(wx, wy, 5, 7);
     }
   },
   // ferry: distant coastline + sailboats
@@ -195,7 +211,7 @@ function deriveScenery(ev){
     ocean_ferry_cruise:    [ {kind:'hills',speed:0.2,opts:{h:70}}, {kind:'sailboats',speed:0.5} ],
     mountain_resort_vineyard:[ {kind:'mountains',speed:0.18,opts:{snow:true}}, {kind:'vineyard',speed:0.55} ],
     theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.45} ],
-    cozy_winter_city:      [ {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
+    cozy_winter_city:      [ {kind:'mountains',speed:0.12,opts:{color:'#c3ccdb',snow:true,peaks:[[0,520,220],[420,620,300],[900,560,240]]}}, {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
     cozy_indoor_care:      [ {kind:'indoorCare',speed:0.3} ],
     lakeside_trees_wedding:[ {kind:'mountains',speed:0.18,opts:{peaks:[[80,400,180]]}}, {kind:'hills',speed:0.28,opts:{h:90}}, {kind:'trees',speed:0.55,opts:{density:8}} ],
   };
