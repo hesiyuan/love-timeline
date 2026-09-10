@@ -2,18 +2,44 @@
    Canvas setup, mutable game state, world builders
    NOTE: loaded as a plain <script> sharing global scope; keep the load order in index.html. */
 
-/* ---------------- CANVAS SETUP ---------------- */
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
+/* ---------------- CANVAS SETUP (low-res pixel-art render buffer) ----------------
+   The whole scene is drawn to a small offscreen buffer at 1/PIXEL resolution, then
+   upscaled to the display canvas with smoothing OFF. This makes ALL procedural drawing
+   (gradients, curves, structures) render as chunky, grid-snapped pixels that match the
+   PNG sprites — no per-coordinate rounding needed. All game code keeps drawing in the
+   same logical W/H space; W/H are now the BUFFER dimensions, so groundY/camX/etc. adapt. */
+const displayCanvas = document.getElementById('c');
+const displayCtx = displayCanvas.getContext('2d');
+
+// offscreen low-res buffer the game actually draws into
+const buffer = document.createElement('canvas');
+const ctx = buffer.getContext('2d');
+
+const PIXEL = 3;                 // pixel chunkiness: bigger = chunkier (2–4 sensible)
 let W = 0, H = 0, DPR = 1;
+
 function resize(){
   DPR = Math.min(window.devicePixelRatio || 1, 2);
-  W = window.innerWidth; H = window.innerHeight;
-  canvas.width = W * DPR; canvas.height = H * DPR;
-  ctx.setTransform(DPR,0,0,DPR,0,0);
+  W = window.innerWidth; H = window.innerHeight;         // logical full-screen units (unchanged)
+  // display canvas fills the screen at device resolution
+  displayCanvas.width = Math.round(W * DPR);
+  displayCanvas.height = Math.round(H * DPR);
+  // low-res buffer = 1/PIXEL of logical size; game still draws in W/H coords via a scale
+  buffer.width = Math.max(1, Math.round(W / PIXEL));
+  buffer.height = Math.max(1, Math.round(H / PIXEL));
+  ctx.setTransform(1 / PIXEL, 0, 0, 1 / PIXEL, 0, 0);    // W/H logical -> buffer pixels
+  ctx.imageSmoothingEnabled = false;                     // crisp sprite upscales in the buffer
+  displayCtx.imageSmoothingEnabled = false;
 }
 window.addEventListener('resize', resize);
 resize();
+
+// blit the low-res buffer onto the display canvas, upscaled nearest-neighbor.
+function present(){
+  displayCtx.imageSmoothingEnabled = false;
+  displayCtx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
+  displayCtx.drawImage(buffer, 0, 0, buffer.width, buffer.height, 0, 0, displayCanvas.width, displayCanvas.height);
+}
 
 /* ---------------- STATE ---------------- */
 const state = {
