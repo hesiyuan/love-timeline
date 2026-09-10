@@ -5,10 +5,11 @@ for fast loading (1 HTTP request instead of 11). Zero dependencies — the build
 single Node script.
 
 ## Source vs built artifact
-- **Edit** the source modules: `config.js`, `state.js`, `input.js`, `audio.js`,
-  `helpers.js`, `ui.js`, `scenery.js`, `characters.js`, `effects.js`, `engine.js`,
-  and `sprites.js` (base64 sprite data). Also `timeline.json` (story data).
-- **Never hand-edit** `game.bundle.js` — it is generated.
+- **Edit** the source modules under **`src/`**: `src/config.js`, `src/state.js`,
+  `src/input.js`, `src/audio.js`, `src/helpers.js`, `src/ui.js`, `src/scenery.js`,
+  `src/characters.js`, `src/effects.js`, `src/engine.js`, and `src/sprites.js` (base64
+  sprite data). `timeline.json` (story data) stays at the repo root.
+- **Never hand-edit** `game.bundle.js` (repo root) — it is generated from `src/`.
 
 ## Build
 ```
@@ -20,8 +21,8 @@ global scope, so ordered concatenation is equivalent to the old separate <script
 (verified byte-identical, minus comments).
 
 ## Release checklist
-1. Edit the relevant source module(s) and/or `timeline.json`.
-2. Bump `GAME_VERSION` in `config.js`.
+1. Edit the relevant source module(s) under `src/` and/or `timeline.json`.
+2. Bump `GAME_VERSION` in `src/config.js`.
 3. Run `node build.js`.
 4. Update the `?v=X.Y.Z` on the `game.bundle.js` tag + the two `<link rel=preload>`
    hrefs in `index.html` to match the new version.
