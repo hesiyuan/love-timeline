@@ -8,23 +8,30 @@
 function groundY(){ return H*GROUND_RATIO; }
 
 function drawSky(pal){
-  const g=ctx.createLinearGradient(0,0,0,groundY());
-  g.addColorStop(0,pal.skyT); g.addColorStop(1,pal.skyB);
-  ctx.fillStyle=g; ctx.fillRect(0,0,W,groundY());
+  // Quantized sky: discrete horizontal bands between skyT and skyB (no smooth gradient),
+  // so the sky reads as chunky pixel-art color steps rather than a continuous ramp.
+  const gy = Math.round(groundY());
+  const BANDS = 6;
+  const bandH = Math.ceil(gy / BANDS);
+  for(let i=0;i<BANDS;i++){
+    ctx.fillStyle = mixHex(pal.skyT, pal.skyB, i/(BANDS-1));
+    ctx.fillRect(0, i*bandH, W, bandH);
+  }
 }
 
 function drawSun(pal, bg){
   // sun/moon position varies subtly with mood
   const warm = ['sunset','golden_hour','clear_day','sunny','bright_sunny','vibrant_daylight'];
   const isWarm = warm.includes(bg.weather);
-  const cx = W*0.78, cy = H*0.22;
+  const cx = Math.round(W*0.78), cy = Math.round(H*0.22);
   ctx.save();
-  const grad=ctx.createRadialGradient(cx,cy,10,cx,cy,120);
-  grad.addColorStop(0, isWarm?'rgba(255,240,200,0.95)':'rgba(230,240,255,0.85)');
-  grad.addColorStop(1,'rgba(255,240,200,0)');
-  ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(cx,cy,120,0,7); ctx.fill();
+  // quantized glow: 3 flat concentric discs instead of a smooth radial gradient
+  const glow = isWarm ? ['rgba(255,240,200,0.12)','rgba(255,240,200,0.22)','rgba(255,240,200,0.4)']
+                      : ['rgba(230,240,255,0.10)','rgba(230,240,255,0.18)','rgba(230,240,255,0.32)'];
+  const radii = [Math.round(H*0.16), Math.round(H*0.11), Math.round(H*0.07)];
+  for(let i=0;i<radii.length;i++){ ctx.fillStyle=glow[i]; ctx.beginPath(); ctx.arc(cx,cy,radii[i],0,7); ctx.fill(); }
   ctx.fillStyle= isWarm?'#fff3cf':'#eef3ff';
-  ctx.beginPath(); ctx.arc(cx,cy,34,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,Math.round(H*0.045),0,7); ctx.fill();
   ctx.restore();
 }
 
@@ -249,11 +256,10 @@ function sailboat(x,y){ ctx.fillStyle='rgba(255,255,255,0.8)';
 function drawPlane(x, y, ang, s, t){
   ctx.save();
   ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s, s);
-  // contrail (only once climbing)
+  // contrail (only once climbing) — quantized into discrete fading segments
   if(t > 0.2){
-    const g=ctx.createLinearGradient(-16,0,-90,0);
-    g.addColorStop(0,'rgba(255,255,255,0.5)'); g.addColorStop(1,'rgba(255,255,255,0)');
-    ctx.fillStyle=g; ctx.fillRect(-90,-2,78,4);
+    const segs=[['rgba(255,255,255,0.5)',-16,-38],['rgba(255,255,255,0.28)',-38,-64],['rgba(255,255,255,0.12)',-64,-90]];
+    for(const [col,x0,x1] of segs){ ctx.fillStyle=col; ctx.fillRect(x1,-2,x0-x1,4); }
   }
   // fuselage
   ctx.fillStyle='#eef2f7';
@@ -280,10 +286,10 @@ function drawGround(pal, bg){
   ctx.fillRect(0,gy,W,H-gy);
   // water surface for ferry
   if(bg.backgroundType==='ocean_ferry_cruise'){
-    const g=ctx.createLinearGradient(0,gy,0,H);
-    g.addColorStop(0,'#5b86a8'); g.addColorStop(1,'#385f7d');
-    ctx.fillStyle=g; ctx.fillRect(0,gy,W,H-gy);
-    ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2;
+    // quantized water: discrete bands instead of a smooth gradient
+    const WB=5, wbH=Math.ceil((H-gy)/WB);
+    for(let i=0;i<WB;i++){ ctx.fillStyle=mixHex('#5b86a8','#385f7d', i/(WB-1)); ctx.fillRect(0, gy+i*wbH, W, wbH); }
+    ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1;
     for(let i=0;i<10;i++){ const y=gy+18+i*22 + Math.sin(state.time*0.05+i)*3;
       ctx.beginPath(); ctx.moveTo(0,y); for(let x=0;x<=W;x+=40){ ctx.lineTo(x, y+Math.sin((x+state.camX)*0.02+i)*3);} ctx.stroke(); }
   } else {
@@ -333,11 +339,10 @@ function drawCollectibles(){
     if(sx<-60||sx>W+60) continue;
     c.float += 0.05;
     const fy = gy-70 + Math.sin(c.float)*8;
-    // glow
+    // glow (quantized: two flat discs instead of a radial gradient)
     ctx.save();
-    const g=ctx.createRadialGradient(sx,fy,2,sx,fy,34);
-    g.addColorStop(0,'rgba(255,215,150,0.55)'); g.addColorStop(1,'rgba(255,215,150,0)');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sx,fy,34,0,7); ctx.fill();
+    ctx.fillStyle='rgba(255,215,150,0.18)'; ctx.beginPath(); ctx.arc(sx,fy,Math.round(34),0,7); ctx.fill();
+    ctx.fillStyle='rgba(255,215,150,0.35)'; ctx.beginPath(); ctx.arc(sx,fy,Math.round(20),0,7); ctx.fill();
     ctx.restore();
     drawIcon(c.data.collectible.icon, sx, fy);
   }
