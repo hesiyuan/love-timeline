@@ -129,7 +129,8 @@ const LAYER_DRAW = {
     // 2) glass curtain wall showing the tarmac/apron + parked planes beyond
     //    floor-to-ceiling: from just under the ceiling band down to the floor line
     const gx0 = base+250, gx1 = base+W-250, gTop = topWall+24, gBot = gy;
-    airportGlassWall(gx0, gTop, gx1-gx0, gBot-gTop);
+    const wthr = (gameTimeline[state.currentEvent]||{}).weather;
+    airportGlassWall(gx0, gTop, gx1-gx0, gBot-gTop, wthr);
 
     // 3) interior tiled floor
     ctx.fillStyle = '#cfd6de'; ctx.fillRect(base, gy, W, H-gy);
@@ -389,35 +390,80 @@ function drawPlane(x, y, ang, s, t){
 
 // glass curtain wall showing sky + tarmac apron + parked planes beyond, with mullions
 function airportGlassWall(x, y, w, h){
+function airportGlassWall(x, y, w, h, weather){
   ctx.save();
-  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();   // keep everything inside the window
-  // bright daylight sky (clear outside view)
-  const horizon = y + Math.round(h*0.52);
-  ctx.fillStyle = '#cfe6fb'; ctx.fillRect(x, y, w, horizon-y);              // sky
-  ctx.fillStyle = '#eaf4ff'; ctx.fillRect(x, horizon-Math.round(h*0.08), w, Math.round(h*0.08)); // horizon haze
-  // a few soft clouds outside
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();   // everything stays inside the window
+  const horizon = y + Math.round(h*0.42);
+  const overcast = (weather==='gentle_rain' || weather==='snow_light' || weather==='cloudy_coastal');
+  // sky (dimmer if overcast)
+  ctx.fillStyle = overcast ? '#c2ccd6' : '#cfe6fb'; ctx.fillRect(x, y, w, horizon-y);
+  ctx.fillStyle = overcast ? '#d4dbe2' : '#eaf4ff'; ctx.fillRect(x, horizon-Math.round(h*0.06), w, Math.round(h*0.06));
+  // drifting clouds (animate so the window feels alive)
   ctx.fillStyle='rgba(255,255,255,0.85)';
-  for(let cx=x+30; cx<x+w-20; cx+=Math.round(w/3)){ const cy=y+Math.round(h*0.16);
-    ctx.beginPath(); ctx.arc(cx,cy,10,0,7); ctx.arc(cx+12,cy+3,8,0,7); ctx.arc(cx-10,cy+3,7,0,7); ctx.fill(); }
-  // distant treeline + grass, then tarmac
-  ctx.fillStyle = '#7fa06a'; ctx.fillRect(x, horizon, w, Math.round(h*0.10));
-  ctx.fillStyle = '#5a6169'; ctx.fillRect(x, horizon+Math.round(h*0.10), w, y+h-(horizon+Math.round(h*0.10)));
-  ctx.fillStyle='rgba(255,255,255,0.5)';
-  for(let rx=x+10; rx<x+w-16; rx+=48) ctx.fillRect(rx, horizon+Math.round(h*0.30), 24, 3);   // runway dashes
-  // parked planes beyond the glass
-  tarmacPlane(x+Math.round(w*0.30), horizon+Math.round(h*0.22), 1.0, '#e8edf2', '#3a78c0');
-  tarmacPlane(x+Math.round(w*0.66), horizon+Math.round(h*0.34), 0.8, '#f2ede8', '#e08a3a');
-  // GLASS: faint blue tint + bright diagonal reflection streaks
-  ctx.fillStyle = 'rgba(190,220,250,0.10)'; ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = 10;
-  for(let d=-h; d<w; d+=Math.round(w/4)){ ctx.beginPath(); ctx.moveTo(x+d, y+h); ctx.lineTo(x+d+h, y); ctx.stroke(); }
+  for(let k=0;k<3;k++){ const cx=x+((k*Math.round(w/3)+Math.round(state.time*0.2))%(w+60))-30; const cy=y+Math.round(h*0.13)+k*8;
+    ctx.beginPath(); ctx.arc(cx,cy,9,0,7); ctx.arc(cx+11,cy+3,7,0,7); ctx.arc(cx-9,cy+3,6,0,7); ctx.fill(); }
+  // treeline + apron tarmac (no runway)
+  ctx.fillStyle = '#7fa06a'; ctx.fillRect(x, horizon, w, Math.round(h*0.08));
+  ctx.fillStyle = '#6b7178'; ctx.fillRect(x, horizon+Math.round(h*0.08), w, y+h-(horizon+Math.round(h*0.08)));
+  // yellow apron lead-in lines
+  ctx.strokeStyle='rgba(240,210,90,0.7)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x+Math.round(w*0.1), y+h); ctx.lineTo(x+Math.round(w*0.4), horizon+Math.round(h*0.14)); ctx.stroke();
+  // parked plane being serviced + GROUND OPS
+  tarmacPlane(x+Math.round(w*0.44), horizon+Math.round(h*0.18), 1.0, '#e8edf2', '#3a78c0');
+  apronTug(x+Math.round(w*0.30), horizon+Math.round(h*0.34));
+  baggageCarts(x+Math.round(w*0.58), horizon+Math.round(h*0.42));
+  groundCrew(x+Math.round(w*0.18), horizon+Math.round(h*0.44));
+  groundCrew(x+Math.round(w*0.72), horizon+Math.round(h*0.46));
+  // WEATHER through the glass, consistent with the scene
+  if(weather==='gentle_rain'){
+    ctx.strokeStyle='rgba(200,220,240,0.5)'; ctx.lineWidth=1;
+    for(let i=0;i<60;i++){ const rx=x+((i*53+state.time*6)%w); const ry=y+((i*97+state.time*9)%h);
+      ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx-2,ry+8); ctx.stroke(); }
+  } else if(weather==='snow_light'){
+    ctx.fillStyle='rgba(255,255,255,0.9)';
+    for(let i=0;i<50;i++){ const sx=x+((i*61+Math.sin(state.time*0.02+i)*20+w)%w); const sy=y+((i*83+state.time*2)%h);
+      ctx.beginPath(); ctx.arc(sx,sy,1.5,0,7); ctx.fill(); }
+  }
+  // subtle glass sheen (transparent, not painted-on)
+  ctx.fillStyle = 'rgba(190,220,250,0.08)'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 14;
+  ctx.beginPath(); ctx.moveTo(x+Math.round(w*0.15), y+h); ctx.lineTo(x+Math.round(w*0.15)+h, y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+Math.round(w*0.6), y+h); ctx.lineTo(x+Math.round(w*0.6)+h, y); ctx.stroke();
   ctx.restore();
-  // mullions + frame (drawn over, outside the clip)
+  // mullions + frame (over the clip)
   ctx.fillStyle = '#9aa7b4';
-  for(let mx=x; mx<=x+w; mx+=Math.round(w/8)) ctx.fillRect(mx-2, y, 4, h);   // vertical mullions
-  ctx.fillRect(x, y+Math.round(h*0.5)-2, w, 4);                              // transom
+  for(let mx=x; mx<=x+w; mx+=Math.round(w/8)) ctx.fillRect(mx-2, y, 4, h);
   ctx.fillStyle = '#7f8b98';
-  ctx.fillRect(x-4, y-4, w+8, 6); ctx.fillRect(x-4, y+h-2, w+8, 6);          // frame top/bottom
+  ctx.fillRect(x-4, y-4, w+8, 6); ctx.fillRect(x-4, y+h-2, w+8, 6);
+}
+
+// pushback tug (small tractor) on the apron
+function apronTug(x, y){
+  x=Math.round(x); y=Math.round(y);
+  ctx.fillStyle='#d8dde2'; ctx.fillRect(x-16, y-8, 32, 10);
+  ctx.fillStyle='#c2c8ce'; ctx.fillRect(x-6, y-15, 16, 8);
+  ctx.fillStyle='rgba(150,200,235,0.85)'; ctx.fillRect(x-4, y-13, 12, 5);
+  ctx.fillStyle='#2a2a2a'; ctx.beginPath(); ctx.arc(x-10,y+2,4,0,7); ctx.arc(x+10,y+2,4,0,7); ctx.fill();
+  ctx.strokeStyle='#555'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x+16,y-3); ctx.lineTo(x+30,y-3); ctx.stroke();
+}
+// train of baggage carts loaded with luggage
+function baggageCarts(x, y){
+  x=Math.round(x); y=Math.round(y);
+  const cols=['#b03b3b','#3b6bb0','#3b9f6b','#b0913b'];
+  for(let c=0;c<3;c++){ const cx=x+c*30;
+    ctx.fillStyle='#8a8f96'; ctx.fillRect(cx, y-6, 26, 8);
+    ctx.fillStyle='#2a2a2a'; ctx.beginPath(); ctx.arc(cx+5,y+3,3,0,7); ctx.arc(cx+21,y+3,3,0,7); ctx.fill();
+    ctx.fillStyle=cols[c%4]; ctx.fillRect(cx+3, y-14, 9, 8);
+    ctx.fillStyle=cols[(c+1)%4]; ctx.fillRect(cx+14, y-12, 8, 6);
+  }
+}
+// a ground-crew worker in a hi-vis vest
+function groundCrew(x, y){
+  x=Math.round(x); y=Math.round(y);
+  ctx.fillStyle='#39406a'; ctx.fillRect(x-3, y-8, 2, 8); ctx.fillRect(x+1, y-8, 2, 8);
+  ctx.fillStyle='#f2c33a'; ctx.fillRect(x-4, y-18, 8, 10);
+  ctx.fillStyle='#f2c39a'; ctx.fillRect(x-3, y-24, 6, 6);
+  ctx.fillStyle='#e06a2a'; ctx.fillRect(x-4, y-25, 8, 3);
 }
 
 // small parked airliner seen through the glass (simple side view on the apron)
