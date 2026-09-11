@@ -116,17 +116,22 @@ function render(){
   const gy=groundY();
   ambientHearts(gy);
 
+  // On the ferry segment, the walking surface rises up the ramp / onto the deck / down the
+  // far ramp — so the couple's feet-Y follows ferryFloorY(progress) instead of the ground.
+  const onFerry = bg.backgroundType==='ocean_ferry_cruise';
+  const floorY = onFerry ? ferryFloorY(state.ferryProgress||0, gy) : gy;
+
   // party — draw trailing members behind hero
   const heroScreenX = state.hero.x - state.camX;
   const walk = state.hero.phase;
   const moving = state.moving;
   const face = state.hero.facing;
   if(state.creamyActive){
-    drawCreamy(heroScreenX - 118, gy, walk*1.1, face, moving);
+    drawCreamy(heroScreenX - 118, floorY, walk*1.1, face, moving);
   }
   if(state.wifeJoined){
     // joined: wife trails the husband as a normal party member
-    drawHuman(heroScreenX - 62, gy, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
+    drawHuman(heroScreenX - 62, floorY, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
       dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
   } else {
     // pre-placed: wife stands still at the airport meet point, facing LEFT toward the husband
@@ -137,7 +142,7 @@ function render(){
     }
   }
   // hero
-  drawHuman(heroScreenX, gy, {who:'husband', skin:'#f2c39a', shirt:'#4a7fc0', pants:'#2f3a5c', hair:'#241a14',
+  drawHuman(heroScreenX, floorY, {who:'husband', skin:'#f2c39a', shirt:'#4a7fc0', pants:'#2f3a5c', hair:'#241a14',
     walkPhase:walk, facing:face, moving});
 
   drawParticles();
