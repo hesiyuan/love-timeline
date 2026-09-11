@@ -33,7 +33,8 @@ function loadSprites(){
   }
   if(pending===0) SPRITE_IMGS.ready=true;
 }
-const NPC_IDS = ['npc1','npc2','npc3','npc4','npc5','npc6','npc7','npc8'];
+const NPC_IDS = ['npc1','npc2','npc3','npc4','npc5','npc6','npc7','npc8'];  // regular travellers (seated crowd)
+const ATTENDANT_IDS = ['attendant1','attendant2'];                          // walking flight attendants
 
 // draw a SEATED NPC sprite (uses the dedicated sit frame), feet/seat at (x,gy)
 function drawNpcSit(id, x, gy, displayH, facing){
