@@ -425,21 +425,24 @@ const LAYER_DRAW = {
     const g=ctx.createLinearGradient(0,horizon,0,gy-70);
     g.addColorStop(0,'#bcd6dd'); g.addColorStop(1,'#a9c8cf');
     ctx.fillStyle=g; ctx.fillRect(0, horizon, W, (gy-70)-horizon);
-    // distant mountains behind the lake
-    ctx.fillStyle='#8fa9ad';
-    for(const mx of [0.1,0.4,0.72]){ const x=base+Math.round(W*mx);
-      ctx.beginPath(); ctx.moveTo(x-90, horizon+6); ctx.lineTo(x, horizon-30); ctx.lineTo(x+90, horizon+6); ctx.closePath(); ctx.fill(); }
-    // varied far-shore vegetation: rotate through distinct tree/bush/shrub silhouettes
-    // (deterministic per index so tiles wrap), with low shrubs filling the gaps between.
-    // Rooted at the SHORELINE (where the lake meets the lawn = gy-70) so trees stand on
-    // the far bank rather than floating in the sky. Their canopies rise up over the water.
+    // distant mountains: a DENSE layered ridge of many small overlapping peaks (not a few
+    // huge triangles). Fixed pixel spacing so wide screens get more peaks, not bigger gaps.
+    const ridgeY = horizon + 8;
+    ctx.fillStyle='#a2b6b9';                              // far, paler back ridge
+    for(let x=-40; x<W+40; x+=64){ const h=26+((x*7)%20);
+      ctx.beginPath(); ctx.moveTo(x-42, ridgeY); ctx.lineTo(x, ridgeY-h); ctx.lineTo(x+42, ridgeY); ctx.closePath(); ctx.fill(); }
+    ctx.fillStyle='#8fa9ad';                              // nearer, darker front ridge
+    for(let x=0; x<W+40; x+=88){ const h=34+((x*11)%26);
+      ctx.beginPath(); ctx.moveTo(x-52, ridgeY+4); ctx.lineTo(x, ridgeY-h); ctx.lineTo(x+52, ridgeY+4); ctx.closePath(); ctx.fill(); }
+    // varied far-shore vegetation rooted at the SHORELINE (gy-70) so trees stand on the far
+    // bank, not floating. FIXED ~58px spacing => a full, compact treeline on any width.
     const shoreY = gy - 70;
-    const kinds = ['round','conifer','willow','topiary','poplar'];
-    for(let i=0;i<11;i++){
-      const x = base + Math.round(i*(W/10));
-      shoreTree(x, shoreY, kinds[i % kinds.length], i);
-      // a small shrub tucked between trees for a fuller hedge line at the water's edge
-      shoreShrub(x + Math.round(W/20), shoreY-2, i);
+    const kinds = ['round','conifer','willow','topiary','poplar','round','topiary'];
+    const step = 58;
+    let idx=0;
+    for(let x=8; x<W+step; x+=step, idx++){
+      shoreShrub(x - Math.round(step*0.5), shoreY-2, idx*2+1);   // shrub between the trees
+      shoreTree(x, shoreY, kinds[idx % kinds.length], idx);
     }
     // subtle water shimmer lines
     ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=1;
@@ -591,7 +594,7 @@ function shoreTree(x, baseY, kind, seed){
   const g1 = GREENS[seed % GREENS.length];
   const g2 = GREENS[(seed+2) % GREENS.length];
   const TRUNK = '#6b4a2f';
-  const s = 0.85 + r1*0.5;                          // per-tree scale
+  const s = 0.7 + r1*0.35;                          // per-tree scale (compact, distant)
   ctx.fillStyle=g1;
   if(kind==='round'){
     // broad deciduous: overlapping canopy blobs on a short trunk
