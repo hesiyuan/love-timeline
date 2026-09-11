@@ -26,10 +26,17 @@ function updateHUD(){
   document.getElementById('hLoc').textContent = ev.location;
   document.getElementById('hItems').textContent = state.collected.size;
   document.getElementById('hTotal').textContent = gameTimeline.length;
-  let party='🧑';
-  if(state.wifeActive) party+=' 👩';
-  if(state.creamyActive) party+=' 🐕';
-  document.getElementById('hParty').textContent = party;
+  // show collected memories as their item PNG icons (in timeline order), not emojis
+  const box = document.getElementById('hParty');
+  let html = '';
+  gameTimeline.forEach((e, i) => {
+    if(state.collected.has(i)){
+      const key = e.collectible && e.collectible.icon;
+      const src = (typeof ITEM_ICONS!=='undefined') ? ITEM_ICONS[key] : null;
+      if(src) html += `<img class="hud-item" src="${src}" alt="${e.collectible.name}" title="${e.collectible.name}" width="20" height="20">`;
+    }
+  });
+  box.innerHTML = html;
   const prog = Math.min(1, heroWorldX()/(WORLD_W - SEGMENT_W*0.15));
   document.getElementById('pFill').style.width = (prog*100)+'%';
 }
