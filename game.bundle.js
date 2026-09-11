@@ -1,4 +1,4 @@
-/* game.bundle.js — BUILT ARTIFACT (do not edit). Run `node build.js` after editing src/ modules. v1.8.2 */
+/* game.bundle.js — BUILT ARTIFACT (do not edit). Run `node build.js` after editing src/ modules. v1.8.3 */
 
 /* ==== sprites.js ==== */
 const SPRITES={"husband": ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAyUlEQVR4nGNgIBEwogtI8vH9Rxd7/ukTXB0LumJdEwdMY88c+A/TxIismJVPBKdTfn96g2ITWMP/KyvAGBtbEupUJgYSARM2wWfHZmFlY2j4cGgXMherOCOyBMid1zpCMDRoVayBe5gFWbFqzxkGf6x2rEF1EkwxCHCcfoehXDd8FzxC4X44mCoIxthAW+QbOBslpsEm3Cxj4LqJJthQBmeixLS+gQHDxQsXUNTCxDBj+ZwoGCMnPhD7xzQnMIaJg3Whp1CYadjEAQU0bQHYt5+NAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAA1ElEQVR4nGNkQAOSfHz/0cWef/rECGOzoCvWNXFAV8/AcObAf5gmRmTFrHwiDLjA709vUGwCa/h/ZQUYY2NLQp3KxEAiYMIm+OzYLKxsDA0fDu1C5mIVZ0SWALnzWkcIhgatijVwD7MgK1btOcPgj9WONahOgikGAY7T7zCU64bvgkco3A8HUwXBGBtoi3wDZ6PENNiEm2UMXDfRBBvK4EyUmNY3MGC4eOECilqYGMzTWOMBJImSDNABOPrPiYIxcmoFsX9McwJjmDjYFPQkDTMdmzgA8vVymyLmCAMAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAxklEQVR4nGNgIBEwogtI8vH9Rxd7/ukTXB0LumJdEwdMY88c+A/TxIismJVPBKdTfn96g2ITWMP/KyvAGBtbEupUJgYSARM2wWfHZmFlY2j4cGgXMherOCOMAXPjtY4QDA1aFWvgHmaEKVbtOcPAcfodww9TIQwNHKffMVxe6QbWBHfSwVRBhp2zlMGS6KAt8g2cTXIoofhB38AAq6KLFy7A/YCSNGCSyACrIeDYPCcKxsiJD8T+Mc0JjGHi8FBCNgBmPTZxAAHbbUS7vx23AAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAA1klEQVR4nGNgIBEwogtI8vH9Rxd7/ukTXB0LumJdEwdMY88c+A/TxIismJVPBKdTfn96A7YJxYaHO9pwapCySsN0ErLEs2OzUPgwgOIkmCJsQMoqDewkJmTBD4d2YVX8AUkcJVhBtlzrCMHQoFWxBh60LMiKVXvOMPhjtWMNnMWErBgEOE6/w1CuG74LHqFwPxxMFQRjbKAt8g2cjRGsTDfLGLhuogk2lMGZKMGqb2DAcPHCBRS1MDHk9ARW/P+cKBgjJz4Q+8c0JzCGiYN1oadQmGnYxAGFfV/b2LcSYgAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAA0ElEQVR4nGNgIBEwInMk+fj+oyt4/ukTihoWZMW6Jg6YRp458B9ZEyNMMSufCE5n/P70Bm4T3IaHO9rgCqSs0hieHZsFZyMDJgYSARM2QZjp6GwUDR8O7WLABj6gicM9DaKvdYRgaNCqWIMStIzg4AzfxfDDVAirDbdLTMA0TBPYSTDFB1MFwRgZbN6wDIxhrgBr4Dj9DoyJAXA/6BsYYFVw8cIFFCfBAUiTh53dfxANwj+mOYExevqC6wJJPDvADmZLOfxEMQwjLcE04FKEDACL1FspE6pt7wAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAA2UlEQVR4nGNgIBEwInMk+fj+oyt4/ukTihoWZMW6Jg6YRp458B9ZEyNMMSufCE5n/P70Bm4T3IaHO9rgCqSs0hieHZsFZyMDJgYSARM2QZjp6GwUDR8O7WLABj6gicN9D/L4tY4QDA0CmZ1gWopfGexxFphi1Z4zDP5YbDiIxoc7ieP0O6xOck+7CzcdrgHEubzSDUMTiA8SR4k45OSgb2CA1ZaLFy7A2WA/3O8wYQhY8QdDEmbIswPsEI87/IR4+Mc0p/8gGj3xgfj/z4nC5eGC2FIpsiZkeQCfZmBgFTm9hgAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAyElEQVR4nGNgIBEwInMk+fj+oyt4/ukTihoWZMW6Jg6YRp458B9ZEyNMMSufCE5n/P70Bm4T3IaHO9rgCqSs0hieHZsFZyMDJgYSARM2QZjp6GwUDR8O7WLABj6gicN9D/L4tY4QDA1aFWtQgpYFpli15wyDP1Y71mB3EsfpdxhKD6YKMjz7eBclQsEaQFZeXumGohibARh+0DcwwFBw8cIFTD/AwIYICFex4gyYxmYAig3oks8OsINpKYefcFtQUiIyQDcApgEAwlNOZTRbAlIAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAzElEQVR4nGNgIBEwInMk+fj+oyt4/ukTihoWZMW6Jg6YRp458B9ZEyNMMSufCE5n/P70Bm4T3IaHO9rgCqSs0hieHZsFZyMDJgYSARM2QZjp6GwUDR8O7WLABj6gicM9DaKvdYRgaNCqWIMStIzg4AzfxfDDVAirDbdLTMA0TBPYSTDFB1MFwRgZbN6wDIxhrgBr4Dj9DoyJAXA/6BsYYFVw8cIFFCfBAUgTCP8/JwrGHnZ2YD56+sKZ+O53QDyrWHEGNZSwOQPdVGQNAFe0W00Pm5tQAAAAAElFTkSuQmCC"], "wife": ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA7ElEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8Igz4wO9Pb+A2sqBreLijDasmeY8qBkkGBrCNTMgSD6EapKzS4GLIbBhA0UQswKrp2bFZWNlYNX04tIsBGx9dHCX0fn96w3CtIwTDZK2KNQwweVBAwMNeko/v/0qDM1j9EH7BBCWCmdA1PH5wHENTj8BklNQC95PtQUEwxgbUFwij8OHJCAYWK8xlYGAAYQRoYShD4aP4Sd/AgOHihQsoCmBi6IkWrOH/OVEwRnY7iP1jmhMYI4vDgxzZEJipuMQBR6xt0kmTITYAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA8ElEQVR4nGNkgAJJPr7/uiYODNjA5TMHGJ5/+sQI47Oga9g5KQpDk3seAwPDmQP/YRoZQRpY+UTAkg93tDHgAvIeVQy/P70B28iETYGUVRpWNgxg1UQIYNX07NgsrGysmj4c2sWAjY8uDg4NSWhggDx6rSMEw2StijUMMHlQQMDDXpKP7/9KgzNY/RB+wQQlnpjQNTx+cBxDU4/AZLAaDD/ZHhQEY2xAfYEwCh+cIhiQwGKFuQwMDCCMAC0MZSh8FD/pGxgwXLxwAUUBTAzDT+gApABZEVYAsuX/OVEwRvYwiP1jmhMYI4vD4wndJnziAKVVcWRDp8XpAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA3UlEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRiwACmrNKxsGMCqiRDAqunZsVlY2Vg1fTi0iwEbH10cJfR+f3rDcK0jBMNkrYo14ICAhSBc00qDMwyPHxxnkFWwxNAEEi/5kIsIcpiE7UFBhqiHXmAF6EB9gTDhgGAgAOBJA+REfQMDrIouXriAkv7gaQ9ZATLAZRDYlv/nRMEYOaWD2D+mOYExsjg89JANgTkFlzgA4whrqdl4LeAAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA7klEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRjIACzoAlJWaWD62bFZKHyYa7BqegZVjM4H+QsGUJz34dAurM5BF0cJvd+f3jBc6wjB0KRVsQbsPFgIwsNeko/v/0qDM1htCr9gghLBTOgaHj84jqGpR2AySmqB+8n2oCAYYwPqC4RR+Biht1hhLgMDAwgjQAtDGQofxU/6BgYMFy9cQFEAE0NPtGAN/8+JgjGy20HsH9OcwBhZHB7kyIbATMUlDgDmj25M3NljAQAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA5UlEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRhwACmrNKxsvJrwAZyanh2bhZWNoenDoV1YDUAXhwc5CGhVrGG41sGAAUDisMBCCfIegckMsgqWmDoYGBjCL5iAaXiQwyRkoRpsDwqCMTLYvGEZGMOCHO68xw+OQ1leWG1DBvCkATJF38AAq6KLFy6gOA8FgDR62Nn9B9Eg/GOaExijJ2QUnSDJZwfYwWwph58oBmIkWGRNuBQiAwDNZVsXJcRdpAAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA8UlEQVR4nGNgIAMwwhiSfHz/dU0csCq6fOYAw/NPn+BqWdA17JwUhaHJPY+BgeHMgf8wjYwgDax8ImDJhzvacDpJ3qOK4fenN2AbmXApkrJKw8oGAZya8AGcmp4dm4WVjaHpw6FdWA1AFweHhiQ0MEAevdYRgqFJILOTQV7WHB4QKPG00uAMVptsDwqCaSl+ZczQe/zgOFZNy+S3wTWg+On5p0+MJR9yMTSC+CBx5BQB9xNMQN/AAKttFy9cgLPByQgE7neYMASs+IOhAGbQswPsEH85/EQEwo9pTv9BNLKtMLn/50Th8igS6IrRNSLLAwAqZW/5sxUupwAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA4UlEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRhwACmrNKxsvJrwAZyanh2bhZWNoenDoV1YDUAXRwm935/eMFzrCMHQpFWxBhwQsBCEh70kH9//lQZnsNoUfsEEJYJRnPf4wXEMDbYHBRmefbyLklrgmp5/+sRY8iEXRQM2Q+B+QnaivoEBhqKLFy6gOA+e9mBgQwRESLEC4j9shmDYhK7g2QF2MC3l8BNuG4omdIBuCEwTAPolXr79kVHSAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA4UlEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRhwACmrNKxsvJrwAZyanh2bhZWNoenDoV1YDUAXRwm935/eMFzrCMHQpFWxBhwQsBCEa+oRmMwgq2CJ1abwCyZgGh7kMAlZqAbbg4JgjAw2b1gGxrAgh6eIxw+OQ1leWG3D8BPMifoGBlgVXbxwAcV5KACkEYT/nxMFYw87OzAfPSFj6ERWcL8DEgCKFWdQbMG0DotmdKcBABK+ZBca1/txAAAAAElFTkSuQmCC"], "creamy": ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAn0lEQVR4nGNgwAM83d3+4+Pj1AQCIBqGYXyCGn/9+vMfBkBsZE1M2DRZmpv/X7pyHZgtI68KphVVNFDUMGHThMy/f+cGmH7y8DaDwTspuDwjNsULl69nUJARw+oFe1trhuMnTzKCNcH88O7Dl/+37j0Ds2EYJAbDMjIyqAED0gzCME0whcgGgORAGEMzSABdAYyGySGLoWhCl0A2HV0MAKn9u5/qC7OkAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAlElEQVR4nGNgIAA83d3+4+Pj1AQCIBqGYXyCGn/9+vMfBkBsmCYmXJoszc3/L125DsyWkVcF04oqGnB5JmSFMBrGhoH7d26A6ScPbzMYvJOCqwUzQM6Aabp17xkYg8SwYbBGEAECIPrdhy9YNYDEYVhGRgbhGpjVIEFkhegaUTTBAEwTiAbZikyDxGHOx6kZF41uKAANk9ohEi3a5wAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAlElEQVR4nGNgoBXwdHf7j4+PUxMIgGgYhvEJavz1689/GACxYZqYQISlufl/EIZpgPGXrlwH5svIq4JpRRUNhKkgBTDTYBpu3XsGxu8+fAGLI9taaZoAVsMI0wyit+7cy/Dm3ScGBRkxvF6wt7VGFZCRkQGbDrIJ2TYYH4RBarCaBtMMwjA2zOk4NSFrhmkC0dg0AQDFzaonHn4sdAAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAlUlEQVR4nGNgoBXwdHf7j4+PUxMIgGgYhvEJavz1689/GACxYZpYQISluTnchOMnTzLC+EtXrgOLycirMjx5eJtBUUWDQU9TCaIQpAhmGgiD+LfuPQPjdx++wMVhoNI0AayGEd3GhcvXMyjIiOH1gr2tNaqAjIwM2HSQTci2wfggDFKD1TSYZpgGmLNB4jg1YdOMSwMASveqenhsuVAAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAr0lEQVR4nGNgIAA83d3+4+Pj1AQCIBqGYXyCGn/9+vMfBkBsmCYmEGFpbo5hgqW5+f+lK9eB2TLyqmBaUUUDLs8EUnDsxAmwQpgB6Abdv3MDTD95eJvB4J0UQh7EADkDhEHsW/ee/X/34QtcDB2jGAziyMjIgDWhKwQZAsMgNXA/gsDxkycZQbSCjBjDl28/UDAPFwdYzZt3n3CHJMhEmE0wNswlMNvwaoQpQqdhAAASX71lV3zjMAAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAnUlEQVR4nGNgwAM83d3+4+Pj1AQCIBqGYXyCGn/9+vMfBkBsZE1M2DRZmpv/X7pyHZgtI68KphVVNFDUMMEUgjCMjazg/p0bYPrJw9sMBu+kEPIgBswpMANu3XsG5mPDKAbDNLz78AVDE0gMhmVkZLAHDEgCWTG6bSBDYZoZkTXdu/eA4cGTV2C+k50ZVsOfPHkC14NiG4hGNhkXAACJhb3fFS0UwgAAAABJRU5ErkJggg=="]};
@@ -7,7 +7,7 @@ const NPC_SPRITES={"npc1": ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAA
 const NPC_SIT={"npc1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAv0lEQVR4nGNkQAKSfHz/GbCA558+McLYjMgK3S2UsKln2HniHlwjXIOyDB8DPnD3ySewBiYGcoGNlsz/7+cWgDHIRmS2jZYMmAapY0K2EhfYvaQFzsbqpHsHJmFlY2i4f+IcMherOCOyBMidezsSMDQ4VyyAxwULsuLVCTYM727cYcAHmJAVg8ClJ28wFNW6aMAjF+4H64kLwRgbMMupQ/WDpUMW1jSEDo4fmEZBTINswWYTLnGG//9f/wdhQuIASBtmny6+LsAAAAAASUVORK5CYII=", "npc2": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA10lEQVR4nGNkQAKSfHz/GXCA558+McLYjMiKzU10cOlhOHnmClwzXBO/iAADIfDxzQewJiZ8TsIFWEAEP9QWkEkwsPPGRwZ3DX44H9klTMgmHJ1TAsYgwHOkGc6G0Vg1wQCyInQNGJoe3LrHgI2PLo4Seh/ffGBYWhaEYXJ01zqwn2Chx4IUcf/NJiYyTGTADm7ce8SI4jxJPj6wBhB4evMhhgbpLCeU1AL304aEGjDGBma4pWD6ydIhi+gIPn5gGiPWICcagGzDZSNOuf//X/8HYWya0OUAx0dpMW9AOW8AAAAASUVORK5CYII=", "npc3": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAwklEQVR4nGNkQAKSfHz/GbCA558+McLYjMgKT56YhE09g7lFHlwjXMPqZVkM+EBo1DSwBiYGEgELkhv/g0yBgZ03PjK4a/CD2VhtBznr/5UVYIyNLQn1J1YnPTs2CysbQ8OHQ7uQuVjFGZElQNZe6wjB0KBVsQYeFyzIim2DshjSTzHgBUzIikHg2ZNHGIqUzXzgkQv3w8r5xWCMDUyoikL1g6VDFtY0hA6OH5hGekzDAcgWbDbhEmf4///1fxAmJA4AWx1sjYeAircAAAAASUVORK5CYII=", "npc4": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA20lEQVR4nGNkQAKSfHz/QfR/Ng4GFSUlhjv37jEw/voBlnv+6RMjTB0jsmJlDS0GXODujWtwzXBN/9k4cGqA2/DrB1gTE8wWUgATiPgPtaUuyAiMQSaiszE0kQqwaqqNsMLKxqrp0asPDNj46OIoocf46wdDvBNmsC/cdw3sb1josYAEn3/6xCjJx/B/vVMCVj8sZLjG8OLNK0YU50ny8cE13HjyCENTu5oTPAGg+Ml8fS0YYwM6XSmYfrJ0yCI6go8fmMZIVjzBAcg2XDbilPv///V/EMamCV0OAH/HamQPZA1qAAAAAElFTkSuQmCC", "npc5": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAx0lEQVR4nGNkQAKSfHz/GbCA558+McLYjMgKz2+YgE09g2FAAVwjE0wQl2J0ORYY4xqDGgNJ4MW+ef9BToPhS8/+w9kvoHIgdUzI7gRZDbNe7MZ8rM5kwmYbssLzaJpQNDx4cA+rcx8gicPDFwRA7lw/IQ9DQ2DBJHhcsCArru2YwHDuB1ZLUJ0EUwwCN27cYkAHoQlZ8MiF+yEz0xeMsYG4ABs4G+wuS4csrGkIHRw/MA2RNEgGIFuw2YRLnOH//9f/QZiQOAADGmUzsOpBfwAAAABJRU5ErkJggg==", "npc6": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAAy0lEQVR4nGNkQAKSfHz/GXCA558+McLYjMiKl27YhksPQ3SAF1wzXFNtxwQGQqC5ogCsiQmfk3ABFhBRC7Ul044LTEtZpTE8OzYLhT390De4JiYGMgATNsFnUFvQ2Vg1fTi0iwEbH12cCRQazRUFYI5WxRqwAhiGaQCJIwN4hEny8f3fO0cPqx+cUy6hRC4TuoYrtz5gaJpYJoeSWuB+0gxdD8bYgJJVB6bzLB2yiI7g4wemMZIVT3AAsg2XjTjl/v9//R+EsWlClwMAdL9nTopIrfkAAAAASUVORK5CYII=", "npc7": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAnUlEQVR4nGNgGHSAEZkjycf3H13B80+fUNQwIituD1PBMLFy1R0UjSgaHOdswOqM/SkBcA1MyFbP0/nCAMIgBbgACy4JkEYYUEQSh9uADO6fWEJ8KO2dVYSiwDmtDyWkUJwE8nQLhpl9KDy4k2Bx8OjGDRQFyiUdKPEDtsrSIQsjwrCB4wemMWL1NFEAZAs2m3CJM/z///o/CBMSBwB2MUjbwZ2DEgAAAABJRU5ErkJggg==", "npc8": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAAs0lEQVR4nGNgGNSAEV1Ako/vP7rY80+fUNSxoCvWNXHANPrMgf/ImhmRNbDyieB00u9Pb+CamGCCrFANIEkQ3nLqLpyNDuCaYOD0kjowLXSmF84mqAkEkBVj0wgOiOefPjFKMjD8Bznxwa07GIqwakLWeOlRAgM6ePRkBiNW50ny8f2vTdjFcOPBDQxN6HEHNsHSIQsjQnGB4wemMWINCKIByDZcNuKU+///9X8QxqYJXQ4A6XdZ+gVmi9UAAAAASUVORK5CYII=", "attendant1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA+klEQVR4nGNkQAJyWl7/YWwxCTmGVy8eweUeXdvGCGOzgAhJPj64YhhA1oCs5vmnT4xgTSDgbiTGwMBwiwEnEBNj2HnuFZjJhM0WggCkKcFBBYy/n1sAxiAxdDZIHmYBEwMZgAmb4L0Dk7CysWq6f+IcAzY+ujg47CX5+P6DQg8UOns7EjBMdq5YwACTBwU5PMLeffqBEorXzGwYtE4dgfOF+DgYMWziVfMDC3z58IxhFcsnMDuJRwMu9v/VGbAtKJqefbwLViCtGs7AIyCF4rxlXREMvgFRqJosHbKIjuDjB6YxkhVPcACyDZeNOOX+/3/9H4SxaUKXAwD5+YMvmvaKdwAAAABJRU5ErkJggg==", "attendant2": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA+ElEQVR4nGNkQAJyWl7/YWwxCTmGVy8eweUeXdvGCGOzgAhJPj64YhhA1oCs5vmnT4xgTSCgLMPHwMBwiQEnkOFjuPvkE5jJhM0WggCkyUZLBowfrGoBY5AYOhskD7OAiYEMwIRN8PicMqxsrJru3brDgI2PLg4Oe0k+vv/K0NBZWhaEYXJ01zoGmDwoyOER9u7TD5RQvGZmw6B16gicL8THwYhhE6+aH1jgy4dnDKtYIPGRxKMBF/v/6gzYFhRNzz7eBSuQVg1n4BGQQnHesq4IBt+AKFRNlg5ZREfw8QPTGMmKJzgA2YbLRpxy//+//g/C2DShywEAMLKAW/XPg5QAAAAASUVORK5CYII="};
 
 /* ==== config.js ==== */
-const GAME_VERSION = '1.8.2';
+const GAME_VERSION = '1.8.3';
 const ITEM_ICONS={"ticket": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAqUlEQVR4nGNgGAWjYBSMgpEOGNEFNBR0/pNr2I0HVxgJ6QepQeazYFN0fZMPWQ44eUTgv7mNDU55Tb8tGGIsuBRX1i3DaVB7UxRWcYusI4z/L9mQFIJMDFQEJ6aRZjkIsJDqS3wAFgLT5+zCkMtMcRtiIUAOgIUALt/S3AEnoCGAHgX4HMRE7RAgVQ8LLUKAlChgGpQhoImlxCI2BMjVOwpGwSgYBSMXAABjrzp0ZgZRiwAAAABJRU5ErkJggg==", "water_bottle": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAkklEQVR4nGNgGAWjYKQDRlI1aCjo/Mcnf+PBFZLMZGEgAxiVzcEqfq4rZeiFABM1LSdWDUVRkLfpJF75SX7mDDQLAVoAJnI0ZepyDawDpl/+RjVHsJCj6cajNwz5jzDFNeRESDaLiWGAAdOoAxhGo2CAAdOoAxhGehSwkKOJnCJ30IYAIymKiW3tkNosGwUjGwAAJzgdY5kPaIsAAAAASUVORK5CYII=", "dog_bone": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAjUlEQVR4nGNgGAWjYBSMAiJAT0XAf1rpYyHGgMziWhAFZpd0bGAk1mJS9WEY8vX1WQxMyFek6mNiGGDAiE0Q5Fpo8GEF03ubccoR0oceFYy4FBNyBKkAm+UgMDijAEdqJgvAogtXLmBiGGDAiEtiZKeBHjpmQ5xgZJeE2LIhoexEDX0DUh2PglEwCkYBAIyaqRkpraBqAAAAAElFTkSuQmCC", "ship": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAu0lEQVR4nGNgGAWjYBQMMGCk1AAbG7f/MPaRI7tINo+JYYAB06gDGAYYsBCrUENB5z+pam48uMJINQeAwIkLJxmIBRYG5rSJgo4jz8EYH3tIpQFGYhWC4pfUKKB6GrAgMl5JAYy4JE7Y2BBM9aQAiyNHGAdlGmBB5kRNO4Hw9bISqlqEbPayLAvGQRMFLLg0JDz5AGcvkBEg22Jkc8jOhhpoRSw+B6FbSCgrMhLjAEIOIsXCUTAKRsGgAwAWyEFyx/IPNgAAAABJRU5ErkJggg==", "wine": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAvklEQVR4nGNgGAWjYKQDRlIUayjo/CdG3Y0HV4g2l5EUy3eeOEmUWncLc6IdwUSq5XJnLhNUD1JLbGgxMZAIHpnoMlATsBCr8KRDNAMtABMxikDxWffjDtGGgtRSNQ3QEjARq5DYUCDF9yQ5gBhHkGo5yQ7A5whyLKcIgPL5wxdfwZjYPD+0EyGtABPNTB51AJGAiWGkO4CFVA248jxMnNTCiJFUywm1ikhpDYHAgEcBI6kaCBW7dK0PRsGwAAC351jUsrV1lgAAAABJRU5ErkJggg==", "star": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAp0lEQVR4nGNgGAUUgBPTNP6D8IBZ/v9BFBhT4ggm6jqLTg44MU3jv7mXEZwPYpMbCiyELCLVYdjELbJuMOLSw0isLykBJ7edw+kIRmJ8RK5DQBaTHQKUOIQYi0lyACnRgi+4Kc4FFlk3GGG+o4blIEC0YmzRAHMMNjFiHcJIrOX4LMHlOKqkgRNIlhPyHbpDyIkSqlQ6A1pJjYJRMApGwSgYBaNgyAEAwcVxL1yWg+8AAAAASUVORK5CYII=", "scroll": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAjUlEQVR4nGNgGAWjYBQMMGDEJnhiQdR/WlhmkbAMwz4mhgEGTIMyCkBAQ0Hn/9lzqxmoAYyNQhluPLjCOChDgIUYRQu78skyPL5sInUcEE+EQeQCJobhGAXxJIQYC7UNJBUwMQznXEBM6LEwkGHIZb9KrOp0N7UzDLkoYBpoBzBiExytjkfBKBgFIwoAAFkEH2Db2x6BAAAAAElFTkSuQmCC", "heart": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAo0lEQVR4nO2VQQqAIBBFNTxM6w7humvUgeoarT2E625TVJsayuaPQgTzNqJ8/A8G1BhFUT7GckJD7Zfzvp+DzcmdcZzyrmno8UIv5+YoVlC+M8Z42adyKQlnEFp/rFN4LERxUHoKpjRV8RtLCvRzsHTWCG/zfxXIkeCUswQkEtxytgAigZRDAhwJtBwWSElIykUCdxLS8my2p5p+QIqiKMrvWAHvP2CUrB7jrgAAAABJRU5ErkJggg==", "rings": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAtklEQVR4nO2VwQ2DMAxF7Yg5ukG5dheYj87SXmGDTsAGRkZKJRDBdghCSH4XpJ/I/s4nAOA4juPckc9IVKpWZdlMfUPfRwevXzub4CfWb2R9vZd1TU3UNl4Izw5gaFWmJSPB2pwLMqlm64Zbp2MysFc86luaNoKwt5hyX0oXDURS00RdWi8SwVmEWxggIduc7FUG0JhtzrtQgZI4jeaeayb/mwND8xykm4CWYqlv/pF/geM4cDUToGpdWKlR9JkAAAAASUVORK5CYII="};
 let gameTimeline = [];
 const SEGMENT_W = 1400;                 // world px per timeline event
@@ -469,28 +469,19 @@ const LAYER_DRAW = {
     const p = state.ferryProgress || 0;
     const t = state.time;
     const horizon = gy - 170;
-    const bob = Math.sin(t*0.04)*2;
-    const F = ferryGeom(gy);                 // shared geometry (screen-X + Y for ramps/deck)
+    const path = ferryPath(gy);
     ctx.fillStyle='#6f9ec2'; ctx.fillRect(0, horizon, W, gy-horizon);
-    ctx.fillStyle='#5b86a8'; ctx.fillRect(0, gy-40, W, (H-(gy-40)));           // deeper foreground water
+    ctx.fillStyle='#5b86a8'; ctx.fillRect(0, gy-40, W, (H-(gy-40)));
     drawCoast(Math.round(W*0.15 - p*(W*1.5)), horizon, 300, 60, '#6f8f74', 'Departure Bay');
     drawCoast(Math.round(W*1.25 - p*(W*1.08)), horizon, 340, 72, '#5f8f7a', 'Nanaimo');
     ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2;
     for(let i=0;i<7;i++){ const wy=horizon+26+i*18 + Math.sin(t*0.05+i)*2;
       ctx.beginPath(); ctx.moveTo(0,wy); for(let x=0;x<=W;x+=46){ ctx.lineTo(x, wy+Math.sin((x+t*3)*0.03+i)*3);} ctx.stroke(); }
-    const dockLX = Math.round(F.dockLX - p*W*1.5);
-    if(dockLX > -260){
-      ctx.fillStyle='#8a8f96'; ctx.fillRect(dockLX-160, gy, 160, H-gy);        // dock slab
-      ctx.fillStyle='#6f747b'; ctx.fillRect(dockLX-160, gy, 160, 4);
-      ferryRampSlope(dockLX-10, gy, F.rampUpX0-(dockLX-10)+10, F.deckY+bob, '#b98a4a');
-    }
-    drawFerryHull(F, bob);
-    const dockRX = Math.round(F.dockRX + (1-p)*W*1.1);
-    if(dockRX < W+260){
-      ctx.fillStyle='#8a8f96'; ctx.fillRect(dockRX, gy, 180, H-gy);
-      ctx.fillStyle='#6f747b'; ctx.fillRect(dockRX, gy, 180, 4);
-      ferryRampSlope(F.rampDnX1, F.deckY+bob, dockRX-F.rampDnX1, gy, '#b98a4a');
-    }
+    ctx.fillStyle='#8a8f96'; ctx.fillRect(0, gy, path[1].x, H-gy);            // left dock up to ramp bottom
+    ctx.fillStyle='#6f747b'; ctx.fillRect(0, gy, path[1].x, 4);
+    ctx.fillStyle='#8a8f96'; ctx.fillRect(path[4].x, gy, W-path[4].x, H-gy);  // right dock from ramp bottom
+    ctx.fillStyle='#6f747b'; ctx.fillRect(path[4].x, gy, W-path[4].x, 4);
+    drawFerry(gy);
   },
   indoorCare(base, gy, pal, o){
     ctx.fillStyle=o.wall||'rgba(120,96,80,0.35)'; ctx.fillRect(base,gy-260,W,260);
@@ -571,70 +562,67 @@ function drawCoast(x, horizon, w, h, color, label){
   ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='bold 11px "Courier New",monospace';
   ctx.fillText(label, Math.round(x+w*0.3), Math.round(horizon-h*0.5));
 }
-function ferryGeom(gy){
-  return {
-    gy,
-    deckY: gy - 74,          // raised deck walking surface (feet-Y up on the ferry)
-    dockLX: Math.round(W*0.16),   // left dock right-edge (departure)
-    rampUpX0: Math.round(W*0.16), // boarding ramp bottom (screen X)
-    rampUpX1: Math.round(W*0.30), // boarding ramp top (onto deck)
-    rampDnX0: Math.round(W*0.70), // exit ramp top (leaving deck)
-    rampDnX1: Math.round(W*0.84), // exit ramp bottom (onto right dock)
-    dockRX: Math.round(W*0.84),   // right dock left-edge (Nanaimo)
-    hullX0: Math.round(W*0.16), hullX1: Math.round(W*0.84),
-  };
+function ferryPath(gy){
+  const bob = Math.sin((state.time||0)*0.04)*2;   // deck heave; applied to aboard points
+  const deckY = gy - 74 + bob;                     // raised deck surface
+  return [
+    { p:0.00, x:Math.round(W*0.02), y:gy },                 // left dock (walk on)
+    { p:0.14, x:Math.round(W*0.16), y:gy },                 // ramp bottom
+    { p:0.26, x:Math.round(W*0.30), y:deckY },              // ramp top (onto deck)
+    { p:0.74, x:Math.round(W*0.70), y:deckY },              // deck far end
+    { p:0.86, x:Math.round(W*0.84), y:gy },                 // exit ramp bottom
+    { p:1.00, x:Math.round(W*0.98), y:gy },                 // right dock (walk off)
+  ];
 }
-function ferryFloorX(p, gy){
-  const F=ferryGeom(gy);
-  const L=Math.round(W*0.06);        // left dock walk start
-  const R=Math.round(W*0.94);        // right dock walk end
-  if(p < 0.12){ const k=p/0.12; return Math.round(L + k*(F.rampUpX0-L)); }         // left dock
-  if(p < 0.24){ const k=(p-0.12)/0.12; return Math.round(F.rampUpX0 + k*(F.rampUpX1-F.rampUpX0)); } // up ramp
-  if(p < 0.78){ const k=(p-0.24)/0.54; return Math.round(F.rampUpX1 + k*(F.rampDnX0-F.rampUpX1)); }  // deck
-  if(p < 0.90){ const k=(p-0.78)/0.12; return Math.round(F.rampDnX0 + k*(F.rampDnX1-F.rampDnX0)); }  // down ramp
-  const k=(p-0.90)/0.10; return Math.round(F.rampDnX1 + k*(R-F.rampDnX1));         // right dock
+function pointOnFerryPath(p, gy){
+  const path=ferryPath(gy); p=Math.max(0,Math.min(1,p));
+  for(let i=0;i<path.length-1;i++){
+    const a=path[i], b=path[i+1];
+    if(p<=b.p){ const k=(p-a.p)/(b.p-a.p||1); return { x:Math.round(a.x+k*(b.x-a.x)), y:Math.round(a.y+k*(b.y-a.y)) }; }
+  }
+  const last=path[path.length-1]; return { x:last.x, y:last.y };
 }
-function ferryFloorY(p, gy){
-  const F=ferryGeom(gy); const bob=Math.sin((state.time||0)*0.04)*2;
-  if(p < 0.12) return gy;                                        // left dock
-  if(p < 0.24){ const k=(p-0.12)/0.12; return Math.round(gy + k*(F.deckY-gy)) + bob*k; } // up ramp
-  if(p < 0.78) return Math.round(F.deckY + bob);                 // on deck
-  if(p < 0.90){ const k=(p-0.78)/0.12; return Math.round(F.deckY + k*(gy-F.deckY)) + bob*(1-k); } // down ramp
-  return gy;                                                     // right dock
-}
-function drawFerryHull(F, bob){
-  const x0=F.hullX0, x1=F.hullX1, w=x1-x0, gy=F.gy, deckY=Math.round(F.deckY+bob);
-  const waterline = gy+8;
+function drawFerry(gy){
+  const path=ferryPath(gy);
+  const deckA=path[2], deckB=path[3];                 // the two deck nodes (flat top)
+  const rampUpA=path[1], rampUpB=path[2];             // boarding ramp
+  const rampDnA=path[3], rampDnB=path[4];             // exit ramp
+  const waterY=gy+6;
+  const hx0=deckA.x-40, hx1=deckB.x+40, deckY=deckA.y;
   ctx.fillStyle='#2f4a63';
   ctx.beginPath();
-  ctx.moveTo(x0-30, deckY+18);
-  ctx.lineTo(x1+30, deckY+18);
-  ctx.lineTo(x1+8, waterline+20);
-  ctx.lineTo(x0+8, waterline+20);
-  ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#243b50'; ctx.fillRect(x0-30, waterline+8, w+60, 6);   // waterline shadow
-  ctx.fillStyle='#d8dde4'; ctx.fillRect(x0-30, deckY, w+60, 18);
-  ctx.fillStyle='#b8c0c9'; ctx.fillRect(x0-30, deckY, w+60, 4);
-  ctx.fillStyle='#8a4a2a'; for(let x=x0-24; x<x1+30; x+=40) ctx.fillRect(x, deckY+8, 24, 2); // planks
-  ctx.fillStyle='#eef2f6'; ctx.fillRect(x0+w*0.30, deckY-42, w*0.44, 42);
-  ctx.fillStyle='#9fc2e0'; for(let wx=x0+w*0.33; wx<x0+w*0.70; wx+=22) ctx.fillRect(wx, deckY-34, 14, 12); // windows
-  ctx.fillStyle='#c94f3a'; ctx.fillRect(x0+w*0.60, deckY-70, 20, 30);   // funnel
-  ctx.fillStyle='#2f3a44'; ctx.fillRect(x0+w*0.60, deckY-70, 20, 6);
+  ctx.moveTo(hx0, deckY+16); ctx.lineTo(hx1, deckY+16);
+  ctx.lineTo(hx1-22, waterY+26); ctx.lineTo(hx0+22, waterY+26); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#243b50'; ctx.fillRect(hx0+18, waterY+18, (hx1-hx0)-36, 6);
+  ctx.fillStyle='#d8dde4'; ctx.fillRect(hx0, deckY, hx1-hx0, 16);
+  ctx.fillStyle='#b8c0c9'; ctx.fillRect(hx0, deckY, hx1-hx0, 4);
+  ctx.fillStyle='#8a4a2a'; for(let x=hx0+8; x<hx1; x+=38) ctx.fillRect(x, deckY+8, 22, 2);
+  const w=deckB.x-deckA.x;
+  ctx.fillStyle='#eef2f6'; ctx.fillRect(deckA.x+w*0.20, deckY-40, w*0.5, 40);
+  ctx.fillStyle='#9fc2e0'; for(let wx=deckA.x+w*0.24; wx<deckA.x+w*0.66; wx+=20) ctx.fillRect(wx, deckY-32, 12, 11);
+  ctx.fillStyle='#c94f3a'; ctx.fillRect(deckA.x+w*0.56, deckY-66, 18, 28);
+  ctx.fillStyle='#2f3a44'; ctx.fillRect(deckA.x+w*0.56, deckY-66, 18, 6);
+  ctx.fillStyle='#e05a4a'; ctx.beginPath(); ctx.arc(deckA.x+w*0.12, deckY-22, 7,0,7); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(deckA.x+w*0.12, deckY-22, 3.5,0,7); ctx.fill();
+  drawPlankAlong(rampUpA, rampUpB, '#b98a4a');
+  drawPlankAlong(rampDnA, rampDnB, '#b98a4a');
   ctx.strokeStyle='#9aa4ae'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(x0-30, deckY-14); ctx.lineTo(x1+30, deckY-14); ctx.stroke();
-  for(let x=x0-24; x<x1+30; x+=44){ ctx.beginPath(); ctx.moveTo(x, deckY-14); ctx.lineTo(x, deckY); ctx.stroke(); }
-  ctx.fillStyle='#e05a4a'; ctx.beginPath(); ctx.arc(x0+w*0.24, deckY-24, 8,0,7); ctx.fill();
-  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x0+w*0.24, deckY-24, 4,0,7); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(path[0].x, path[0].y-16);
+  for(let i=1;i<path.length;i++) ctx.lineTo(path[i].x, path[i].y-16);
+  ctx.stroke();
+  for(let i=0;i<path.length-1;i++){
+    const a=path[i], b=path[i+1];
+    for(let s=0;s<=6;s++){ const x=a.x+(b.x-a.x)*s/6, y=a.y+(b.y-a.y)*s/6;
+      ctx.beginPath(); ctx.moveTo(x, y-16); ctx.lineTo(x, y); ctx.stroke(); }
+  }
 }
-function ferryRampSlope(x0, y0, w, y1, color){
-  const x1=x0+w;
+function drawPlankAlong(a, b, color){
+  const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy)||1, nx=-dy/len*9, ny=dx/len*9;
   ctx.fillStyle=color;
-  ctx.beginPath();
-  ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.lineTo(x1, y1+10); ctx.lineTo(x0, y0+10); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.lineTo(b.x+nx*0.2+ (dx>0?0:0), b.y+9); ctx.lineTo(a.x, a.y+9); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.lineTo(b.x,b.y+9); ctx.lineTo(a.x,a.y+9); ctx.closePath(); ctx.fill();
   ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1;
-  for(let s=1;s<6;s++){ const tx=x0+(w/6)*s, ty=y0+(y1-y0)*(s/6); ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(tx,ty+10); ctx.stroke(); }
-  ctx.strokeStyle='#8a6a3a'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(x0, y0-12); ctx.lineTo(x1, y1-12); ctx.stroke();   // handrail
+  for(let s=1;s<6;s++){ const x=a.x+dx*s/6, y=a.y+dy*s/6; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+9); ctx.stroke(); }
 }
 function drawPlane(x, y, ang, s, t){
   ctx.save();
@@ -1268,17 +1256,24 @@ function render(){
   ambientHearts(gy);
   const onFerry = bg.backgroundType==='ocean_ferry_cruise';
   const ferryP = state.ferryProgress||0;
-  const floorY = onFerry ? ferryFloorY(ferryP, gy) : gy;
-  const heroScreenX = onFerry ? ferryFloorX(ferryP, gy) : (state.hero.x - state.camX);
+  const ferryPt = onFerry ? pointOnFerryPath(ferryP, gy) : null;
+  const floorY = onFerry ? ferryPt.y : gy;
+  const heroScreenX = onFerry ? ferryPt.x : (state.hero.x - state.camX);
   const walk = state.hero.phase;
   const moving = state.moving;
   const face = state.hero.facing;
   if(state.creamyActive){
-    drawCreamy(heroScreenX - 118, floorY, walk*1.1, face, moving);
+    if(onFerry){ const c=pointOnFerryPath(ferryP-0.10, gy); drawCreamy(c.x, c.y, walk*1.1, face, moving); }
+    else drawCreamy(heroScreenX - 118, floorY, walk*1.1, face, moving);
   }
   if(state.wifeJoined){
-    drawHuman(heroScreenX - 62, floorY, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
-      dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
+    if(onFerry){ const wpt=pointOnFerryPath(ferryP-0.05, gy);
+      drawHuman(wpt.x, wpt.y, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
+        dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
+    } else {
+      drawHuman(heroScreenX - 62, floorY, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
+        dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
+    }
   } else {
     const wifeScreenX = (WIFE_MEET_X||SEGMENT_W*0.80) - state.camX;
     if(wifeScreenX > -40 && wifeScreenX < W+40){
