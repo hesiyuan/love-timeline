@@ -1,4 +1,4 @@
-/* game.bundle.js — BUILT ARTIFACT (do not edit). Run `node build.js` after editing src/ modules. v1.8.4 */
+/* game.bundle.js — BUILT ARTIFACT (do not edit). Run `node build.js` after editing src/ modules. v1.8.5 */
 
 /* ==== sprites.js ==== */
 const SPRITES={"husband": ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAyUlEQVR4nGNgIBEwogtI8vH9Rxd7/ukTXB0LumJdEwdMY88c+A/TxIismJVPBKdTfn96g2ITWMP/KyvAGBtbEupUJgYSARM2wWfHZmFlY2j4cGgXMherOCOyBMid1zpCMDRoVayBe5gFWbFqzxkGf6x2rEF1EkwxCHCcfoehXDd8FzxC4X44mCoIxthAW+QbOBslpsEm3Cxj4LqJJthQBmeixLS+gQHDxQsXUNTCxDBj+ZwoGCMnPhD7xzQnMIaJg3Whp1CYadjEAQU0bQHYt5+NAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAA1ElEQVR4nGNkQAOSfHz/0cWef/rECGOzoCvWNXFAV8/AcObAf5gmRmTFrHwiDLjA709vUGwCa/h/ZQUYY2NLQp3KxEAiYMIm+OzYLKxsDA0fDu1C5mIVZ0SWALnzWkcIhgatijVwD7MgK1btOcPgj9WONahOgikGAY7T7zCU64bvgkco3A8HUwXBGBtoi3wDZ6PENNiEm2UMXDfRBBvK4EyUmNY3MGC4eOECilqYGMzTWOMBJImSDNABOPrPiYIxcmoFsX9McwJjmDjYFPQkDTMdmzgA8vVymyLmCAMAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAxklEQVR4nGNgIBEwogtI8vH9Rxd7/ukTXB0LumJdEwdMY88c+A/TxIismJVPBKdTfn96g2ITWMP/KyvAGBtbEupUJgYSARM2wWfHZmFlY2j4cGgXMherOCOMAXPjtY4QDA1aFWvgHmaEKVbtOcPAcfodww9TIQwNHKffMVxe6QbWBHfSwVRBhp2zlMGS6KAt8g2cTXIoofhB38AAq6KLFy7A/YCSNGCSyACrIeDYPCcKxsiJD8T+Mc0JjGHi8FBCNgBmPTZxAAHbbUS7vx23AAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAA1klEQVR4nGNgIBEwogtI8vH9Rxd7/ukTXB0LumJdEwdMY88c+A/TxIismJVPBKdTfn96A7YJxYaHO9pwapCySsN0ErLEs2OzUPgwgOIkmCJsQMoqDewkJmTBD4d2YVX8AUkcJVhBtlzrCMHQoFWxBh60LMiKVXvOMPhjtWMNnMWErBgEOE6/w1CuG74LHqFwPxxMFQRjbKAt8g2cjRGsTDfLGLhuogk2lMGZKMGqb2DAcPHCBRS1MDHk9ARW/P+cKBgjJz4Q+8c0JzCGiYN1oadQmGnYxAGFfV/b2LcSYgAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAA0ElEQVR4nGNgIBEwInMk+fj+oyt4/ukTihoWZMW6Jg6YRp458B9ZEyNMMSufCE5n/P70Bm4T3IaHO9rgCqSs0hieHZsFZyMDJgYSARM2QZjp6GwUDR8O7WLABj6gicM9DaKvdYRgaNCqWIMStIzg4AzfxfDDVAirDbdLTMA0TBPYSTDFB1MFwRgZbN6wDIxhrgBr4Dj9DoyJAXA/6BsYYFVw8cIFFCfBAUiTh53dfxANwj+mOYExevqC6wJJPDvADmZLOfxEMQwjLcE04FKEDACL1FspE6pt7wAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAA2UlEQVR4nGNgIBEwInMk+fj+oyt4/ukTihoWZMW6Jg6YRp458B9ZEyNMMSufCE5n/P70Bm4T3IaHO9rgCqSs0hieHZsFZyMDJgYSARM2QZjp6GwUDR8O7WLABj6gicN9D/L4tY4QDA0CmZ1gWopfGexxFphi1Z4zDP5YbDiIxoc7ieP0O6xOck+7CzcdrgHEubzSDUMTiA8SR4k45OSgb2CA1ZaLFy7A2WA/3O8wYQhY8QdDEmbIswPsEI87/IR4+Mc0p/8gGj3xgfj/z4nC5eGC2FIpsiZkeQCfZmBgFTm9hgAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAyElEQVR4nGNgIBEwInMk+fj+oyt4/ukTihoWZMW6Jg6YRp458B9ZEyNMMSufCE5n/P70Bm4T3IaHO9rgCqSs0hieHZsFZyMDJgYSARM2QZjp6GwUDR8O7WLABj6gicN9D/L4tY4QDA1aFWtQgpYFpli15wyDP1Y71mB3EsfpdxhKD6YKMjz7eBclQsEaQFZeXumGohibARh+0DcwwFBw8cIFTD/AwIYICFex4gyYxmYAig3oks8OsINpKYefcFtQUiIyQDcApgEAwlNOZTRbAlIAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAzElEQVR4nGNgIBEwInMk+fj+oyt4/ukTihoWZMW6Jg6YRp458B9ZEyNMMSufCE5n/P70Bm4T3IaHO9rgCqSs0hieHZsFZyMDJgYSARM2QZjp6GwUDR8O7WLABj6gicM9DaKvdYRgaNCqWIMStIzg4AzfxfDDVAirDbdLTMA0TBPYSTDFB1MFwRgZbN6wDIxhrgBr4Dj9DoyJAXA/6BsYYFVw8cIFFCfBAUgTCP8/JwrGHnZ2YD56+sKZ+O53QDyrWHEGNZSwOQPdVGQNAFe0W00Pm5tQAAAAAElFTkSuQmCC"], "wife": ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA7ElEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8Igz4wO9Pb+A2sqBreLijDasmeY8qBkkGBrCNTMgSD6EapKzS4GLIbBhA0UQswKrp2bFZWNlYNX04tIsBGx9dHCX0fn96w3CtIwTDZK2KNQwweVBAwMNeko/v/0qDM1j9EH7BBCWCmdA1PH5wHENTj8BklNQC95PtQUEwxgbUFwij8OHJCAYWK8xlYGAAYQRoYShD4aP4Sd/AgOHihQsoCmBi6IkWrOH/OVEwRnY7iP1jmhMYI4vDgxzZEJipuMQBR6xt0kmTITYAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA8ElEQVR4nGNkgAJJPr7/uiYODNjA5TMHGJ5/+sQI47Oga9g5KQpDk3seAwPDmQP/YRoZQRpY+UTAkg93tDHgAvIeVQy/P70B28iETYGUVRpWNgxg1UQIYNX07NgsrGysmj4c2sWAjY8uDg4NSWhggDx6rSMEw2StijUMMHlQQMDDXpKP7/9KgzNY/RB+wQQlnpjQNTx+cBxDU4/AZLAaDD/ZHhQEY2xAfYEwCh+cIhiQwGKFuQwMDCCMAC0MZSh8FD/pGxgwXLxwAUUBTAzDT+gApABZEVYAsuX/OVEwRvYwiP1jmhMYI4vD4wndJnziAKVVcWRDp8XpAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA3UlEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRiwACmrNKxsGMCqiRDAqunZsVlY2Vg1fTi0iwEbH10cJfR+f3rDcK0jBMNkrYo14ICAhSBc00qDMwyPHxxnkFWwxNAEEi/5kIsIcpiE7UFBhqiHXmAF6EB9gTDhgGAgAOBJA+REfQMDrIouXriAkv7gaQ9ZATLAZRDYlv/nRMEYOaWD2D+mOYExsjg89JANgTkFlzgA4whrqdl4LeAAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA7klEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRjIACzoAlJWaWD62bFZKHyYa7BqegZVjM4H+QsGUJz34dAurM5BF0cJvd+f3jBc6wjB0KRVsQbsPFgIwsNeko/v/0qDM1htCr9gghLBTOgaHj84jqGpR2AySmqB+8n2oCAYYwPqC4RR+Biht1hhLgMDAwgjQAtDGQofxU/6BgYMFy9cQFEAE0NPtGAN/8+JgjGy20HsH9OcwBhZHB7kyIbATMUlDgDmj25M3NljAQAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA5UlEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRhwACmrNKxsvJrwAZyanh2bhZWNoenDoV1YDUAXhwc5CGhVrGG41sGAAUDisMBCCfIegckMsgqWmDoYGBjCL5iAaXiQwyRkoRpsDwqCMTLYvGEZGMOCHO68xw+OQ1leWG1DBvCkATJF38AAq6KLFy6gOA8FgDR62Nn9B9Eg/GOaExijJ2QUnSDJZwfYwWwph58oBmIkWGRNuBQiAwDNZVsXJcRdpAAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA8UlEQVR4nGNgIAMwwhiSfHz/dU0csCq6fOYAw/NPn+BqWdA17JwUhaHJPY+BgeHMgf8wjYwgDax8ImDJhzvacDpJ3qOK4fenN2AbmXApkrJKw8oGAZya8AGcmp4dm4WVjaHpw6FdWA1AFweHhiQ0MEAevdYRgqFJILOTQV7WHB4QKPG00uAMVptsDwqCaSl+ZczQe/zgOFZNy+S3wTWg+On5p0+MJR9yMTSC+CBx5BQB9xNMQN/AAKttFy9cgLPByQgE7neYMASs+IOhAGbQswPsEH85/EQEwo9pTv9BNLKtMLn/50Th8igS6IrRNSLLAwAqZW/5sxUupwAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA4UlEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRhwACmrNKxsvJrwAZyanh2bhZWNoenDoV1YDUAXRwm935/eMFzrCMHQpFWxBhwQsBCEh70kH9//lQZnsNoUfsEEJYJRnPf4wXEMDbYHBRmefbyLklrgmp5/+sRY8iEXRQM2Q+B+QnaivoEBhqKLFy6gOA+e9mBgQwRESLEC4j9shmDYhK7g2QF2MC3l8BNuG4omdIBuCEwTAPolXr79kVHSAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA4UlEQVR4nGNkQAKSfHz/GbCA558+MSLzWZA16Jo4YNPDwHDmwH9kjYwwDax8ImCBhzvaMPTIe1Qx/P70Bm4jEyENMHGQGpjzmRhwACmrNKxsvJrwAZyanh2bhZWNoenDoV1YDUAXRwm935/eMFzrCMHQpFWxBhwQsBCEa+oRmMwgq2CJ1abwCyZgGh7kMAlZqAbbg4JgjAw2b1gGxrAgh6eIxw+OQ1leWG3D8BPMifoGBlgVXbxwAcV5KACkEYT/nxMFYw87OzAfPSFj6ERWcL8DEgCKFWdQbMG0DotmdKcBABK+ZBca1/txAAAAAElFTkSuQmCC"], "creamy": ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAn0lEQVR4nGNgwAM83d3+4+Pj1AQCIBqGYXyCGn/9+vMfBkBsZE1M2DRZmpv/X7pyHZgtI68KphVVNFDUMGHThMy/f+cGmH7y8DaDwTspuDwjNsULl69nUJARw+oFe1trhuMnTzKCNcH88O7Dl/+37j0Ds2EYJAbDMjIyqAED0gzCME0whcgGgORAGEMzSABdAYyGySGLoWhCl0A2HV0MAKn9u5/qC7OkAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAlElEQVR4nGNgIAA83d3+4+Pj1AQCIBqGYXyCGn/9+vMfBkBsmCYmXJoszc3/L125DsyWkVcF04oqGnB5JmSFMBrGhoH7d26A6ScPbzMYvJOCqwUzQM6Aabp17xkYg8SwYbBGEAECIPrdhy9YNYDEYVhGRgbhGpjVIEFkhegaUTTBAEwTiAbZikyDxGHOx6kZF41uKAANk9ohEi3a5wAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAlElEQVR4nGNgoBXwdHf7j4+PUxMIgGgYhvEJavz1689/GACxYZqYQISlufl/EIZpgPGXrlwH5svIq4JpRRUNhKkgBTDTYBpu3XsGxu8+fAGLI9taaZoAVsMI0wyit+7cy/Dm3ScGBRkxvF6wt7VGFZCRkQGbDrIJ2TYYH4RBarCaBtMMwjA2zOk4NSFrhmkC0dg0AQDFzaonHn4sdAAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAlUlEQVR4nGNgoBXwdHf7j4+PUxMIgGgYhvEJavz1689/GACxYZpYQISluTnchOMnTzLC+EtXrgOLycirMjx5eJtBUUWDQU9TCaIQpAhmGgiD+LfuPQPjdx++wMVhoNI0AayGEd3GhcvXMyjIiOH1gr2tNaqAjIwM2HSQTci2wfggDFKD1TSYZpgGmLNB4jg1YdOMSwMASveqenhsuVAAAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAr0lEQVR4nGNgIAA83d3+4+Pj1AQCIBqGYXyCGn/9+vMfBkBsmCYmEGFpbo5hgqW5+f+lK9eB2TLyqmBaUUUDLs8EUnDsxAmwQpgB6Abdv3MDTD95eJvB4J0UQh7EADkDhEHsW/ee/X/34QtcDB2jGAziyMjIgDWhKwQZAsMgNXA/gsDxkycZQbSCjBjDl28/UDAPFwdYzZt3n3CHJMhEmE0wNswlMNvwaoQpQqdhAAASX71lV3zjMAAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAnUlEQVR4nGNgwAM83d3+4+Pj1AQCIBqGYXyCGn/9+vMfBkBsZE1M2DRZmpv/X7pyHZgtI68KphVVNFDUMMEUgjCMjazg/p0bYPrJw9sMBu+kEPIgBswpMANu3XsG5mPDKAbDNLz78AVDE0gMhmVkZLAHDEgCWTG6bSBDYZoZkTXdu/eA4cGTV2C+k50ZVsOfPHkC14NiG4hGNhkXAACJhb3fFS0UwgAAAABJRU5ErkJggg=="]};
@@ -7,7 +7,7 @@ const NPC_SPRITES={"npc1": ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAA
 const NPC_SIT={"npc1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAv0lEQVR4nGNkQAKSfHz/GbCA558+McLYjMgK3S2UsKln2HniHlwjXIOyDB8DPnD3ySewBiYGcoGNlsz/7+cWgDHIRmS2jZYMmAapY0K2EhfYvaQFzsbqpHsHJmFlY2i4f+IcMherOCOyBMidezsSMDQ4VyyAxwULsuLVCTYM727cYcAHmJAVg8ClJ28wFNW6aMAjF+4H64kLwRgbMMupQ/WDpUMW1jSEDo4fmEZBTINswWYTLnGG//9f/wdhQuIASBtmny6+LsAAAAAASUVORK5CYII=", "npc2": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA10lEQVR4nGNkQAKSfHz/GXCA558+McLYjMiKzU10cOlhOHnmClwzXBO/iAADIfDxzQewJiZ8TsIFWEAEP9QWkEkwsPPGRwZ3DX44H9klTMgmHJ1TAsYgwHOkGc6G0Vg1wQCyInQNGJoe3LrHgI2PLo4Seh/ffGBYWhaEYXJ01zqwn2Chx4IUcf/NJiYyTGTADm7ce8SI4jxJPj6wBhB4evMhhgbpLCeU1AL304aEGjDGBma4pWD6ydIhi+gIPn5gGiPWICcagGzDZSNOuf//X/8HYWya0OUAx0dpMW9AOW8AAAAASUVORK5CYII=", "npc3": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAwklEQVR4nGNkQAKSfHz/GbCA558+McLYjMgKT56YhE09g7lFHlwjXMPqZVkM+EBo1DSwBiYGEgELkhv/g0yBgZ03PjK4a/CD2VhtBznr/5UVYIyNLQn1J1YnPTs2CysbQ8OHQ7uQuVjFGZElQNZe6wjB0KBVsQYeFyzIim2DshjSTzHgBUzIikHg2ZNHGIqUzXzgkQv3w8r5xWCMDUyoikL1g6VDFtY0hA6OH5hGekzDAcgWbDbhEmf4///1fxAmJA4AWx1sjYeAircAAAAASUVORK5CYII=", "npc4": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA20lEQVR4nGNkQAKSfHz/QfR/Ng4GFSUlhjv37jEw/voBlnv+6RMjTB0jsmJlDS0GXODujWtwzXBN/9k4cGqA2/DrB1gTE8wWUgATiPgPtaUuyAiMQSaiszE0kQqwaqqNsMLKxqrp0asPDNj46OIoocf46wdDvBNmsC/cdw3sb1josYAEn3/6xCjJx/B/vVMCVj8sZLjG8OLNK0YU50ny8cE13HjyCENTu5oTPAGg+Ml8fS0YYwM6XSmYfrJ0yCI6go8fmMZIVjzBAcg2XDbilPv///V/EMamCV0OAH/HamQPZA1qAAAAAElFTkSuQmCC", "npc5": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAx0lEQVR4nGNkQAKSfHz/GbCA558+McLYjMgKz2+YgE09g2FAAVwjE0wQl2J0ORYY4xqDGgNJ4MW+ef9BToPhS8/+w9kvoHIgdUzI7gRZDbNe7MZ8rM5kwmYbssLzaJpQNDx4cA+rcx8gicPDFwRA7lw/IQ9DQ2DBJHhcsCArru2YwHDuB1ZLUJ0EUwwCN27cYkAHoQlZ8MiF+yEz0xeMsYG4ABs4G+wuS4csrGkIHRw/MA2RNEgGIFuw2YRLnOH//9f/QZiQOAADGmUzsOpBfwAAAABJRU5ErkJggg==", "npc6": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAAy0lEQVR4nGNkQAKSfHz/GXCA558+McLYjMiKl27YhksPQ3SAF1wzXFNtxwQGQqC5ogCsiQmfk3ABFhBRC7Ul044LTEtZpTE8OzYLhT390De4JiYGMgATNsFnUFvQ2Vg1fTi0iwEbH12cCRQazRUFYI5WxRqwAhiGaQCJIwN4hEny8f3fO0cPqx+cUy6hRC4TuoYrtz5gaJpYJoeSWuB+0gxdD8bYgJJVB6bzLB2yiI7g4wemMZIVT3AAsg2XjTjl/v9//R+EsWlClwMAdL9nTopIrfkAAAAASUVORK5CYII=", "npc7": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAYAAAAiYZ4HAAAAnUlEQVR4nGNgGHSAEZkjycf3H13B80+fUNQwIituD1PBMLFy1R0UjSgaHOdswOqM/SkBcA1MyFbP0/nCAMIgBbgACy4JkEYYUEQSh9uADO6fWEJ8KO2dVYSiwDmtDyWkUJwE8nQLhpl9KDy4k2Bx8OjGDRQFyiUdKPEDtsrSIQsjwrCB4wemMWL1NFEAZAs2m3CJM/z///o/CBMSBwB2MUjbwZ2DEgAAAABJRU5ErkJggg==", "npc8": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAAs0lEQVR4nGNgGNSAEV1Ako/vP7rY80+fUNSxoCvWNXHANPrMgf/ImhmRNbDyieB00u9Pb+CamGCCrFANIEkQ3nLqLpyNDuCaYOD0kjowLXSmF84mqAkEkBVj0wgOiOefPjFKMjD8Bznxwa07GIqwakLWeOlRAgM6ePRkBiNW50ny8f2vTdjFcOPBDQxN6HEHNsHSIQsjQnGB4wemMWINCKIByDZcNuKU+///9X8QxqYJXQ4A6XdZ+gVmi9UAAAAASUVORK5CYII=", "attendant1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA+klEQVR4nGNkQAJyWl7/YWwxCTmGVy8eweUeXdvGCGOzgAhJPj64YhhA1oCs5vmnT4xgTSDgbiTGwMBwiwEnEBNj2HnuFZjJhM0WggCkKcFBBYy/n1sAxiAxdDZIHmYBEwMZgAmb4L0Dk7CysWq6f+IcAzY+ujg47CX5+P6DQg8UOns7EjBMdq5YwACTBwU5PMLeffqBEorXzGwYtE4dgfOF+DgYMWziVfMDC3z58IxhFcsnMDuJRwMu9v/VGbAtKJqefbwLViCtGs7AIyCF4rxlXREMvgFRqJosHbKIjuDjB6YxkhVPcACyDZeNOOX+/3/9H4SxaUKXAwD5+YMvmvaKdwAAAABJRU5ErkJggg==", "attendant2": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAA+ElEQVR4nGNkQAJyWl7/YWwxCTmGVy8eweUeXdvGCGOzgAhJPj64YhhA1oCs5vmnT4xgTSCgLMPHwMBwiQEnkOFjuPvkE5jJhM0WggCkyUZLBowfrGoBY5AYOhskD7OAiYEMwIRN8PicMqxsrJru3brDgI2PLg4Oe0k+vv/K0NBZWhaEYXJ01zoGmDwoyOER9u7TD5RQvGZmw6B16gicL8THwYhhE6+aH1jgy4dnDKtYIPGRxKMBF/v/6gzYFhRNzz7eBSuQVg1n4BGQQnHesq4IBt+AKFRNlg5ZREfw8QPTGMmKJzgA2YbLRpxy//+//g/C2DShywEAMLKAW/XPg5QAAAAASUVORK5CYII="};
 
 /* ==== config.js ==== */
-const GAME_VERSION = '1.8.4';
+const GAME_VERSION = '1.8.5';
 const ITEM_ICONS={"ticket": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAqUlEQVR4nGNgGAWjYBSMgpEOGNEFNBR0/pNr2I0HVxgJ6QepQeazYFN0fZMPWQ44eUTgv7mNDU55Tb8tGGIsuBRX1i3DaVB7UxRWcYusI4z/L9mQFIJMDFQEJ6aRZjkIsJDqS3wAFgLT5+zCkMtMcRtiIUAOgIUALt/S3AEnoCGAHgX4HMRE7RAgVQ8LLUKAlChgGpQhoImlxCI2BMjVOwpGwSgYBSMXAABjrzp0ZgZRiwAAAABJRU5ErkJggg==", "water_bottle": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAkklEQVR4nGNgGAWjYKQDRlI1aCjo/Mcnf+PBFZLMZGEgAxiVzcEqfq4rZeiFABM1LSdWDUVRkLfpJF75SX7mDDQLAVoAJnI0ZepyDawDpl/+RjVHsJCj6cajNwz5jzDFNeRESDaLiWGAAdOoAxhGo2CAAdOoAxhGehSwkKOJnCJ30IYAIymKiW3tkNosGwUjGwAAJzgdY5kPaIsAAAAASUVORK5CYII=", "dog_bone": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAjUlEQVR4nGNgGAWjYBSMAiJAT0XAf1rpYyHGgMziWhAFZpd0bGAk1mJS9WEY8vX1WQxMyFek6mNiGGDAiE0Q5Fpo8GEF03ubccoR0oceFYy4FBNyBKkAm+UgMDijAEdqJgvAogtXLmBiGGDAiEtiZKeBHjpmQ5xgZJeE2LIhoexEDX0DUh2PglEwCkYBAIyaqRkpraBqAAAAAElFTkSuQmCC", "ship": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAu0lEQVR4nGNgGAWjYBQMMGCk1AAbG7f/MPaRI7tINo+JYYAB06gDGAYYsBCrUENB5z+pam48uMJINQeAwIkLJxmIBRYG5rSJgo4jz8EYH3tIpQFGYhWC4pfUKKB6GrAgMl5JAYy4JE7Y2BBM9aQAiyNHGAdlGmBB5kRNO4Hw9bISqlqEbPayLAvGQRMFLLg0JDz5AGcvkBEg22Jkc8jOhhpoRSw+B6FbSCgrMhLjAEIOIsXCUTAKRsGgAwAWyEFyx/IPNgAAAABJRU5ErkJggg==", "wine": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAvklEQVR4nGNgGAWjYKQDRlIUayjo/CdG3Y0HV4g2l5EUy3eeOEmUWncLc6IdwUSq5XJnLhNUD1JLbGgxMZAIHpnoMlATsBCr8KRDNAMtABMxikDxWffjDtGGgtRSNQ3QEjARq5DYUCDF9yQ5gBhHkGo5yQ7A5whyLKcIgPL5wxdfwZjYPD+0EyGtABPNTB51AJGAiWGkO4CFVA248jxMnNTCiJFUywm1ikhpDYHAgEcBI6kaCBW7dK0PRsGwAAC351jUsrV1lgAAAABJRU5ErkJggg==", "star": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAp0lEQVR4nGNgGAUUgBPTNP6D8IBZ/v9BFBhT4ggm6jqLTg44MU3jv7mXEZwPYpMbCiyELCLVYdjELbJuMOLSw0isLykBJ7edw+kIRmJ8RK5DQBaTHQKUOIQYi0lyACnRgi+4Kc4FFlk3GGG+o4blIEC0YmzRAHMMNjFiHcJIrOX4LMHlOKqkgRNIlhPyHbpDyIkSqlQ6A1pJjYJRMApGwSgYBaNgyAEAwcVxL1yWg+8AAAAASUVORK5CYII=", "scroll": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAjUlEQVR4nGNgGAWjYBQMMGDEJnhiQdR/WlhmkbAMwz4mhgEGTIMyCkBAQ0Hn/9lzqxmoAYyNQhluPLjCOChDgIUYRQu78skyPL5sInUcEE+EQeQCJobhGAXxJIQYC7UNJBUwMQznXEBM6LEwkGHIZb9KrOp0N7UzDLkoYBpoBzBiExytjkfBKBgFIwoAAFkEH2Db2x6BAAAAAElFTkSuQmCC", "heart": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAo0lEQVR4nO2VQQqAIBBFNTxM6w7humvUgeoarT2E625TVJsayuaPQgTzNqJ8/A8G1BhFUT7GckJD7Zfzvp+DzcmdcZzyrmno8UIv5+YoVlC+M8Z42adyKQlnEFp/rFN4LERxUHoKpjRV8RtLCvRzsHTWCG/zfxXIkeCUswQkEtxytgAigZRDAhwJtBwWSElIykUCdxLS8my2p5p+QIqiKMrvWAHvP2CUrB7jrgAAAABJRU5ErkJggg==", "rings": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAtklEQVR4nO2VwQ2DMAxF7Yg5ukG5dheYj87SXmGDTsAGRkZKJRDBdghCSH4XpJ/I/s4nAOA4juPckc9IVKpWZdlMfUPfRwevXzub4CfWb2R9vZd1TU3UNl4Izw5gaFWmJSPB2pwLMqlm64Zbp2MysFc86luaNoKwt5hyX0oXDURS00RdWi8SwVmEWxggIduc7FUG0JhtzrtQgZI4jeaeayb/mwND8xykm4CWYqlv/pF/geM4cDUToGpdWKlR9JkAAAAASUVORK5CYII="};
 let gameTimeline = [];
 const SEGMENT_W = 1400;                 // world px per timeline event
@@ -466,22 +466,28 @@ const LAYER_DRAW = {
   },
   sailboats(base, gy, pal, o){ for(let i=0;i<4;i++) sailboat(base+140+i*260, gy-10); },
   ferryScene(base, gy, pal, o){
-    const p = state.ferryProgress || 0;
     const t = state.time;
     const horizon = gy - 170;
-    const path = ferryPath(gy);
     ctx.fillStyle='#6f9ec2'; ctx.fillRect(0, horizon, W, gy-horizon);
-    ctx.fillStyle='#5b86a8'; ctx.fillRect(0, gy-40, W, (H-(gy-40)));
-    drawCoast(Math.round(W*0.15 - p*(W*1.5)), horizon, 300, 60, '#6f8f74', 'Departure Bay');
-    drawCoast(Math.round(W*1.25 - p*(W*1.08)), horizon, 340, 72, '#5f8f7a', 'Nanaimo');
-    ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2;
+    ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
     for(let i=0;i<7;i++){ const wy=horizon+26+i*18 + Math.sin(t*0.05+i)*2;
-      ctx.beginPath(); ctx.moveTo(0,wy); for(let x=0;x<=W;x+=46){ ctx.lineTo(x, wy+Math.sin((x+t*3)*0.03+i)*3);} ctx.stroke(); }
-    ctx.fillStyle='#8a8f96'; ctx.fillRect(0, gy, path[1].x, H-gy);            // left dock up to ramp bottom
-    ctx.fillStyle='#6f747b'; ctx.fillRect(0, gy, path[1].x, 4);
-    ctx.fillStyle='#8a8f96'; ctx.fillRect(path[4].x, gy, W-path[4].x, H-gy);  // right dock from ramp bottom
-    ctx.fillStyle='#6f747b'; ctx.fillRect(path[4].x, gy, W-path[4].x, 4);
-    drawFerry(gy);
+      ctx.beginPath(); ctx.moveTo(base,wy);
+      for(let x=0;x<=W;x+=46){ ctx.lineTo(base+x, wy+Math.sin((base+x+t*3)*0.03+i)*3);} ctx.stroke(); }
+    if(base===0){
+      const seg=ferrySegIndex(); const sbase=(seg<0?0:seg*SEGMENT_W);
+      drawCoast(Math.round(sbase + SEGMENT_W*0.05 - state.camX), horizon, 300, 60, '#6f8f74', 'Departure Bay');
+      drawCoast(Math.round(sbase + SEGMENT_W*0.85 - state.camX), horizon, 340, 72, '#5f8f7a', 'Nanaimo');
+      const wp=ferryWorldPath(gy);
+      if(wp){
+        const dockL = Math.round(wp[0].wx - state.camX);   // left ramp bottom (screen)
+        const dockR = Math.round(wp[3].wx - state.camX);   // right ramp bottom (screen)
+        ctx.fillStyle='#8a8f96'; ctx.fillRect(dockL-260, gy, 260, H-gy);
+        ctx.fillStyle='#6f747b'; ctx.fillRect(dockL-260, gy, 260, 4);
+        ctx.fillStyle='#8a8f96'; ctx.fillRect(dockR, gy, 260, H-gy);
+        ctx.fillStyle='#6f747b'; ctx.fillRect(dockR, gy, 260, 4);
+      }
+      drawFerry(gy);
+    }
   },
   indoorCare(base, gy, pal, o){
     ctx.fillStyle=o.wall||'rgba(120,96,80,0.35)'; ctx.fillRect(base,gy-260,W,260);
@@ -562,28 +568,41 @@ function drawCoast(x, horizon, w, h, color, label){
   ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='bold 11px "Courier New",monospace';
   ctx.fillText(label, Math.round(x+w*0.3), Math.round(horizon-h*0.5));
 }
-function ferryPath(gy){
-  const bob = Math.sin((state.time||0)*0.04)*2;   // deck heave; applied to aboard points
+function ferrySegIndex(){ return gameTimeline.findIndex(e=>e.backgroundType==='ocean_ferry_cruise'); }
+function ferryWorldPath(gy){
+  const seg = ferrySegIndex(); if(seg < 0) return null;
+  const base = seg*SEGMENT_W;
+  const bob = Math.sin((state.time||0)*0.04)*2;   // gentle deck heave (aboard nodes only)
   const deckY = gy - 74 + bob;                     // raised deck surface
   return [
-    { p:0.00, x:Math.round(W*0.02), y:gy },                 // left dock (walk on)
-    { p:0.14, x:Math.round(W*0.16), y:gy },                 // ramp bottom
-    { p:0.26, x:Math.round(W*0.30), y:deckY },              // ramp top (onto deck)
-    { p:0.74, x:Math.round(W*0.70), y:deckY },              // deck far end
-    { p:0.86, x:Math.round(W*0.84), y:gy },                 // exit ramp bottom
-    { p:1.00, x:Math.round(W*0.98), y:gy },                 // right dock (walk off)
+    { wx: base + SEGMENT_W*0.34, y:gy },        // left dock edge (ramp bottom)   — walk on here
+    { wx: base + SEGMENT_W*0.44, y:deckY },      // ramp top (onto deck)
+    { wx: base + SEGMENT_W*0.66, y:deckY },      // deck far end
+    { wx: base + SEGMENT_W*0.76, y:gy },         // exit ramp bottom               — walk off here
   ];
 }
-function pointOnFerryPath(p, gy){
-  const path=ferryPath(gy); p=Math.max(0,Math.min(1,p));
+function ferryFloorAt(worldX, gy){
+  const path = ferryWorldPath(gy); if(!path) return gy;
+  if(worldX <= path[0].wx || worldX >= path[3].wx) return gy;
   for(let i=0;i<path.length-1;i++){
     const a=path[i], b=path[i+1];
-    if(p<=b.p){ const k=(p-a.p)/(b.p-a.p||1); return { x:Math.round(a.x+k*(b.x-a.x)), y:Math.round(a.y+k*(b.y-a.y)) }; }
+    if(worldX <= b.wx){ const k=(worldX-a.wx)/((b.wx-a.wx)||1); return Math.round(a.y + k*(b.y-a.y)); }
   }
-  const last=path[path.length-1]; return { x:last.x, y:last.y };
+  return gy;
 }
 function drawFerry(gy){
-  const path=ferryPath(gy);
+  const wp=ferryWorldPath(gy); if(!wp) return;
+  const toScr = n => ({ x: Math.round(n.wx - state.camX), y: n.y });
+  const rampBotL = toScr(wp[0]), rampBotR = toScr(wp[3]);
+  if(rampBotR.x < -80 || rampBotL.x > W+80) return;
+  const path=[
+    { x: rampBotL.x - 200, y: gy },   // left dock lead-in
+    rampBotL,                          // boarding ramp bottom
+    toScr(wp[1]),                      // ramp top / deck near end
+    toScr(wp[2]),                      // deck far end
+    rampBotR,                          // exit ramp bottom
+    { x: rampBotR.x + 200, y: gy },   // right dock lead-out
+  ];
   const deckA=path[2], deckB=path[3];                 // the two deck nodes (flat top)
   const rampUpA=path[1], rampUpB=path[2];             // boarding ramp
   const rampDnA=path[3], rampDnB=path[4];             // exit ramp
@@ -1185,16 +1204,10 @@ function update(){
   state.hero.x=Math.max(120, Math.min(WORLD_W-120, state.hero.x));
   state.moving=moving;
   if(moving) state.hero.phase += 0.28;
-  const segNow = segmentAt(state.hero.x);
-  const onFerryNow = gameTimeline[segNow] && gameTimeline[segNow].backgroundType==='ocean_ferry_cruise';
-  if(onFerryNow){
-    state.camX = Math.max(0, Math.min(WORLD_W-W, segNow*SEGMENT_W - (W - SEGMENT_W)/2));
-  } else {
-    const targetCam = state.hero.x - W*0.32;
-    state.camX = Math.max(0, Math.min(WORLD_W-W, lerp(state.camX, targetCam, 0.12)));
-  }
+  const targetCam = state.hero.x - W*0.32;
+  state.camX = Math.max(0, Math.min(WORLD_W-W, lerp(state.camX, targetCam, 0.12)));
   if(WORLD_W < W) state.camX = 0;
-  const seg = segNow;
+  const seg = segmentAt(state.hero.x);
   if(seg !== state.currentEvent){ state.currentEvent = seg; updateHUD(); }
   const ev = gameTimeline[seg];
   if(WIFE_MEET_X == null) WIFE_MEET_X = SEGMENT_W*0.80;   // fixed meet point in segment 0
@@ -1203,10 +1216,6 @@ function update(){
   }
   if(ev.partyMembers.includes('wife') && seg >= 1) state.wifeActive=true;
   if(ev.partyMembers.includes('creamy_dog')) state.creamyActive=true;
-  const FERRY_SEG = gameTimeline.findIndex(e=>e.backgroundType==='ocean_ferry_cruise');
-  if(seg === FERRY_SEG && FERRY_SEG >= 0){
-    state.ferryProgress = Math.max(0, Math.min(1, (state.hero.x - FERRY_SEG*SEGMENT_W)/SEGMENT_W));
-  }
   WardrobeManager.syncToEvent(seg);
   if(state.wardrobePop){
     for(const who in state.wardrobePop){
@@ -1261,25 +1270,22 @@ function render(){
   const gy=groundY();
   ambientHearts(gy);
   const onFerry = bg.backgroundType==='ocean_ferry_cruise';
-  const ferryP = state.ferryProgress||0;
-  const ferryPt = onFerry ? pointOnFerryPath(ferryP, gy) : null;
-  const floorY = onFerry ? ferryPt.y : gy;
-  const heroScreenX = onFerry ? ferryPt.x : (state.hero.x - state.camX);
+  const heroWorldX = state.hero.x;
+  const floorY = onFerry ? ferryFloorAt(heroWorldX, gy) : gy;
+  const heroScreenX = heroWorldX - state.camX;
   const walk = state.hero.phase;
   const moving = state.moving;
   const face = state.hero.facing;
   if(state.creamyActive){
-    if(onFerry){ const c=pointOnFerryPath(ferryP-0.10, gy); drawCreamy(c.x, c.y, walk*1.1, face, moving); }
-    else drawCreamy(heroScreenX - 118, floorY, walk*1.1, face, moving);
+    const cWorld = heroWorldX - 118;
+    const cy = onFerry ? ferryFloorAt(cWorld, gy) : floorY;
+    drawCreamy(cWorld - state.camX, cy, walk*1.1, face, moving);
   }
   if(state.wifeJoined){
-    if(onFerry){ const wpt=pointOnFerryPath(ferryP-0.05, gy);
-      drawHuman(wpt.x, wpt.y, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
-        dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
-    } else {
-      drawHuman(heroScreenX - 62, floorY, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
-        dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
-    }
+    const wWorld = heroWorldX - 62;
+    const wy = onFerry ? ferryFloorAt(wWorld, gy) : floorY;
+    drawHuman(wWorld - state.camX, wy, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
+      dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
   } else {
     const wifeScreenX = (WIFE_MEET_X||SEGMENT_W*0.80) - state.camX;
     if(wifeScreenX > -40 && wifeScreenX < W+40){
