@@ -383,23 +383,35 @@ function drawPlane(x, y, ang, s, t){
 
 // glass curtain wall showing sky + tarmac apron + parked planes beyond, with mullions
 function airportGlassWall(x, y, w, h){
-  // sky above the horizon, tarmac below
-  const horizon = y + Math.round(h*0.5);
-  ctx.fillStyle = '#bcd7ee'; ctx.fillRect(x, y, w, horizon-y);   // sky
-  ctx.fillStyle = '#6f7d74'; ctx.fillRect(x, horizon, w, y+h-horizon);                                // grass/apron edge
-  ctx.fillStyle = '#5a5f66'; ctx.fillRect(x, horizon+Math.round(h*0.16), w, y+h-(horizon+Math.round(h*0.16))); // tarmac
-  // runway markings
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();   // keep everything inside the window
+  // bright daylight sky (clear outside view)
+  const horizon = y + Math.round(h*0.52);
+  ctx.fillStyle = '#cfe6fb'; ctx.fillRect(x, y, w, horizon-y);              // sky
+  ctx.fillStyle = '#eaf4ff'; ctx.fillRect(x, horizon-Math.round(h*0.08), w, Math.round(h*0.08)); // horizon haze
+  // a few soft clouds outside
+  ctx.fillStyle='rgba(255,255,255,0.85)';
+  for(let cx=x+30; cx<x+w-20; cx+=Math.round(w/3)){ const cy=y+Math.round(h*0.16);
+    ctx.beginPath(); ctx.arc(cx,cy,10,0,7); ctx.arc(cx+12,cy+3,8,0,7); ctx.arc(cx-10,cy+3,7,0,7); ctx.fill(); }
+  // distant treeline + grass, then tarmac
+  ctx.fillStyle = '#7fa06a'; ctx.fillRect(x, horizon, w, Math.round(h*0.10));
+  ctx.fillStyle = '#5a6169'; ctx.fillRect(x, horizon+Math.round(h*0.10), w, y+h-(horizon+Math.round(h*0.10)));
   ctx.fillStyle='rgba(255,255,255,0.5)';
-  for(let rx=x+10; rx<x+w-16; rx+=48) ctx.fillRect(rx, horizon+Math.round(h*0.30), 24, 3);
-  // a couple of parked planes beyond the glass
-  tarmacPlane(x+Math.round(w*0.30), horizon+Math.round(h*0.20), 1.0, '#e8edf2', '#3a78c0');
-  tarmacPlane(x+Math.round(w*0.66), horizon+Math.round(h*0.30), 0.8, '#f2ede8', '#e08a3a');
-  // glass tint + vertical mullions + horizontal transom
-  ctx.fillStyle = 'rgba(180,215,245,0.16)'; ctx.fillRect(x, y, w, h);
+  for(let rx=x+10; rx<x+w-16; rx+=48) ctx.fillRect(rx, horizon+Math.round(h*0.30), 24, 3);   // runway dashes
+  // parked planes beyond the glass
+  tarmacPlane(x+Math.round(w*0.30), horizon+Math.round(h*0.22), 1.0, '#e8edf2', '#3a78c0');
+  tarmacPlane(x+Math.round(w*0.66), horizon+Math.round(h*0.34), 0.8, '#f2ede8', '#e08a3a');
+  // GLASS: faint blue tint + bright diagonal reflection streaks
+  ctx.fillStyle = 'rgba(190,220,250,0.10)'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = 10;
+  for(let d=-h; d<w; d+=Math.round(w/4)){ ctx.beginPath(); ctx.moveTo(x+d, y+h); ctx.lineTo(x+d+h, y); ctx.stroke(); }
+  ctx.restore();
+  // mullions + frame (drawn over, outside the clip)
   ctx.fillStyle = '#9aa7b4';
-  for(let mx=x; mx<=x+w; mx+=Math.round(w/8)) ctx.fillRect(mx-2, y, 4, h);   // mullions
+  for(let mx=x; mx<=x+w; mx+=Math.round(w/8)) ctx.fillRect(mx-2, y, 4, h);   // vertical mullions
   ctx.fillRect(x, y+Math.round(h*0.5)-2, w, 4);                              // transom
-  ctx.fillRect(x-3, y-3, w+6, 5); ctx.fillRect(x-3, y+h-2, w+6, 5);          // frame top/bottom
+  ctx.fillStyle = '#7f8b98';
+  ctx.fillRect(x-4, y-4, w+8, 6); ctx.fillRect(x-4, y+h-2, w+8, 6);          // frame top/bottom
 }
 
 // small parked airliner seen through the glass (simple side view on the apron)
@@ -445,7 +457,7 @@ function signBox(x, y, w, h, label, bg, textCol, big){
 function flightBoard(x, y, w, h){
   ctx.fillStyle = '#0c1016'; roundRect(x, y, w, h, 3); ctx.fill();
   ctx.strokeStyle='rgba(0,0,0,0.5)'; ctx.strokeRect(x, y, w, h);
-  pixelLabel('BA203 LONDON', x+6, y+14, 6, '#ffd24a');
+  pixelLabel('MF805 VANCOUVER', x+6, y+14, 6, '#ffd24a');
   pixelLabel('BOARDING', x+6, y+30, 6, '#8fe08a');
   // blinking cursor
   if(Math.floor(state.time/30)%2===0){ ctx.fillStyle='#8fe08a'; ctx.fillRect(x+w-16, y+24, 8, 8); }
@@ -462,22 +474,24 @@ function gateDesk(x, gy){
   person(x-14, gy, '#7a5a3a', '#f6c9a8', '#3a2a22');                    // traveller in front
 }
 
-// a row of seats with seated travellers
+// a row of seats with pixel-art seated travellers
 function seatedRow(x, gy, n){
-  const seatW=26;
+  const seatW=26, OL='#241d1a';
   for(let i=0;i<n;i++){
-    const sx = x + i*seatW;
+    const sx = Math.round(x + i*seatW);
     // seat
     ctx.fillStyle='#3f4756'; ctx.fillRect(sx, gy-16, seatW-4, 16);
     ctx.fillStyle='#4d566a'; ctx.fillRect(sx, gy-30, 4, 30);           // seat back post
-    // seated person (deterministic colours)
-    const r=((i*61+x)%100)/100;
+    // seated pixel person
     const shirt = ['#c0553f','#3f6bc0','#4f9f6f','#b06fb0','#c9a23f'][i%5];
-    const skin  = r<0.5 ? '#f2c39a' : '#c98a5a';
-    ctx.fillStyle=shirt; ctx.fillRect(sx+5, gy-24, 12, 14);            // torso
-    ctx.fillStyle=skin;  ctx.beginPath(); ctx.arc(sx+11, gy-28, 5, 0, 7); ctx.fill(); // head
-    ctx.fillStyle='#2a2028'; ctx.fillRect(sx+6, gy-31, 10, 4);         // hair
-    ctx.fillStyle='#39406a'; ctx.fillRect(sx+6, gy-11, 11, 8);         // lap/legs
+    const skin  = (i%2) ? '#c98a5a' : '#f2c39a';
+    const cx = sx+11;
+    ctx.fillStyle=OL; ctx.fillRect(cx-7, gy-25, 14, 15);              // torso outline
+    ctx.fillStyle=shirt; ctx.fillRect(cx-6, gy-24, 12, 13);           // torso
+    ctx.fillStyle=OL; ctx.fillRect(cx-5, gy-33, 10, 10);             // head outline
+    ctx.fillStyle=skin; ctx.fillRect(cx-4, gy-32, 8, 8);             // head
+    ctx.fillStyle='#2a2028'; ctx.fillRect(cx-5, gy-33, 10, 3);        // hair
+    ctx.fillStyle='#39406a'; ctx.fillRect(cx-6, gy-12, 12, 6);        // lap/legs
   }
 }
 
@@ -498,13 +512,27 @@ function npcWalker(x, gy, r, r2){
   }
 }
 
-// simple standing pixel-person (torso, head, hair, legs)
+// pixel-art standing figure matching the sprite idiom: square head, block torso,
+// black hair cap, two block legs, all on integer pixels with a dark outline.
 function person(x, y, shirt, skin, hair, pants){
   x=Math.round(x); y=Math.round(y);
-  ctx.fillStyle = pants||'#39406a'; ctx.fillRect(x-5, y-16, 4, 16); ctx.fillRect(x+1, y-16, 4, 16); // legs
-  ctx.fillStyle = shirt; ctx.fillRect(x-6, y-32, 12, 17);            // torso
-  ctx.fillStyle = skin;  ctx.beginPath(); ctx.arc(x, y-37, 5, 0, 7); ctx.fill(); // head
-  ctx.fillStyle = hair||'#241a14'; ctx.fillRect(x-5, y-41, 10, 4);   // hair
+  const OL='#241d1a';                                   // dark outline like the sprites
+  hair=hair||'#241a14'; pants=pants||'#39406a';
+  // legs (two blocks)
+  ctx.fillStyle=OL; ctx.fillRect(x-6, y-14, 12, 14);
+  ctx.fillStyle=pants; ctx.fillRect(x-5, y-13, 4, 12); ctx.fillRect(x+1, y-13, 4, 12);
+  // shoes
+  ctx.fillStyle='#fff'; ctx.fillRect(x-5, y-2, 4, 2); ctx.fillRect(x+1, y-2, 4, 2);
+  // torso (outlined block)
+  ctx.fillStyle=OL; ctx.fillRect(x-8, y-30, 16, 17);
+  ctx.fillStyle=shirt; ctx.fillRect(x-7, y-29, 14, 15);
+  // head (square, outlined)
+  ctx.fillStyle=OL; ctx.fillRect(x-6, y-42, 12, 12);
+  ctx.fillStyle=skin; ctx.fillRect(x-5, y-41, 10, 10);
+  // hair cap
+  ctx.fillStyle=hair; ctx.fillRect(x-6, y-42, 12, 4); ctx.fillRect(x-6, y-42, 2, 8); ctx.fillRect(x+4, y-42, 2, 8);
+  // eyes
+  ctx.fillStyle=OL; ctx.fillRect(x-3, y-36, 2, 2); ctx.fillRect(x+1, y-36, 2, 2);
 }
 
 // tiny bitmap-ish label: draws chunky uppercase blocks approximating text (readable at scene scale)
