@@ -44,14 +44,50 @@ const version = vm ? vm[1] : 'dev';
 
 let bundle = `/* game.bundle.js — BUILT ARTIFACT (do not edit). Run \`node build.js\` after editing src/ modules. v${version} */\n`;
 let rawTotal = 0;
+let joined = '';                                          // raw concatenation for Terser
 for (const m of MODULES) {
   const src = fs.readFileSync(path.join(SRC, m), 'utf8');
   rawTotal += Buffer.byteLength(src);
-  bundle += `\n/* ==== ${m} ==== */\n` + minify(src);
+  joined += `\n/* ==== ${m} ==== */\n` + src + '\n';
+  bundle += `\n/* ==== ${m} ==== */\n` + minify(src);     // fallback content (light minify)
+}
+
+// Prefer a REAL minifier (Terser: name-mangling + compression) when available.
+// The modules share one global scope, so we mangle top-level names too (toplevel:true)
+// for smaller, harder-to-read output. Falls back to the light minify above if Terser
+// or its deps are missing — keeps the build working with zero required dependencies.
+let usedTerser = false;
+try {
+  const { minify: terserMinify } = require('terser');
+  // terser v5 exposes an async API, but minify() also returns a promise; run sync-ish
+  // via deasync-free trick: use the sync wrapper by awaiting in a small IIFE is not
+  // possible at top level in CJS here, so use minify_sync if present, else async+writeFile.
+  if (typeof terserMinify === 'function') {
+    // terser >=5 supports minify_sync
+    const terser = require('terser');
+    if (typeof terser.minify_sync === 'function') {
+      const res = terser.minify_sync(joined, TERSER_OPTS(version));
+      if (res && res.code && !res.error) { bundle = res.code + '\n'; usedTerser = true; }
+    }
+  }
+} catch (e) {
+  // terser not installed — fall through to the light-minified `bundle` already built
+}
+
+function TERSER_OPTS(v) {
+  return {
+    module: false,
+    compress: { passes: 2, drop_console: true, drop_debugger: true, booleans_as_integers: false },
+    mangle: { toplevel: true },          // shorten top-level names across the shared scope
+    format: {
+      comments: false,
+      preamble: `/* game.bundle.js v${v} — built artifact, minified. Do not edit. */`,
+    },
+  };
 }
 fs.writeFileSync(path.join(DIR, 'game.bundle.js'), bundle);
 
 const outSize = Buffer.byteLength(bundle);
-console.log(`built game.bundle.js  v${version}`);
+console.log(`built game.bundle.js  v${version}  [${usedTerser ? 'TERSER (mangled+compressed)' : 'light minify (terser unavailable)'}]`);
 console.log(`  modules: ${MODULES.length}  raw: ${rawTotal} bytes  bundled: ${outSize} bytes  (-${Math.round((1-outSize/rawTotal)*100)}%)`);
 console.log(`  -> update index.html to load game.bundle.js?v=${version}`);
