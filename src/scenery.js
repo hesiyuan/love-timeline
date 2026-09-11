@@ -634,25 +634,69 @@ function drawSpecialObjects(){
   const seg = state.collectibles[2]; // Creamy segment
   const teslaWorldX = 2*SEGMENT_W + SEGMENT_W*0.45;
   const sx = teslaWorldX - state.camX;
-  if(sx > -260 && sx < W+120){
+  if(sx > -320 && sx < W+160){
     const gy=groundY();
-    ctx.save();
-    // body
-    ctx.fillStyle='#d32b3a';
-    roundRect(sx, gy-70, 220, 54, 14); ctx.fill();
-    roundRect(sx+34, gy-100, 150, 44, 18); ctx.fill();
-    // windows
-    ctx.fillStyle='rgba(210,235,255,0.85)'; roundRect(sx+46, gy-94, 120, 32, 10); ctx.fill();
-    // open trunk hatch
-    ctx.fillStyle='#b02330'; ctx.save();
-    ctx.translate(sx+200, gy-96); ctx.rotate(-0.5); roundRect(0,0,70,14,6); ctx.fill(); ctx.restore();
-    // wheels
-    ctx.fillStyle='#1a1a1a';
-    ctx.beginPath(); ctx.arc(sx+50,gy-14,20,0,7); ctx.arc(sx+170,gy-14,20,0,7); ctx.fill();
-    ctx.fillStyle='#555';
-    ctx.beginPath(); ctx.arc(sx+50,gy-14,9,0,7); ctx.arc(sx+170,gy-14,9,0,7); ctx.fill();
-    ctx.restore();
+    drawTeslaModelY(sx, gy);
   }
+}
+
+// smooth side-profile Tesla Model Y (nose to the left, open liftgate at the rear-right)
+function drawTeslaModelY(x, gy){
+  const RED='#d42630', RED_SH='#a81c26', GLASS='#20242b', GLASS_HI='#3a4552', TIRE='#111', RIM='#c9ced6';
+  const baseY = gy-14;                 // wheel-contact / body bottom
+  ctx.save();
+  // ---- lower body (smooth curved silhouette) ----
+  ctx.fillStyle=RED;
+  ctx.beginPath();
+  ctx.moveTo(x+6, baseY-6);                          // low nose tip
+  ctx.quadraticCurveTo(x-2, baseY-30, x+34, baseY-34);   // hood rise
+  ctx.quadraticCurveTo(x+70, baseY-70, x+120, baseY-74); // windshield->roof peak
+  ctx.quadraticCurveTo(x+165, baseY-74, x+206, baseY-40);// roof->fastback slope
+  ctx.quadraticCurveTo(x+232, baseY-18, x+236, baseY-6); // rear haunch to bumper
+  ctx.lineTo(x+236, baseY);                            // rear bottom
+  ctx.quadraticCurveTo(x+120, baseY+2, x+6, baseY);    // rocker/underbody
+  ctx.closePath(); ctx.fill();
+  // subtle lower shadow band
+  ctx.fillStyle=RED_SH; ctx.fillRect(x+8, baseY-6, 224, 6);
+  // ---- black greenhouse glass (follows the roofline) ----
+  ctx.fillStyle=GLASS;
+  ctx.beginPath();
+  ctx.moveTo(x+44, baseY-34);
+  ctx.quadraticCurveTo(x+74, baseY-66, x+118, baseY-68);
+  ctx.quadraticCurveTo(x+162, baseY-68, x+196, baseY-40);
+  ctx.lineTo(x+188, baseY-38);
+  ctx.quadraticCurveTo(x+120, baseY-58, x+54, baseY-34);
+  ctx.closePath(); ctx.fill();
+  // glass highlight streak
+  ctx.strokeStyle=GLASS_HI; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x+70, baseY-52); ctx.quadraticCurveTo(x+120,baseY-62,x+170,baseY-46); ctx.stroke();
+  // B-pillar (door split)
+  ctx.strokeStyle=RED_SH; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x+120,baseY-70); ctx.lineTo(x+120,baseY-6); ctx.stroke();
+  ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.moveTo(x+64,baseY-30); ctx.lineTo(x+64,baseY-6); ctx.stroke(); // door seam
+  // door handle
+  ctx.fillStyle='#eceff3'; ctx.fillRect(x+150, baseY-40, 12, 3);
+  // ---- OPEN power liftgate (raised at the rear) ----
+  ctx.save(); ctx.translate(x+206, baseY-40); ctx.rotate(-0.62);
+  ctx.fillStyle=RED; roundRect(0,-8,64,12,4); ctx.fill();
+  ctx.fillStyle=GLASS; roundRect(6,-6,44,7,3); ctx.fill();   // hatch glass
+  ctx.restore();
+  // ---- headlight + taillight ----
+  ctx.fillStyle='#eef4ff'; ctx.beginPath(); ctx.moveTo(x+8,baseY-24); ctx.lineTo(x+22,baseY-22); ctx.lineTo(x+10,baseY-16); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#8a1218'; ctx.fillRect(x+228, baseY-30, 6, 10);   // taillight
+  // Tesla 'T' hint on the front door
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillRect(x+92, baseY-30, 2, 6); ctx.fillRect(x+89, baseY-30, 8, 2);
+  // ---- alloy wheels with spokes ----
+  const wheels=[x+58, x+188];
+  for(const wx of wheels){
+    ctx.fillStyle=TIRE; ctx.beginPath(); ctx.arc(wx, baseY, 21, 0, 7); ctx.fill();      // tire
+    ctx.fillStyle=RIM;  ctx.beginPath(); ctx.arc(wx, baseY, 12, 0, 7); ctx.fill();      // rim
+    ctx.strokeStyle='#8a9099'; ctx.lineWidth=2;                                          // spokes
+    for(let a=0;a<5;a++){ const ang=a*Math.PI*2/5; ctx.beginPath(); ctx.moveTo(wx,baseY); ctx.lineTo(wx+Math.cos(ang)*11, baseY+Math.sin(ang)*11); ctx.stroke(); }
+    ctx.fillStyle='#3a3f47'; ctx.beginPath(); ctx.arc(wx, baseY, 3, 0, 7); ctx.fill();   // hub
+    // wheel arch shading
+    ctx.strokeStyle=RED_SH; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(wx, baseY, 24, Math.PI*1.05, Math.PI*1.95); ctx.stroke();
+  }
+  ctx.restore();
 }
 
 /* collectibles */
