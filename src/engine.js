@@ -19,13 +19,21 @@ function update(){
   state.moving=moving;
   if(moving) state.hero.phase += 0.28; 
 
-  // camera follows hero, clamped
-  const targetCam = state.hero.x - W*0.32;
-  state.camX = Math.max(0, Math.min(WORLD_W-W, lerp(state.camX, targetCam, 0.12)));
+  // camera follows hero, clamped — BUT the ferry segment is a fixed on-screen stage
+  // (screenSpace art + path-based walker), so lock the camera to that segment's origin
+  // while aboard; otherwise the camera scroll fights the path-mapped hero position.
+  const segNow = segmentAt(state.hero.x);
+  const onFerryNow = gameTimeline[segNow] && gameTimeline[segNow].backgroundType==='ocean_ferry_cruise';
+  if(onFerryNow){
+    state.camX = Math.max(0, Math.min(WORLD_W-W, segNow*SEGMENT_W - (W - SEGMENT_W)/2));
+  } else {
+    const targetCam = state.hero.x - W*0.32;
+    state.camX = Math.max(0, Math.min(WORLD_W-W, lerp(state.camX, targetCam, 0.12)));
+  }
   if(WORLD_W < W) state.camX = 0;
 
   // current event + activation of party members
-  const seg = segmentAt(state.hero.x);
+  const seg = segNow;
   if(seg !== state.currentEvent){ state.currentEvent = seg; updateHUD(); }
   const ev = gameTimeline[seg];
 
