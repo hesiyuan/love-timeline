@@ -511,7 +511,6 @@ function drawPlane(x, y, ang, s, t){
   ctx.beginPath(); ctx.moveTo(-18,1); ctx.lineTo(22,1); ctx.stroke();
   ctx.restore();
 }
-function airportGlassWall(x, y, w, h){
 function airportGlassWall(x, y, w, h, weather){
   ctx.save();
   ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();   // everything stays inside the window
