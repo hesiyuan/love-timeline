@@ -19,21 +19,14 @@ function update(){
   state.moving=moving;
   if(moving) state.hero.phase += 0.28; 
 
-  // camera follows hero, clamped — BUT the ferry segment is a fixed on-screen stage
-  // (screenSpace art + path-based walker), so lock the camera to that segment's origin
-  // while aboard; otherwise the camera scroll fights the path-mapped hero position.
-  const segNow = segmentAt(state.hero.x);
-  const onFerryNow = gameTimeline[segNow] && gameTimeline[segNow].backgroundType==='ocean_ferry_cruise';
-  if(onFerryNow){
-    state.camX = Math.max(0, Math.min(WORLD_W-W, segNow*SEGMENT_W - (W - SEGMENT_W)/2));
-  } else {
-    const targetCam = state.hero.x - W*0.32;
-    state.camX = Math.max(0, Math.min(WORLD_W-W, lerp(state.camX, targetCam, 0.12)));
-  }
+  // camera follows hero, clamped — everywhere, including the ferry (the ferry is world
+  // scenery, so the camera never locks; the ferry just scrolls in like the Tesla).
+  const targetCam = state.hero.x - W*0.32;
+  state.camX = Math.max(0, Math.min(WORLD_W-W, lerp(state.camX, targetCam, 0.12)));
   if(WORLD_W < W) state.camX = 0;
 
   // current event + activation of party members
-  const seg = segNow;
+  const seg = segmentAt(state.hero.x);
   if(seg !== state.currentEvent){ state.currentEvent = seg; updateHUD(); }
   const ev = gameTimeline[seg];
 
@@ -47,12 +40,7 @@ function update(){
   if(ev.partyMembers.includes('wife') && seg >= 1) state.wifeActive=true;
   if(ev.partyMembers.includes('creamy_dog')) state.creamyActive=true;
 
-  // Ferry voyage (segment index 3): progress = fraction walked across that segment.
-  // Drives the ferryScene (coastline scroll, ramps on/off) so walking right = sailing.
-  const FERRY_SEG = gameTimeline.findIndex(e=>e.backgroundType==='ocean_ferry_cruise');
-  if(seg === FERRY_SEG && FERRY_SEG >= 0){
-    state.ferryProgress = Math.max(0, Math.min(1, (state.hero.x - FERRY_SEG*SEGMENT_W)/SEGMENT_W));
-  }
+  // (Ferry is world scenery now — no progress state needed; feet-Y comes from ferryFloorAt.)
 
   // wardrobe: swap outfits + fire transition FX when a milestone changes them
   WardrobeManager.syncToEvent(seg);
@@ -124,32 +112,30 @@ function render(){
   const gy=groundY();
   ambientHearts(gy);
 
-  // On the ferry segment, the walking surface rises up the ramp / onto the deck / down the
-  // far ramp — so the couple's feet-Y follows ferryFloorY(progress) instead of the ground.
+  // On the ferry segment the walking surface rises up the boarding ramp, across the deck,
+  // and down the exit ramp. The ferry is WORLD scenery, so each character's screen-X is
+  // simply worldX - camX (camera follows the hero as usual); only the feet-Y changes,
+  // sampled from ferryFloorAt(worldX) so feet stay on the ramp/deck surface.
   const onFerry = bg.backgroundType==='ocean_ferry_cruise';
-  const ferryP = state.ferryProgress||0;
-  const ferryPt = onFerry ? pointOnFerryPath(ferryP, gy) : null;
-  const floorY = onFerry ? ferryPt.y : gy;
+  const heroWorldX = state.hero.x;
+  const floorY = onFerry ? ferryFloorAt(heroWorldX, gy) : gy;
 
   // party — draw trailing members behind hero
-  // On the ferry, the hero's screen position comes from the shared path (feet on the deck/ramp).
-  const heroScreenX = onFerry ? ferryPt.x : (state.hero.x - state.camX);
+  const heroScreenX = heroWorldX - state.camX;
   const walk = state.hero.phase;
   const moving = state.moving;
   const face = state.hero.facing;
   if(state.creamyActive){
-    if(onFerry){ const c=pointOnFerryPath(ferryP-0.10, gy); drawCreamy(c.x, c.y, walk*1.1, face, moving); }
-    else drawCreamy(heroScreenX - 118, floorY, walk*1.1, face, moving);
+    const cWorld = heroWorldX - 118;
+    const cy = onFerry ? ferryFloorAt(cWorld, gy) : floorY;
+    drawCreamy(cWorld - state.camX, cy, walk*1.1, face, moving);
   }
   if(state.wifeJoined){
     // joined: wife trails the husband as a normal party member
-    if(onFerry){ const wpt=pointOnFerryPath(ferryP-0.05, gy);
-      drawHuman(wpt.x, wpt.y, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
-        dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
-    } else {
-      drawHuman(heroScreenX - 62, floorY, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
-        dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
-    }
+    const wWorld = heroWorldX - 62;
+    const wy = onFerry ? ferryFloorAt(wWorld, gy) : floorY;
+    drawHuman(wWorld - state.camX, wy, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
+      dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
   } else {
     // pre-placed: wife stands still at the airport meet point, facing LEFT toward the husband
     const wifeScreenX = (WIFE_MEET_X||SEGMENT_W*0.80) - state.camX;
