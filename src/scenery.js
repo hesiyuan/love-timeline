@@ -408,65 +408,64 @@ const LAYER_DRAW = {
   },
   // cozy indoor: warm wall + window with sill
   indoorCare(base, gy, pal, o){
-    // ===== HOSPITAL CORRIDOR (event 7) — drawn screen-space like the airport interior =====
-    const floorY = gy - 40;                       // where wall meets floor
-    const ceilB  = 84;                            // bottom of the ceiling band
-    // --- walls (soft clinical grey-green) ---
-    ctx.fillStyle='#d7dad2'; ctx.fillRect(0, 0, W, floorY);
-    ctx.fillStyle='#cdd0c8'; ctx.fillRect(0, floorY-40, W, 40);        // lower wall band
-    // --- drop ceiling grid + lit fluorescent panels ---
-    ctx.fillStyle='#c4c7bf'; ctx.fillRect(0,0,W,ceilB);
-    ctx.strokeStyle='rgba(120,124,116,0.5)'; ctx.lineWidth=1;
-    for(let x=0;x<=W;x+=64){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,ceilB); ctx.stroke(); }
-    ctx.beginPath(); ctx.moveTo(0,ceilB); ctx.lineTo(W,ceilB); ctx.stroke();
-    for(let x=28;x<W;x+=128){                       // recessed light panels, warm glow
-      ctx.fillStyle='rgba(255,244,200,0.35)'; ctx.fillRect(x-10, 12, 56, 20);   // halo
-      ctx.fillStyle='#fdf6df'; ctx.fillRect(x, 16, 36, 12);
-      ctx.strokeStyle='#b9bcb2'; ctx.strokeRect(x, 16, 36, 12);
+    // ===== HOSPITAL CORRIDOR (event 7) — screen-space, but SCROLLS with the camera =====
+    // Drawn once (screenSpace, no wrapper translate). To make it move as the hero walks,
+    // we shift everything by a camera-derived offset and tile the repeating band across
+    // three screen widths [-W .. 2W] so it wraps seamlessly (like a parallax interior).
+    const floorY = gy - 40;
+    const ceilB  = 84;
+    const off = (state.camX * 0.5) % W;          // parallax scroll amount (wrapped)
+    ctx.save();
+    ctx.translate(-off, 0);
+    for(let tile=-1; tile<=1; tile++){
+      const bx = tile*W;                          // this tile's left edge (in scrolled space)
+      // --- walls ---
+      ctx.fillStyle='#d7dad2'; ctx.fillRect(bx, 0, W+1, floorY);
+      ctx.fillStyle='#cdd0c8'; ctx.fillRect(bx, floorY-40, W+1, 40);
+      // --- drop ceiling grid + lit fluorescent panels ---
+      ctx.fillStyle='#c4c7bf'; ctx.fillRect(bx,0,W+1,ceilB);
+      ctx.strokeStyle='rgba(120,124,116,0.5)'; ctx.lineWidth=1;
+      for(let x=0;x<=W;x+=64){ ctx.beginPath(); ctx.moveTo(bx+x,0); ctx.lineTo(bx+x,ceilB); ctx.stroke(); }
+      ctx.beginPath(); ctx.moveTo(bx,ceilB); ctx.lineTo(bx+W,ceilB); ctx.stroke();
+      for(let x=28;x<W;x+=128){
+        ctx.fillStyle='rgba(255,244,200,0.35)'; ctx.fillRect(bx+x-10, 12, 56, 20);
+        ctx.fillStyle='#fdf6df'; ctx.fillRect(bx+x, 16, 36, 12);
+        ctx.strokeStyle='#b9bcb2'; ctx.strokeRect(bx+x, 16, 36, 12);
+      }
+      // --- corridor vanishing-point doorway on the back wall (center of each tile) ---
+      const vpx=bx+Math.round(W*0.5), vw=120, vh=150, vy=floorY-vh;
+      ctx.fillStyle='#b8bcb2'; ctx.fillRect(vpx-vw/2, vy, vw, vh);
+      ctx.fillStyle='#e9ece6'; ctx.fillRect(vpx-vw/2+8, vy+8, vw-16, vh-16);
+      ctx.fillStyle='#cfd3ca'; ctx.fillRect(vpx-vw/2+8, vy+8, vw-16, 6);
+      ctx.fillStyle='#f3f5ef'; ctx.fillRect(vpx-24, vy+40, 48, vh-46);
+      ctx.fillStyle='#7a2f2f'; ctx.fillRect(vpx-92, vy-4, 184, 18);
+      pixelLabel('MEDICAL IMAGING', vpx-84, vy+9, 7, '#f4e7c8');
+      const chips=[['#c0553f','RED'],['#3f6bc0','BLUE'],['#c9a23f','YEL']];
+      chips.forEach((c,i)=>{ const cx=vpx-72+i*56; ctx.fillStyle=c[0]; ctx.fillRect(cx, vy+18, 48, 12);
+        pixelLabel(c[1], cx+4, vy+28, 6, '#fff'); });
+      // --- wall handrails both sides of the doorway ---
+      ctx.fillStyle='#a9865a'; ctx.fillRect(bx, floorY-70, (vpx-vw/2)-bx, 6); ctx.fillRect(vpx+vw/2, floorY-70, (bx+W)-(vpx+vw/2), 6);
+      ctx.fillStyle='#8a6a42'; ctx.fillRect(bx, floorY-64, (vpx-vw/2)-bx, 3); ctx.fillRect(vpx+vw/2, floorY-64, (bx+W)-(vpx+vw/2), 3);
+      // --- doors + signage ---
+      hospitalDoor(bx+Math.round(W*0.14), floorY, 'ROOM 2');
+      hospitalDoor(bx+Math.round(W*0.84), floorY, 'RESTROOMS');
+      ctx.fillStyle='#5a6068'; ctx.fillRect(bx+Math.round(W*0.70), 44, 96, 16);
+      pixelLabel('RESTROOMS', bx+Math.round(W*0.70)+6, 56, 6, '#eef2f6');
+      ctx.strokeStyle='#5a6068'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx+Math.round(W*0.72),44); ctx.lineTo(bx+Math.round(W*0.72),ceilB); ctx.stroke();
+      const sx=bx+Math.round(W*0.78); ctx.fillStyle='#eef2f4'; ctx.fillRect(sx, floorY-96, 12, 22);
+      ctx.fillStyle='#8fd0e0'; ctx.fillRect(sx+2, floorY-92, 8, 8);
+      // --- tiled floor with perspective seams ---
+      ctx.fillStyle='#d8cdb2'; ctx.fillRect(bx, floorY, W+1, gy-floorY);
+      ctx.strokeStyle='rgba(150,138,110,0.5)'; ctx.lineWidth=1;
+      for(let i=0;i<7;i++){ const y=floorY+ i*Math.round((gy-floorY)/6);
+        ctx.beginPath(); ctx.moveTo(bx,y); ctx.lineTo(bx+W,y); ctx.stroke(); }
+      for(let x=-2;x<=8;x++){
+        ctx.beginPath(); ctx.moveTo(vpx + (x-3)*40, floorY); ctx.lineTo(vpx + (x-3)*(W*0.16), gy); ctx.stroke(); }
+      // --- props ---
+      supplyCart(bx+Math.round(W*0.10), gy);
+      bassinetStroller(bx+Math.round(W*0.62), gy);
     }
-    // --- corridor vanishing-point doorway on the back wall (center) ---
-    const vpx=Math.round(W*0.5), vw=120, vh=150, vy=floorY-vh;
-    ctx.fillStyle='#b8bcb2'; ctx.fillRect(vpx-vw/2, vy, vw, vh);        // recessed far corridor
-    ctx.fillStyle='#e9ece6'; ctx.fillRect(vpx-vw/2+8, vy+8, vw-16, vh-16);
-    ctx.fillStyle='#cfd3ca'; ctx.fillRect(vpx-vw/2+8, vy+8, vw-16, 6); // far ceiling
-    ctx.fillStyle='#f3f5ef'; ctx.fillRect(vpx-24, vy+40, 48, vh-46);   // bright far end
-    // header sign over the doorway
-    ctx.fillStyle='#7a2f2f'; ctx.fillRect(vpx-92, vy-4, 184, 18);
-    pixelLabel('MEDICAL IMAGING', vpx-84, vy+9, 7, '#f4e7c8');
-    // color zone chips under it (Red/Blue/Yellow zone vibe)
-    const chips=[['#c0553f','RED'],['#3f6bc0','BLUE'],['#c9a23f','YEL']];
-    chips.forEach((c,i)=>{ const cx=vpx-72+i*56; ctx.fillStyle=c[0]; ctx.fillRect(cx, vy+18, 48, 12);
-      pixelLabel(c[1], cx+4, vy+28, 6, '#fff'); });
-
-    // --- wall handrails running down both sides (wood tone) ---
-    ctx.fillStyle='#a9865a'; ctx.fillRect(0, floorY-70, vpx-vw/2, 6); ctx.fillRect(vpx+vw/2, floorY-70, W-(vpx+vw/2), 6);
-    ctx.fillStyle='#8a6a42'; ctx.fillRect(0, floorY-64, vpx-vw/2, 3); ctx.fillRect(vpx+vw/2, floorY-64, W-(vpx+vw/2), 3);
-
-    // --- doors + signage on side walls ---
-    hospitalDoor(Math.round(W*0.14), floorY, 'ROOM 2');
-    hospitalDoor(Math.round(W*0.84), floorY, 'RESTROOMS');
-    // hanging directional sign near the right
-    ctx.fillStyle='#5a6068'; ctx.fillRect(Math.round(W*0.70), 44, 96, 16);
-    pixelLabel('RESTROOMS', Math.round(W*0.70)+6, 56, 6, '#eef2f6');
-    ctx.strokeStyle='#5a6068'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(Math.round(W*0.72),44); ctx.lineTo(Math.round(W*0.72),ceilB); ctx.stroke();
-    // sanitizer dispenser on the right wall
-    const sx=Math.round(W*0.78); ctx.fillStyle='#eef2f4'; ctx.fillRect(sx, floorY-96, 12, 22);
-    ctx.fillStyle='#8fd0e0'; ctx.fillRect(sx+2, floorY-92, 8, 8);
-
-    // --- tiled floor with perspective seams ---
-    ctx.fillStyle='#d8cdb2'; ctx.fillRect(0, floorY, W, gy-floorY);
-    ctx.strokeStyle='rgba(150,138,110,0.5)'; ctx.lineWidth=1;
-    for(let i=0;i<7;i++){ const y=floorY+ i*Math.round((gy-floorY)/6);   // horizontal tile lines
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-    for(let x=-2;x<=8;x++){ const fx=vpx + (x-3)* (W*0.16);              // converging vertical seams
-      ctx.beginPath(); ctx.moveTo(vpx + (x-3)*40, floorY); ctx.lineTo(fx, gy); ctx.stroke(); }
-    // floor sheen highlights
-    ctx.fillStyle='rgba(255,255,255,0.25)';
-    for(let i=0;i<3;i++){ ctx.fillRect(Math.round(W*0.35)+i*70, floorY+30+i*20, 28, 6); }
-
-    // --- props: supply cart (left) + a baby bassinet stroller (right of center) ---
-    supplyCart(Math.round(W*0.10), gy);
-    bassinetStroller(Math.round(W*0.62), gy);
+    ctx.restore();
   },
 
   // walking hospital staff: nurses in blue scrubs drifting along the corridor.
