@@ -8,6 +8,7 @@
    Each character is drawn at a fixed display height with its feet on the ground line,
    the frame index cycles with walkPhase, the whole sprite bobs, and it mirrors on facing. */
 const SPRITE_IMGS = { husband:[], wife:[], creamy:[], ready:false };
+const NPC_IMGS = {};   // { npc1:[Image x8], ... } background-people sprites
 function loadSprites(){
   let pending=0, done=0;
   for(const who of ['husband','wife','creamy']){
@@ -20,7 +21,35 @@ function loadSprites(){
       SPRITE_IMGS[who].push(img);
     }
   }
+  // NPC crowd sprites (recolored from the base frames; same 8-frame walk cycle)
+  if(typeof NPC_SPRITES !== 'undefined'){
+    for(const id in NPC_SPRITES){
+      NPC_IMGS[id] = NPC_SPRITES[id].map(src=>{ const im=new Image(); im.src=src; return im; });
+    }
+  }
   if(pending===0) SPRITE_IMGS.ready=true;
+}
+const NPC_IDS = ['npc1','npc2','npc3','npc4','npc5','npc6'];
+
+// draw a background NPC sprite: feet at (x,gy), scaled to displayH, frame-cycled.
+// `phase` drives the walk frame; moving=false holds a stance frame (for seated/standing).
+function drawNpc(id, x, gy, displayH, phase, facing, moving){
+  const frames = NPC_IMGS[id];
+  if(!frames || !frames.length) return false;
+  const n=frames.length;
+  const idx = moving ? (Math.floor(phase) % n + n) % n : 0;
+  const img = frames[idx];
+  if(!img || !img.complete || !img.naturalWidth) return false;
+  const bob = moving ? Math.round(Math.abs(Math.sin(phase))*2) : 0;
+  const scale = displayH / img.naturalHeight;
+  const w = img.naturalWidth*scale, h = displayH;
+  ctx.save();
+  ctx.imageSmoothingEnabled=false;
+  ctx.translate(Math.round(x), Math.round(gy - bob));
+  if(facing<0) ctx.scale(-1,1);
+  ctx.drawImage(img, Math.round(-w/2), Math.round(-h), Math.round(w), Math.round(h));
+  ctx.restore();
+  return true;
 }
 
 /* =====================================================================
