@@ -431,13 +431,15 @@ const LAYER_DRAW = {
       ctx.beginPath(); ctx.moveTo(x-90, horizon+6); ctx.lineTo(x, horizon-30); ctx.lineTo(x+90, horizon+6); ctx.closePath(); ctx.fill(); }
     // varied far-shore vegetation: rotate through distinct tree/bush/shrub silhouettes
     // (deterministic per index so tiles wrap), with low shrubs filling the gaps between.
-    const shoreY = horizon + 12;
+    // Rooted at the SHORELINE (where the lake meets the lawn = gy-70) so trees stand on
+    // the far bank rather than floating in the sky. Their canopies rise up over the water.
+    const shoreY = gy - 70;
     const kinds = ['round','conifer','willow','topiary','poplar'];
     for(let i=0;i<11;i++){
       const x = base + Math.round(i*(W/10));
       shoreTree(x, shoreY, kinds[i % kinds.length], i);
-      // a small shrub tucked between trees for a fuller hedge line
-      shoreShrub(x + Math.round(W/20), shoreY+6, i);
+      // a small shrub tucked between trees for a fuller hedge line at the water's edge
+      shoreShrub(x + Math.round(W/20), shoreY-2, i);
     }
     // subtle water shimmer lines
     ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=1;
