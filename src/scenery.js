@@ -205,8 +205,105 @@ const LAYER_DRAW = {
       ctx.fillStyle='rgba(90,70,50,0.5)'; ctx.fillRect(x+10,gy-52,4,14); ctx.fillRect(x+76,gy-52,4,14);
     }
   },
-  // theme-park castles
-  castles(base, gy, pal, o){ castle(base+180, gy); castle(base+W*0.62, gy); },
+  // theme-park castles: several fairytale castles in stone / pink / purple, spaced across.
+  castles(base, gy, pal, o){
+    const STONE = {body:'#d9dbe2',bodySh:'#b9bcc6',roof:'#6f7d95',roofHi:'#8c9ab0',trim:'#c9b06a',win:'#39435c',gate:'#4a5570',flag:'#c94f6a'};
+    const PINK  = {body:'#f3d3df',bodySh:'#e0aec1',roof:'#d77aa0',roofHi:'#e79bbb',trim:'#e7c66a',win:'#8a4a68',gate:'#a85f80',flag:'#ffd24a'};
+    const PURPLE= {body:'#e6d7f2',bodySh:'#c9b0e0',roof:'#7f6fae',roofHi:'#9c8fc7',trim:'#e7c66a',win:'#4a3a6e',gate:'#5a4a7e',flag:'#7ad0e0'};
+    // big hero castle center, pink+purple flankers, a distant stone one
+    castle(base + Math.round(W*0.06), gy, {...STONE, scale:0.7});
+    castle(base + Math.round(W*0.30), gy, {...PINK,  scale:0.85});
+    castle(base + Math.round(W*0.55), gy, {...PURPLE,scale:1.05});
+    castle(base + Math.round(W*0.82), gy, {...STONE, scale:0.8});
+  },
+  // roller coaster: support pylons + a swooping track with a hill and a loop, and a car.
+  coaster(base, gy, pal, o){
+    const TRACK='#c94f4f', TRACK2='#a83a3a', SUP='#7a8494', CAR='#f2c94c';
+    const topY = gy - 230;                 // apex of the first hill
+    const x0 = base + Math.round(W*0.10);
+    const x1 = base + Math.round(W*0.62);  // track span
+    const span = x1 - x0;
+    // track profile: y(t) for t in [0,1] — big hill, dip, small hill, into a loop at the end
+    function ty(t){
+      const hill = Math.sin(t*Math.PI)* -1;                 // 0..-1..0
+      const bump = Math.sin(t*Math.PI*3)*0.28;              // ripples
+      return gy - 70 + hill*150 + bump*40;
+    }
+    // support pylons down to the ground
+    ctx.strokeStyle=SUP; ctx.lineWidth=3;
+    for(let i=0;i<=14;i++){ const t=i/14, x=x0+span*t, y=ty(t);
+      ctx.beginPath(); ctx.moveTo(x, y+6); ctx.lineTo(x, gy); ctx.stroke();
+      // cross-brace
+      if(i<14){ const x2=x0+span*(i+1)/14, y2=ty((i+1)/14);
+        ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x2, y2+6); ctx.stroke(); }
+    }
+    // the two rails
+    for(const off of [0, 6]){
+      ctx.strokeStyle = off? TRACK2:TRACK; ctx.lineWidth=4;
+      ctx.beginPath();
+      for(let i=0;i<=60;i++){ const t=i/60, x=x0+span*t, y=ty(t)+off;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.stroke();
+    }
+    // a vertical loop near the end of the run
+    const lx = x1 + 46, ly = gy - 96, lr = 46;
+    for(const off of [0,6]){ ctx.strokeStyle=off?TRACK2:TRACK; ctx.lineWidth=4;
+      ctx.beginPath(); ctx.arc(lx, ly, lr-off*0.5, 0, Math.PI*2); ctx.stroke(); }
+    ctx.strokeStyle=SUP; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(lx, ly+lr); ctx.lineTo(lx, gy); ctx.stroke();
+    // the coaster car riding the hill (animated along t)
+    const ct = (0.5 + Math.sin(state.time*0.02)*0.5) * 0.85;    // slides back and forth
+    const carX = x0 + span*ct, carY = ty(ct);
+    ctx.fillStyle=CAR; roundRect(carX-16, carY-16, 32, 16, 4); ctx.fill();
+    ctx.fillStyle='#b3901f'; ctx.fillRect(carX-16, carY-4, 32, 4);
+    // little riders (dots with arms up)
+    ctx.fillStyle='#3a3f52';
+    for(let k=-1;k<=1;k++){ ctx.beginPath(); ctx.arc(carX+k*9, carY-16, 3,0,7); ctx.fill();
+      ctx.strokeStyle='#3a3f52'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(carX+k*9-3,carY-22); ctx.lineTo(carX+k*9,carY-18); ctx.lineTo(carX+k*9+3,carY-22); ctx.stroke(); }
+  },
+  // park props: leafy round trees, lamp/sign posts, a small fountain — ground-level dressing.
+  parkProps(base, gy, pal, o){
+    // trees
+    for(const fx of [0.20, 0.44, 0.72, 0.92]){
+      const tx=base+Math.round(W*fx); tree(tx, gy, 1.1, '#5b8f52');
+    }
+    // sign post with two directional arrows (Main St / Fantasyland vibe)
+    const px=base+Math.round(W*0.15);
+    ctx.fillStyle='#6f5a3a'; ctx.fillRect(px-2, gy-70, 4, 70);            // post
+    ctx.fillStyle='#4a6b8a'; ctx.fillRect(px-30, gy-66, 44, 10);          // top arrow
+    ctx.beginPath(); ctx.moveTo(px+14,gy-66); ctx.lineTo(px+22,gy-61); ctx.lineTo(px+14,gy-56); ctx.fill();
+    ctx.fillStyle='#6b8a4a'; ctx.fillRect(px-14, gy-52, 44, 10);          // second arrow (other way)
+    ctx.beginPath(); ctx.moveTo(px-14,gy-52); ctx.lineTo(px-22,gy-47); ctx.lineTo(px-14,gy-42); ctx.fill();
+    pixelLabel('PARK', px-26, gy-64, 6, '#eef3f8');
+    // ornate lamp posts
+    for(const fx of [0.34, 0.62, 0.88]){
+      const lx=base+Math.round(W*fx);
+      ctx.fillStyle='#2f3a44'; ctx.fillRect(lx-2, gy-78, 4, 78);
+      ctx.fillStyle='#ffdf8a'; ctx.beginPath(); ctx.arc(lx, gy-82, 5,0,7); ctx.fill();
+      ctx.fillStyle='rgba(255,223,138,0.25)'; ctx.beginPath(); ctx.arc(lx, gy-82, 10,0,7); ctx.fill();
+    }
+    // small central fountain
+    const fxp=base+Math.round(W*0.50);
+    ctx.fillStyle='#9fb3c4'; roundRect(fxp-26, gy-12, 52, 12, 5); ctx.fill();
+    ctx.fillStyle='#bcd6ea'; roundRect(fxp-20, gy-16, 40, 6, 3); ctx.fill();
+    ctx.fillStyle='#8fbfe0'; ctx.fillRect(fxp-2, gy-34, 4, 22);            // jet
+    ctx.fillStyle='rgba(180,220,245,0.7)'; ctx.beginPath(); ctx.arc(fxp, gy-36, 5,0,7); ctx.fill();
+  },
+  // playing children: small NPC kids running back and forth (sprite child1/child2).
+  parkKids(base, gy, pal, o){
+    for(let i=0;i<3;i++){
+      const r=((i*97+41)%100)/100;
+      const dir = (i%2===0)?1:-1;
+      const span = Math.round(W*0.5);
+      const speed = 0.6 + r*0.6;
+      const off = (state.time*speed + i*220) % span;
+      const x = base + Math.round(W*0.18) + (dir>0 ? off : span-off);
+      const id = (i%2===0) ? 'child1' : 'child2';
+      const phase = state.time*0.26 + x*0.05;                 // kids scamper faster
+      if(!drawNpc(id, Math.round(x), gy-1, 40, phase, dir, true)){
+        person(x, gy, i%2? '#96a0a8':'#5684c4', '#f7cea0', '#603e22');
+      }
+    }
+  },
   // cozy winter city: snow-topped buildings + a few bare trees
   // Vancouver-style winter skyline: towers packed ADJACENT (continuous block), colors
   // alternating across a palette, each tower one of three styles — glassy, brutalist
@@ -340,7 +437,7 @@ function deriveScenery(ev){
     suburban_driveway:     [ {kind:'hills',speed:0.2,opts:{h:110}}, {kind:'trees',speed:0.55,opts:{density:6}} ],
     ocean_ferry_cruise:    [ {kind:'ferryScene',speed:0,opts:{screenSpace:true}} ],
     mountain_resort_vineyard:[ {kind:'mountains',speed:0.18,opts:{snow:true}}, {kind:'vineyard',speed:0.55} ],
-    theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.45} ],
+    theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.4}, {kind:'coaster',speed:0.5}, {kind:'parkProps',speed:0.6}, {kind:'parkKids',speed:0.75} ],
     cozy_winter_city:      [ {kind:'mountains',speed:0.12,opts:{color:'#c3ccdb',snow:true,peaks:[[0,520,220],[420,620,300],[900,560,240]]}}, {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
     cozy_indoor_care:      [ {kind:'indoorCare',speed:0.3} ],
     lakeside_trees_wedding:[ {kind:'mountains',speed:0.18,opts:{peaks:[[80,400,180]]}}, {kind:'hills',speed:0.28,opts:{h:90}}, {kind:'trees',speed:0.55,opts:{density:8}} ],
@@ -373,17 +470,65 @@ function tree(x,gy,s,color){
   ctx.fill();
 }
 function mountainSnow(){}
-function castle(x,gy){
-  ctx.fillStyle=PALETTES.theme_park_castles?PALETTES.theme_park_castles.mid:'#f28fb0';
-  ctx.fillStyle='#e6d7f2';
-  ctx.fillRect(x, gy-160, 120, 160);
-  ctx.beginPath(); ctx.moveTo(x-6,gy-160); ctx.lineTo(x+60,gy-230); ctx.lineTo(x+126,gy-160); ctx.closePath();
-  ctx.fillStyle='#c48ad0'; ctx.fill();
-  ctx.fillStyle='#e6d7f2';
-  ctx.fillRect(x-24,gy-120,24,120); ctx.fillRect(x+120,gy-120,24,120);
-  ctx.fillStyle='#c48ad0';
-  ctx.beginPath(); ctx.moveTo(x-30,gy-120); ctx.lineTo(x-12,gy-150); ctx.lineTo(x+6,gy-120); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(x+114,gy-120); ctx.lineTo(x+132,gy-150); ctx.lineTo(x+150,gy-120); ctx.fill();
+function castle(x,gy,opts){
+  // Fairytale castle: central keep + flanking turrets, conical spires with flags, arched gate.
+  // opts.body / opts.roof pick the color family (stone, pink, purple). Deterministic size.
+  const o = opts||{};
+  const BODY = o.body || '#d9dbe2';        // wall stone
+  const BODY_SH = o.bodySh || '#b9bcc6';   // shaded wall
+  const ROOF = o.roof || '#7f6fae';        // conical spire roof
+  const ROOF_HI = o.roofHi || '#9c8fc7';
+  const TRIM = o.trim || '#c9b06a';         // gold trim / finials
+  const s = o.scale || 1;
+  const H = Math.round(190*s);              // keep height
+  const kw = Math.round(120*s);             // keep width
+  const topY = gy - H;
+  const cx = x + kw/2;
+  // ---- spire helper (cone + flag on a pole) ----
+  function spire(sx, baseY, w, h, flag){
+    ctx.fillStyle=ROOF;
+    ctx.beginPath(); ctx.moveTo(sx-w/2, baseY); ctx.lineTo(sx, baseY-h); ctx.lineTo(sx+w/2, baseY); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=ROOF_HI;                                   // lit left face
+    ctx.beginPath(); ctx.moveTo(sx-w/2, baseY); ctx.lineTo(sx, baseY-h); ctx.lineTo(sx, baseY); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=TRIM; ctx.fillRect(Math.round(sx)-1, Math.round(baseY-h-Math.round(10*s)), 2, Math.round(10*s)); // pole
+    if(flag){ ctx.fillStyle=o.flag||'#c94f6a';               // pennant
+      const fy=baseY-h-Math.round(9*s);
+      ctx.beginPath(); ctx.moveTo(sx+1, fy); ctx.lineTo(sx+Math.round(12*s), fy+Math.round(3*s)); ctx.lineTo(sx+1, fy+Math.round(6*s)); ctx.closePath(); ctx.fill(); }
+  }
+  // ---- flanking turrets (left & right) ----
+  const tw = Math.round(34*s), tH = Math.round(150*s);
+  for(const side of [-1, 1]){
+    const tx = cx + side*(kw/2 + tw*0.35) - tw/2;
+    ctx.fillStyle=BODY; ctx.fillRect(tx, gy-tH, tw, tH);
+    ctx.fillStyle=BODY_SH; ctx.fillRect(tx+Math.round(tw*0.62), gy-tH, Math.round(tw*0.38), tH);
+    // crenellation band
+    ctx.fillStyle=BODY_SH; for(let bx=tx; bx<tx+tw; bx+=Math.round(8*s)) ctx.fillRect(bx, gy-tH, Math.round(4*s), Math.round(5*s));
+    spire(tx+tw/2, gy-tH, Math.round(tw+8*s), Math.round(56*s), true);
+    // narrow windows
+    ctx.fillStyle=o.win||'#3a4560';
+    for(let wy=gy-tH+Math.round(24*s); wy<gy-Math.round(20*s); wy+=Math.round(30*s)) ctx.fillRect(tx+tw/2-2, wy, 4, Math.round(9*s));
+  }
+  // ---- central keep ----
+  ctx.fillStyle=BODY; ctx.fillRect(x, topY, kw, H);
+  ctx.fillStyle=BODY_SH; ctx.fillRect(x+Math.round(kw*0.66), topY, Math.round(kw*0.34), H);
+  // crenellations along the keep top
+  ctx.fillStyle=BODY_SH; for(let bx=x; bx<x+kw; bx+=Math.round(12*s)) ctx.fillRect(bx, topY, Math.round(6*s), Math.round(6*s));
+  // tall central spire + two mid spires
+  spire(cx, topY, Math.round(46*s), Math.round(84*s), true);
+  spire(x+Math.round(kw*0.22), topY+Math.round(6*s), Math.round(26*s), Math.round(46*s), false);
+  spire(x+Math.round(kw*0.78), topY+Math.round(6*s), Math.round(26*s), Math.round(46*s), false);
+  // arched gate
+  ctx.fillStyle=o.gate||'#5a4a6e';
+  const gw=Math.round(30*s), gh=Math.round(46*s), gx=cx-gw/2;
+  ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx, gy-gh+gw/2);
+  ctx.arc(cx, gy-gh+gw/2, gw/2, Math.PI, 0); ctx.lineTo(gx+gw, gy); ctx.closePath(); ctx.fill();
+  // rows of windows on the keep
+  ctx.fillStyle=o.win||'#3a4560';
+  for(let wy=topY+Math.round(30*s); wy<gy-Math.round(52*s); wy+=Math.round(34*s))
+    for(let wx=x+Math.round(14*s); wx<x+kw-Math.round(12*s); wx+=Math.round(26*s)){
+      ctx.fillRect(wx, wy, Math.round(8*s), Math.round(12*s));
+      ctx.fillStyle=TRIM; ctx.fillRect(wx-1, wy-2, Math.round(10*s), 2); ctx.fillStyle=o.win||'#3a4560';   // gold lintel
+    }
 }
 function tent(x,gy){ ctx.beginPath(); ctx.moveTo(x-40,gy); ctx.lineTo(x,gy-70); ctx.lineTo(x+40,gy); ctx.closePath(); ctx.fill(); }
 function sailboat(x,y){ ctx.fillStyle='rgba(255,255,255,0.8)';
