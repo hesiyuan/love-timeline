@@ -120,22 +120,28 @@ function render(){
   // far ramp — so the couple's feet-Y follows ferryFloorY(progress) instead of the ground.
   const onFerry = bg.backgroundType==='ocean_ferry_cruise';
   const ferryP = state.ferryProgress||0;
-  const floorY = onFerry ? ferryFloorY(ferryP, gy) : gy;
+  const ferryPt = onFerry ? pointOnFerryPath(ferryP, gy) : null;
+  const floorY = onFerry ? ferryPt.y : gy;
 
   // party — draw trailing members behind hero
-  // On the ferry, the hero's screen-X follows the on-screen ramp/deck path (so feet meet
-  // the ramp); off-ferry it's the usual camera-relative position.
-  const heroScreenX = onFerry ? ferryFloorX(ferryP, gy) : (state.hero.x - state.camX);
+  // On the ferry, the hero's screen position comes from the shared path (feet on the deck/ramp).
+  const heroScreenX = onFerry ? ferryPt.x : (state.hero.x - state.camX);
   const walk = state.hero.phase;
   const moving = state.moving;
   const face = state.hero.facing;
   if(state.creamyActive){
-    drawCreamy(heroScreenX - 118, floorY, walk*1.1, face, moving);
+    if(onFerry){ const c=pointOnFerryPath(ferryP-0.10, gy); drawCreamy(c.x, c.y, walk*1.1, face, moving); }
+    else drawCreamy(heroScreenX - 118, floorY, walk*1.1, face, moving);
   }
   if(state.wifeJoined){
     // joined: wife trails the husband as a normal party member
-    drawHuman(heroScreenX - 62, floorY, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
-      dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
+    if(onFerry){ const wpt=pointOnFerryPath(ferryP-0.05, gy);
+      drawHuman(wpt.x, wpt.y, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
+        dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
+    } else {
+      drawHuman(heroScreenX - 62, floorY, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
+        dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
+    }
   } else {
     // pre-placed: wife stands still at the airport meet point, facing LEFT toward the husband
     const wifeScreenX = (WIFE_MEET_X||SEGMENT_W*0.80) - state.camX;
