@@ -389,7 +389,6 @@ function drawPlane(x, y, ang, s, t){
 /* ============ AIRPORT INTERIOR HELPERS ============ */
 
 // glass curtain wall showing sky + tarmac apron + parked planes beyond, with mullions
-function airportGlassWall(x, y, w, h){
 function airportGlassWall(x, y, w, h, weather){
   ctx.save();
   ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();   // everything stays inside the window
