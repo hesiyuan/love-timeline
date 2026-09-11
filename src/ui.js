@@ -26,20 +26,56 @@ function updateHUD(){
   document.getElementById('hLoc').textContent = ev.location;
   document.getElementById('hItems').textContent = state.collected.size;
   document.getElementById('hTotal').textContent = gameTimeline.length;
-  // show collected memories as their item PNG icons (in timeline order), not emojis
+  // show only the MOST RECENT 3 collected memories as item PNG icons, centered
   const box = document.getElementById('hParty');
+  const collectedIdx = [];
+  gameTimeline.forEach((e,i)=>{ if(state.collected.has(i)) collectedIdx.push(i); });
+  const recent = collectedIdx.slice(-3);
   let html = '';
-  gameTimeline.forEach((e, i) => {
-    if(state.collected.has(i)){
-      const key = e.collectible && e.collectible.icon;
-      const src = (typeof ITEM_ICONS!=='undefined') ? ITEM_ICONS[key] : null;
-      if(src) html += `<img class="hud-item" src="${src}" alt="${e.collectible.name}" title="${e.collectible.name}" width="20" height="20">`;
-    }
+  recent.forEach(i=>{
+    const e=gameTimeline[i]; const key=e.collectible && e.collectible.icon;
+    const src=(typeof ITEM_ICONS!=='undefined')?ITEM_ICONS[key]:null;
+    if(src) html += `<img class="hud-item" src="${src}" alt="${e.collectible.name}" title="${e.collectible.name}" width="22" height="22">`;
   });
   box.innerHTML = html;
   const prog = Math.min(1, heroWorldX()/(WORLD_W - SEGMENT_W*0.15));
   document.getElementById('pFill').style.width = (prog*100)+'%';
 }
+
+/* ---------------- MEMORIES MODAL ---------------- */
+function buildMemGrid(){
+  const grid=document.getElementById('memGrid');
+  const title=document.getElementById('memTitle');
+  title.textContent = `Memories — ${state.collected.size} / ${gameTimeline.length}`;
+  let html='';
+  gameTimeline.forEach((e,i)=>{
+    const got=state.collected.has(i);
+    const key=e.collectible && e.collectible.icon;
+    const src=(typeof ITEM_ICONS!=='undefined')?ITEM_ICONS[key]:null;
+    if(got && src){
+      html+=`<div class="mem-slot"><img src="${src}" alt="${e.collectible.name}">
+        <div class="mn">${e.collectible.name}</div>
+        <div class="md">${e.date} · ${e.title}</div></div>`;
+    } else {
+      html+=`<div class="mem-slot locked"><div class="lock">🔒</div>
+        <div class="mn">???</div><div class="md">Not yet found</div></div>`;
+    }
+  });
+  grid.innerHTML=html;
+}
+function openMemModal(){ buildMemGrid(); document.getElementById('memModal').classList.remove('hidden'); }
+function closeMemModal(){ document.getElementById('memModal').classList.add('hidden'); }
+(function wireMemModal(){
+  const btn=document.getElementById('memBtn');
+  if(btn){
+    btn.addEventListener('click', openMemModal);
+    btn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openMemModal(); } });
+  }
+  const close=document.getElementById('memClose'); if(close) close.addEventListener('click', closeMemModal);
+  const modal=document.getElementById('memModal');
+  if(modal) modal.addEventListener('click', e=>{ if(e.target===modal) closeMemModal(); });
+  window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeMemModal(); });
+})();
 
 /* place progress nodes once */
 function buildProgressNodes(){
