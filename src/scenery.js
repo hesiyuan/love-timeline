@@ -429,11 +429,16 @@ const LAYER_DRAW = {
     ctx.fillStyle='#8fa9ad';
     for(const mx of [0.1,0.4,0.72]){ const x=base+Math.round(W*mx);
       ctx.beginPath(); ctx.moveTo(x-90, horizon+6); ctx.lineTo(x, horizon-30); ctx.lineTo(x+90, horizon+6); ctx.closePath(); ctx.fill(); }
-    // soft willow/tree line along the far shore (rounded green blobs)
-    for(let i=0;i<10;i++){ const x=base+i*Math.round(W/9); const h=26+((i*53)%22);
-      ctx.fillStyle= i%2? '#6f9a5e':'#5f8a52';
-      ctx.beginPath(); ctx.arc(x, horizon+4, h,0,7); ctx.fill();
-      ctx.fillRect(x-2, horizon+4, 4, 14); }
+    // varied far-shore vegetation: rotate through distinct tree/bush/shrub silhouettes
+    // (deterministic per index so tiles wrap), with low shrubs filling the gaps between.
+    const shoreY = horizon + 12;
+    const kinds = ['round','conifer','willow','topiary','poplar'];
+    for(let i=0;i<11;i++){
+      const x = base + Math.round(i*(W/10));
+      shoreTree(x, shoreY, kinds[i % kinds.length], i);
+      // a small shrub tucked between trees for a fuller hedge line
+      shoreShrub(x + Math.round(W/20), shoreY+6, i);
+    }
     // subtle water shimmer lines
     ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=1;
     for(let i=0;i<4;i++){ const y=horizon+34+i*16; ctx.beginPath(); ctx.moveTo(0,y);
@@ -573,6 +578,62 @@ function woodenChair(x, gy){
   ctx.strokeStyle=W2; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(x+3, gy-32); ctx.lineTo(x+17, gy-18);
   ctx.moveTo(x+17, gy-32); ctx.lineTo(x+3, gy-18); ctx.stroke();
+}
+
+// a distant shore tree in one of several silhouettes; `seed` drives size/tone variation.
+// Colors are muted (atmospheric distance). baseY = ground line of the shore band.
+function shoreTree(x, baseY, kind, seed){
+  x=Math.round(x);
+  const r1=((seed*57)%100)/100, r2=((seed*97)%100)/100;
+  const GREENS = ['#5f8a52','#6f9a5e','#547f49','#77a465','#4f7a46'];
+  const g1 = GREENS[seed % GREENS.length];
+  const g2 = GREENS[(seed+2) % GREENS.length];
+  const TRUNK = '#6b4a2f';
+  const s = 0.85 + r1*0.5;                          // per-tree scale
+  ctx.fillStyle=g1;
+  if(kind==='round'){
+    // broad deciduous: overlapping canopy blobs on a short trunk
+    const tw=Math.round(46*s);
+    ctx.fillStyle=TRUNK; ctx.fillRect(x-2, baseY-Math.round(18*s), 4, Math.round(18*s));
+    ctx.fillStyle=g1; ctx.beginPath(); ctx.arc(x, baseY-Math.round(34*s), tw*0.5,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(x-tw*0.32, baseY-Math.round(26*s), tw*0.34,0,7); ctx.arc(x+tw*0.32, baseY-Math.round(26*s), tw*0.34,0,7); ctx.fill();
+    ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(x-tw*0.14, baseY-Math.round(40*s), tw*0.30,0,7); ctx.fill();  // lit crown
+  } else if(kind==='conifer'){
+    // stacked-triangle evergreen (tall, pointed)
+    const h=Math.round(64*s), w=Math.round(30*s);
+    ctx.fillStyle=TRUNK; ctx.fillRect(x-2, baseY-6, 4, 6);
+    ctx.fillStyle=g1;
+    for(let k=0;k<3;k++){ const ty=baseY-6-k*Math.round(h*0.26); const tw=w*(1-k*0.22);
+      ctx.beginPath(); ctx.moveTo(x-tw/2, ty); ctx.lineTo(x, ty-Math.round(h*0.42)); ctx.lineTo(x+tw/2, ty); ctx.closePath(); ctx.fill(); }
+    ctx.fillStyle=g2; ctx.beginPath(); ctx.moveTo(x-w*0.2, baseY-6-2*Math.round(h*0.26)); ctx.lineTo(x, baseY-6-2*Math.round(h*0.26)-Math.round(h*0.42)); ctx.lineTo(x, baseY-6-2*Math.round(h*0.26)); ctx.closePath(); ctx.fill();
+  } else if(kind==='willow'){
+    // weeping willow: rounded crown with drooping strands
+    const tw=Math.round(44*s);
+    ctx.fillStyle=TRUNK; ctx.fillRect(x-2, baseY-Math.round(20*s), 4, Math.round(20*s));
+    ctx.fillStyle=g1; ctx.beginPath(); ctx.arc(x, baseY-Math.round(34*s), tw*0.5,0,7); ctx.fill();
+    ctx.strokeStyle=g2; ctx.lineWidth=1;
+    for(let d=-tw*0.5; d<=tw*0.5; d+=4){ const dx=x+d, top=baseY-Math.round(34*s)+Math.abs(d)*0.2;
+      ctx.beginPath(); ctx.moveTo(dx, top); ctx.lineTo(dx+Math.sin(d*0.2)*2, baseY-4); ctx.stroke(); }
+  } else if(kind==='topiary'){
+    // trimmed cone/pom (layered discs)
+    ctx.fillStyle=TRUNK; ctx.fillRect(x-2, baseY-Math.round(16*s), 4, Math.round(16*s));
+    ctx.fillStyle=g1; for(let k=0;k<3;k++){ ctx.beginPath(); ctx.arc(x, baseY-Math.round((18+k*16)*s), Math.round((16-k*3)*s),0,7); ctx.fill(); }
+    ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(x-3, baseY-Math.round(50*s), Math.round(8*s),0,7); ctx.fill();
+  } else { // poplar / columnar (tall narrow)
+    const h=Math.round(70*s), w=Math.round(18*s);
+    ctx.fillStyle=TRUNK; ctx.fillRect(x-2, baseY-6, 4, 6);
+    ctx.fillStyle=g1; roundRect(x-w/2, baseY-6-h, w, h, w/2); ctx.fill();
+    ctx.fillStyle=g2; roundRect(x-w/2, baseY-6-h, Math.round(w*0.45), h, w/3); ctx.fill();  // lit edge
+  }
+}
+// a low rounded shrub/bush cluster at the shore.
+function shoreShrub(x, baseY, seed){
+  x=Math.round(x);
+  const GREENS = ['#5b8750','#679359','#517d48'];
+  const g=GREENS[seed % GREENS.length];
+  const w=14+((seed*31)%12);
+  ctx.fillStyle=g;
+  ctx.beginPath(); ctx.arc(x, baseY, w*0.5,0,7); ctx.arc(x-w*0.4, baseY+2, w*0.36,0,7); ctx.arc(x+w*0.4, baseY+2, w*0.36,0,7); ctx.fill();
 }
 
 // tiling + parallax wrapper for a single layer
