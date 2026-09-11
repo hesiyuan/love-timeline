@@ -168,7 +168,7 @@ const LAYER_DRAW = {
       const speed = 0.35 + r*0.4;
       let off = (state.time*speed + i*300) % span;
       let x = base + 50 + (dir>0 ? off : span-off);
-      npcWalker(Math.round(x), gy-1, r, r2, dir);
+      npcWalker(Math.round(x), gy-1, r, r2, dir, ATTENDANT_IDS[i % ATTENDANT_IDS.length]);
     }
   },
   // animated flight: a plane climbs across the sky (already airborne) and loops.
@@ -544,18 +544,18 @@ function seatedRow(x, gy, n){
   }
 }
 
-// a walking traveller (real sprite) drifting horizontally (dir = +1/-1)
-function npcWalker(x, gy, r, r2, dir){
+// a walking traveller/attendant (real sprite) drifting horizontally (dir = +1/-1)
+function npcWalker(x, gy, r, r2, dir, forceId){
   dir = dir || 1;
-  const id = NPC_IDS[Math.floor(r*NPC_IDS.length)%NPC_IDS.length];
-  const phase = state.time*0.18 + x*0.03;                 // frame cycle for the walk
+  const id = forceId || NPC_IDS[Math.floor(r*NPC_IDS.length)%NPC_IDS.length];
+  const isAttendant = forceId && forceId.indexOf('attendant')===0;
+  const phase = state.time*0.18 + x*0.03;
   if(!drawNpc(id, x, gy, 66, phase, dir, true)){
-    // fallback to the old vector person until sprites load
     const shirt = ['#4a7fc0','#c0553f','#4f9f6f','#8a5a3a','#b06fb0','#3a3f52'][Math.floor(r*6)%6];
     person(x, gy, shirt, r<0.5?'#f2c39a':'#c98a5a', '#241a14', r2<0.5?'#2f3a5c':'#3a3a3f');
   }
-  // rolling suitcase trailing behind the direction of travel
-  if(r2>0.45){
+  // rolling suitcase for regular travellers only (attendants walk the aisle empty-handed)
+  if(!isAttendant && r2>0.45){
     const cx = x - dir*13, y = gy;
     ctx.fillStyle='#241d1a'; ctx.fillRect(cx-5, y-30, 11, 22);
     ctx.fillStyle=['#8a2f2f','#2f5a8a','#3f7f5f','#7a5f2f'][Math.floor(r2*4)%4]; ctx.fillRect(cx-4, y-29, 9, 20);
