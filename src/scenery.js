@@ -275,6 +275,55 @@ const LAYER_DRAW = {
   },
   // ferry: distant coastline + sailboats
   sailboats(base, gy, pal, o){ for(let i=0;i<4;i++) sailboat(base+140+i*260, gy-10); },
+
+  // ---- FERRY VOYAGE (event 4): board via ramp -> sail as you cross the deck -> dock ----
+  // screenSpace layer. `state.ferryProgress` (0..1) = hero's position across the segment;
+  // 0=at the dock boarding, 1=arrived at Nanaimo. Ocean + coastline scroll with progress.
+  ferryScene(base, gy, pal, o){
+    const p = state.ferryProgress || 0;
+    const deckTop = gy - 26;                 // deck surface the characters stand on
+    const t = state.time;
+    // 1) ocean fills below the horizon; distant coastline scrolls left as we sail
+    const horizon = gy - 150;
+    ctx.fillStyle='#7fa9c8'; ctx.fillRect(0, horizon, W, gy-horizon);            // sea
+    // departure coastline slides off to the LEFT as progress grows
+    drawCoast(Math.round(W*0.10 - p*(W*1.4)), horizon, 260, 46, '#6f8f74', 'Departure Bay');
+    // Nanaimo coastline slides IN from the right as we approach (p->1)
+    drawCoast(Math.round(W*1.2 - p*(W*1.05)), horizon, 300, 56, '#5f8f7a', 'Nanaimo');
+    // animated wave lines on the sea
+    ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=2;
+    for(let i=0;i<8;i++){ const wy=horizon+22+i*16 + Math.sin(t*0.05+i)*2;
+      ctx.beginPath(); ctx.moveTo(0,wy); for(let x=0;x<=W;x+=44){ ctx.lineTo(x, wy+Math.sin((x+t*3)*0.03+i)*3);} ctx.stroke(); }
+
+    // 2) the ferry deck the couple walks on (spans the screen, gentle bob)
+    const bob = Math.round(Math.sin(t*0.04)*2);
+    const hullTop = deckTop + bob;
+    ctx.fillStyle='#d8dde4'; ctx.fillRect(0, hullTop, W, gy-hullTop+14);          // deck
+    ctx.fillStyle='#b8c0c9'; ctx.fillRect(0, hullTop, W, 5);                      // deck edge
+    ctx.fillStyle='#8a4a2a'; for(let x=8; x<W; x+=40) ctx.fillRect(x, hullTop+8, 26, 2); // planks
+    // railing along the back of the deck
+    ctx.strokeStyle='#9aa4ae'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0, hullTop-18); ctx.lineTo(W, hullTop-18); ctx.stroke();
+    for(let x=20; x<W; x+=46){ ctx.beginPath(); ctx.moveTo(x, hullTop-18); ctx.lineTo(x, hullTop); ctx.stroke(); }
+    // a life-ring + funnel for flavor
+    ctx.fillStyle='#e05a4a'; ctx.beginPath(); ctx.arc(W*0.5, hullTop-30, 10,0,7); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(W*0.5, hullTop-30, 5,0,7); ctx.fill();
+
+    // 3) BOARDING ramp at the left (fades/retracts after we've boarded, p>0.12)
+    if(p < 0.16){
+      const a = 1 - p/0.16;
+      ctx.save(); ctx.globalAlpha=a;
+      ferryRamp(0, gy, 120, hullTop, '#b98a4a');       // ramp from left dock up onto deck
+      ctx.restore();
+    }
+    // 4) EXIT ramp at the far right, appears as we near Nanaimo (p>0.8) so we can walk off
+    if(p > 0.8){
+      const a = Math.min(1, (p-0.8)/0.2);
+      ctx.save(); ctx.globalAlpha=a;
+      ferryRamp(W-120, gy, 120, hullTop, '#b98a4a');    // exit ramp down to the dock
+      ctx.restore();
+    }
+  },
   // cozy indoor: warm wall + window with sill
   indoorCare(base, gy, pal, o){
     ctx.fillStyle=o.wall||'rgba(120,96,80,0.35)'; ctx.fillRect(base,gy-260,W,260);
@@ -304,7 +353,7 @@ function deriveScenery(ev){
     airport_terminal:      [ {kind:'airportInterior',speed:0.25}, {kind:'airplane',speed:0,opts:{screenSpace:true,scale:1.0}} ],
     park_and_city:         [ {kind:'hills',speed:0.2,opts:{h:120,h2:80}}, {kind:'skyline',speed:0.4,opts:{count:4,w:60,h:150}}, {kind:'trees',speed:0.55,opts:{density:7}} ],
     suburban_driveway:     [ {kind:'hills',speed:0.2,opts:{h:110}}, {kind:'trees',speed:0.55,opts:{density:6}} ],
-    ocean_ferry_cruise:    [ {kind:'hills',speed:0.2,opts:{h:70}}, {kind:'sailboats',speed:0.5} ],
+    ocean_ferry_cruise:    [ {kind:'ferryScene',speed:0,opts:{screenSpace:true}} ],
     mountain_resort_vineyard:[ {kind:'mountains',speed:0.18,opts:{snow:true}}, {kind:'vineyard',speed:0.55} ],
     theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.45} ],
     cozy_winter_city:      [ {kind:'mountains',speed:0.12,opts:{color:'#c3ccdb',snow:true,peaks:[[0,520,220],[420,620,300],[900,560,240]]}}, {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
@@ -355,6 +404,36 @@ function tent(x,gy){ ctx.beginPath(); ctx.moveTo(x-40,gy); ctx.lineTo(x,gy-70); 
 function sailboat(x,y){ ctx.fillStyle='rgba(255,255,255,0.8)';
   ctx.beginPath(); ctx.moveTo(x,y-40); ctx.lineTo(x,y); ctx.lineTo(x+26,y); ctx.closePath(); ctx.fill();
   ctx.fillStyle='rgba(60,40,30,0.7)'; ctx.fillRect(x-14,y,44,8); }
+
+// a distant coastline mound with a couple of trees + a dock, and a small label
+function drawCoast(x, horizon, w, h, color, label){
+  if(x < -w-40 || x > W+40) return;
+  ctx.fillStyle=color;
+  ctx.beginPath(); ctx.moveTo(x, horizon+8);
+  ctx.quadraticCurveTo(x+w*0.5, horizon-h, x+w, horizon+8); ctx.lineTo(x+w, horizon+8); ctx.closePath(); ctx.fill();
+  // little trees
+  ctx.fillStyle='rgba(40,80,50,0.7)';
+  for(let i=0;i<4;i++){ const tx=x+30+i*(w/5); ctx.beginPath(); ctx.arc(tx, horizon-2, 7,0,7); ctx.fill(); ctx.fillRect(tx-2, horizon-2, 4, 8); }
+  // dock jutting into the water
+  ctx.fillStyle='#7a5f3a'; ctx.fillRect(x+w*0.4, horizon+8, 40, 5);
+  // label
+  ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='bold 11px "Courier New",monospace';
+  ctx.fillText(label, Math.round(x+w*0.3), Math.round(horizon-h*0.5));
+}
+
+// a boarding/exit ramp from a side dock up to the deck top
+function ferryRamp(dockX, gy, w, deckTop, color){
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(dockX, gy); ctx.lineTo(dockX+w, deckTop+8);
+  ctx.lineTo(dockX+w, deckTop+16); ctx.lineTo(dockX, gy+8); ctx.closePath(); ctx.fill();
+  // ramp tread lines + side rails
+  ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1;
+  for(let s=0;s<6;s++){ const tx=dockX + (w/6)*s; const ty=gy - (gy-(deckTop+8))*(s/6);
+    ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx, ty+8); ctx.stroke(); }
+  ctx.strokeStyle='#8a6a3a'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(dockX, gy-14); ctx.lineTo(dockX+w, deckTop-6); ctx.stroke();  // handrail
+}
 
 // side-view airliner (nose pointing right), rotated by `ang`, scaled by `s`.
 // `t` (cycle progress) fades a short contrail behind it once airborne.
