@@ -276,32 +276,38 @@ const LAYER_DRAW = {
   // ferry: distant coastline + sailboats
   sailboats(base, gy, pal, o){ for(let i=0;i<4;i++) sailboat(base+140+i*260, gy-10); },
 
-  // ---- FERRY VOYAGE (event 4): walk UP the ramp -> across the deck -> DOWN the far ramp ----
-  // screenSpace layer. All ferry geometry comes from the shared ferryPath (see drawFerry /
-  // pointOnFerryPath), so the art and the walking couple are guaranteed to line up.
+  // ---- FERRY VOYAGE (event 4): the ferry is WORLD scenery anchored in its segment. ----
+  // Camera follows the hero normally; the ferry scrolls in from the right. The couple walk
+  // UP the boarding ramp -> across the deck -> DOWN the exit ramp (surface via ferryFloorAt).
+  // Drawn as a normal parallax layer (NOT screenSpace) so `base` here is the tiled origin;
+  // but the vessel itself is placed by absolute world-X, so we only paint it on tile 0.
   ferryScene(base, gy, pal, o){
-    const p = state.ferryProgress || 0;
     const t = state.time;
     const horizon = gy - 170;
-    const path = ferryPath(gy);
-
-    // 1) sea + scrolling coastlines
+    // 1) sea band (behind everything) + gentle wave lines — tiled, so paint per tile
     ctx.fillStyle='#6f9ec2'; ctx.fillRect(0, horizon, W, gy-horizon);
-    ctx.fillStyle='#5b86a8'; ctx.fillRect(0, gy-40, W, (H-(gy-40)));
-    drawCoast(Math.round(W*0.15 - p*(W*1.5)), horizon, 300, 60, '#6f8f74', 'Departure Bay');
-    drawCoast(Math.round(W*1.25 - p*(W*1.08)), horizon, 340, 72, '#5f8f7a', 'Nanaimo');
-    ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2;
+    ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
     for(let i=0;i<7;i++){ const wy=horizon+26+i*18 + Math.sin(t*0.05+i)*2;
-      ctx.beginPath(); ctx.moveTo(0,wy); for(let x=0;x<=W;x+=46){ ctx.lineTo(x, wy+Math.sin((x+t*3)*0.03+i)*3);} ctx.stroke(); }
-
-    // 2) docks anchored under the two ground-level path ends (ramp bottoms)
-    ctx.fillStyle='#8a8f96'; ctx.fillRect(0, gy, path[1].x, H-gy);            // left dock up to ramp bottom
-    ctx.fillStyle='#6f747b'; ctx.fillRect(0, gy, path[1].x, 4);
-    ctx.fillStyle='#8a8f96'; ctx.fillRect(path[4].x, gy, W-path[4].x, H-gy);  // right dock from ramp bottom
-    ctx.fillStyle='#6f747b'; ctx.fillRect(path[4].x, gy, W-path[4].x, 4);
-
-    // 3) the ferry vessel + ramps, drawn FROM the shared path
-    drawFerry(gy);
+      ctx.beginPath(); ctx.moveTo(base,wy);
+      for(let x=0;x<=W;x+=46){ ctx.lineTo(base+x, wy+Math.sin((base+x+t*3)*0.03+i)*3);} ctx.stroke(); }
+    // 2) distant coastlines — placed by world-X so they scroll with the camera (drawn once)
+    if(base===0){
+      const seg=ferrySegIndex(); const sbase=(seg<0?0:seg*SEGMENT_W);
+      drawCoast(Math.round(sbase + SEGMENT_W*0.05 - state.camX), horizon, 300, 60, '#6f8f74', 'Departure Bay');
+      drawCoast(Math.round(sbase + SEGMENT_W*0.85 - state.camX), horizon, 340, 72, '#5f8f7a', 'Nanaimo');
+      // 3) the ferry vessel + ramps + approach docks, all world-anchored
+      const wp=ferryWorldPath(gy);
+      if(wp){
+        const dockL = Math.round(wp[0].wx - state.camX);   // left ramp bottom (screen)
+        const dockR = Math.round(wp[3].wx - state.camX);   // right ramp bottom (screen)
+        // approach docks: solid planks from the dock edge outward toward the walked path
+        ctx.fillStyle='#8a8f96'; ctx.fillRect(dockL-260, gy, 260, H-gy);
+        ctx.fillStyle='#6f747b'; ctx.fillRect(dockL-260, gy, 260, 4);
+        ctx.fillStyle='#8a8f96'; ctx.fillRect(dockR, gy, 260, H-gy);
+        ctx.fillStyle='#6f747b'; ctx.fillRect(dockR, gy, 260, 4);
+      }
+      drawFerry(gy);
+    }
   },
   // cozy indoor: warm wall + window with sill
   indoorCare(base, gy, pal, o){
@@ -400,37 +406,58 @@ function drawCoast(x, horizon, w, h, color, label){
   ctx.fillText(label, Math.round(x+w*0.3), Math.round(horizon-h*0.5));
 }
 
-// ================= FERRY (single shared path) =================
-// ONE source of truth: an ordered list of screen-space waypoints describing the walk
-// dock -> up boarding ramp -> across deck -> down exit ramp -> dock. BOTH the character
-// position (pointOnFerryPath) and the ramp/deck ART (drawFerry) derive from these same
-// points, so they can never disagree. Each waypoint also carries the cumulative progress
-// fraction `p` at which the walker reaches it.
-function ferryPath(gy){
-  const bob = Math.sin((state.time||0)*0.04)*2;   // deck heave; applied to aboard points
+// ================= FERRY (world-space, single shared path) =================
+// The ferry is WORLD SCENERY (like the Tesla): it sits at a fixed world-X inside the
+// ferry segment. The camera follows the hero normally, so as the hero walks right the
+// ferry scrolls in from the right. ONE source of truth: an ordered list of waypoints in
+// WORLD coordinates {wx, y} describing the walk surface — dock -> up boarding ramp ->
+// across deck -> down exit ramp -> dock. Both the walking surface (ferryFloorAt) and the
+// ramp/deck ART (drawFerry) derive from these same points, so they can never disagree.
+// The ferry occupies the middle of its segment; approach docks flank it on both sides.
+function ferrySegIndex(){ return gameTimeline.findIndex(e=>e.backgroundType==='ocean_ferry_cruise'); }
+// World-X anchors within the ferry segment (fractions of SEGMENT_W from the segment start).
+function ferryWorldPath(gy){
+  const seg = ferrySegIndex(); if(seg < 0) return null;
+  const base = seg*SEGMENT_W;
+  const bob = Math.sin((state.time||0)*0.04)*2;   // gentle deck heave (aboard nodes only)
   const deckY = gy - 74 + bob;                     // raised deck surface
-  // x positions (screen fractions) and the y of the surface at each node
+  // world-x = base + fraction*SEGMENT_W; y = surface height at that node
   return [
-    { p:0.00, x:Math.round(W*0.02), y:gy },                 // left dock (walk on)
-    { p:0.14, x:Math.round(W*0.16), y:gy },                 // ramp bottom
-    { p:0.26, x:Math.round(W*0.30), y:deckY },              // ramp top (onto deck)
-    { p:0.74, x:Math.round(W*0.70), y:deckY },              // deck far end
-    { p:0.86, x:Math.round(W*0.84), y:gy },                 // exit ramp bottom
-    { p:1.00, x:Math.round(W*0.98), y:gy },                 // right dock (walk off)
+    { wx: base + SEGMENT_W*0.34, y:gy },        // left dock edge (ramp bottom)   — walk on here
+    { wx: base + SEGMENT_W*0.44, y:deckY },      // ramp top (onto deck)
+    { wx: base + SEGMENT_W*0.66, y:deckY },      // deck far end
+    { wx: base + SEGMENT_W*0.76, y:gy },         // exit ramp bottom               — walk off here
   ];
 }
-// interpolate the walker's {x,y} at progress p along the shared path
-function pointOnFerryPath(p, gy){
-  const path=ferryPath(gy); p=Math.max(0,Math.min(1,p));
+// Given the hero's WORLD-X, return the walking-surface Y. Off the ramps/deck this is gy
+// (the dock/ground). Between the ramp bottoms it rides up the boarding ramp, across the
+// flat deck, and down the exit ramp — so the couple's feet stay on the surface.
+function ferryFloorAt(worldX, gy){
+  const path = ferryWorldPath(gy); if(!path) return gy;
+  if(worldX <= path[0].wx || worldX >= path[3].wx) return gy;
   for(let i=0;i<path.length-1;i++){
     const a=path[i], b=path[i+1];
-    if(p<=b.p){ const k=(p-a.p)/(b.p-a.p||1); return { x:Math.round(a.x+k*(b.x-a.x)), y:Math.round(a.y+k*(b.y-a.y)) }; }
+    if(worldX <= b.wx){ const k=(worldX-a.wx)/((b.wx-a.wx)||1); return Math.round(a.y + k*(b.y-a.y)); }
   }
-  const last=path[path.length-1]; return { x:last.x, y:last.y };
+  return gy;
 }
-// draw the ferry vessel + ramps FROM the same path: the surface polyline IS the walk path.
+// draw the ferry vessel + ramps FROM the same path (converted world->screen via camX).
 function drawFerry(gy){
-  const path=ferryPath(gy);
+  const wp=ferryWorldPath(gy); if(!wp) return;
+  // convert the 4 world nodes to screen space, then bookend with the two dock ends so the
+  // railing/plank helpers keep the original 6-node shape.
+  const toScr = n => ({ x: Math.round(n.wx - state.camX), y: n.y });
+  const rampBotL = toScr(wp[0]), rampBotR = toScr(wp[3]);
+  // cull if entirely off-screen
+  if(rampBotR.x < -80 || rampBotL.x > W+80) return;
+  const path=[
+    { x: rampBotL.x - 200, y: gy },   // left dock lead-in
+    rampBotL,                          // boarding ramp bottom
+    toScr(wp[1]),                      // ramp top / deck near end
+    toScr(wp[2]),                      // deck far end
+    rampBotR,                          // exit ramp bottom
+    { x: rampBotR.x + 200, y: gy },   // right dock lead-out
+  ];
   const deckA=path[2], deckB=path[3];                 // the two deck nodes (flat top)
   const rampUpA=path[1], rampUpB=path[2];             // boarding ramp
   const rampDnA=path[3], rampDnB=path[4];             // exit ramp
