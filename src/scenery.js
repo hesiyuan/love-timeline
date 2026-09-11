@@ -429,6 +429,18 @@ function ferryGeom(gy){
     hullX0: Math.round(W*0.16), hullX1: Math.round(W*0.84),
   };
 }
+// walking-surface screen-X as a function of progress p (0..1): the hero traverses the
+// on-screen dock -> ramp -> deck -> ramp -> dock, matching ferryFloorY's phases.
+function ferryFloorX(p, gy){
+  const F=ferryGeom(gy);
+  const L=Math.round(W*0.06);        // left dock walk start
+  const R=Math.round(W*0.94);        // right dock walk end
+  if(p < 0.12){ const k=p/0.12; return Math.round(L + k*(F.rampUpX0-L)); }         // left dock
+  if(p < 0.24){ const k=(p-0.12)/0.12; return Math.round(F.rampUpX0 + k*(F.rampUpX1-F.rampUpX0)); } // up ramp
+  if(p < 0.78){ const k=(p-0.24)/0.54; return Math.round(F.rampUpX1 + k*(F.rampDnX0-F.rampUpX1)); }  // deck
+  if(p < 0.90){ const k=(p-0.78)/0.12; return Math.round(F.rampDnX0 + k*(F.rampDnX1-F.rampDnX0)); }  // down ramp
+  const k=(p-0.90)/0.10; return Math.round(F.rampDnX1 + k*(R-F.rampDnX1));         // right dock
+}
 // walking-surface screen-Y as a function of progress p (0..1). Ground on the docks,
 // slope up the boarding ramp, flat on the raised deck, slope down the exit ramp.
 function ferryFloorY(p, gy){
