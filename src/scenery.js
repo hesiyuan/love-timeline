@@ -408,9 +408,83 @@ const LAYER_DRAW = {
   },
   // cozy indoor: warm wall + window with sill
   indoorCare(base, gy, pal, o){
-    ctx.fillStyle=o.wall||'rgba(120,96,80,0.35)'; ctx.fillRect(base,gy-260,W,260);
-    ctx.fillStyle='rgba(180,205,235,0.5)'; roundRect(base+W*0.55,gy-210,200,150,10); ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillRect(base+W*0.55,gy-64,210,10);   // sill
+    // ===== HOSPITAL CORRIDOR (event 7) — drawn screen-space like the airport interior =====
+    const floorY = gy - 40;                       // where wall meets floor
+    const ceilB  = 84;                            // bottom of the ceiling band
+    // --- walls (soft clinical grey-green) ---
+    ctx.fillStyle='#d7dad2'; ctx.fillRect(0, 0, W, floorY);
+    ctx.fillStyle='#cdd0c8'; ctx.fillRect(0, floorY-40, W, 40);        // lower wall band
+    // --- drop ceiling grid + lit fluorescent panels ---
+    ctx.fillStyle='#c4c7bf'; ctx.fillRect(0,0,W,ceilB);
+    ctx.strokeStyle='rgba(120,124,116,0.5)'; ctx.lineWidth=1;
+    for(let x=0;x<=W;x+=64){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,ceilB); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(0,ceilB); ctx.lineTo(W,ceilB); ctx.stroke();
+    for(let x=28;x<W;x+=128){                       // recessed light panels, warm glow
+      ctx.fillStyle='rgba(255,244,200,0.35)'; ctx.fillRect(x-10, 12, 56, 20);   // halo
+      ctx.fillStyle='#fdf6df'; ctx.fillRect(x, 16, 36, 12);
+      ctx.strokeStyle='#b9bcb2'; ctx.strokeRect(x, 16, 36, 12);
+    }
+    // --- corridor vanishing-point doorway on the back wall (center) ---
+    const vpx=Math.round(W*0.5), vw=120, vh=150, vy=floorY-vh;
+    ctx.fillStyle='#b8bcb2'; ctx.fillRect(vpx-vw/2, vy, vw, vh);        // recessed far corridor
+    ctx.fillStyle='#e9ece6'; ctx.fillRect(vpx-vw/2+8, vy+8, vw-16, vh-16);
+    ctx.fillStyle='#cfd3ca'; ctx.fillRect(vpx-vw/2+8, vy+8, vw-16, 6); // far ceiling
+    ctx.fillStyle='#f3f5ef'; ctx.fillRect(vpx-24, vy+40, 48, vh-46);   // bright far end
+    // header sign over the doorway
+    ctx.fillStyle='#7a2f2f'; ctx.fillRect(vpx-92, vy-4, 184, 18);
+    pixelLabel('MEDICAL IMAGING', vpx-84, vy+9, 7, '#f4e7c8');
+    // color zone chips under it (Red/Blue/Yellow zone vibe)
+    const chips=[['#c0553f','RED'],['#3f6bc0','BLUE'],['#c9a23f','YEL']];
+    chips.forEach((c,i)=>{ const cx=vpx-72+i*56; ctx.fillStyle=c[0]; ctx.fillRect(cx, vy+18, 48, 12);
+      pixelLabel(c[1], cx+4, vy+28, 6, '#fff'); });
+
+    // --- wall handrails running down both sides (wood tone) ---
+    ctx.fillStyle='#a9865a'; ctx.fillRect(0, floorY-70, vpx-vw/2, 6); ctx.fillRect(vpx+vw/2, floorY-70, W-(vpx+vw/2), 6);
+    ctx.fillStyle='#8a6a42'; ctx.fillRect(0, floorY-64, vpx-vw/2, 3); ctx.fillRect(vpx+vw/2, floorY-64, W-(vpx+vw/2), 3);
+
+    // --- doors + signage on side walls ---
+    hospitalDoor(Math.round(W*0.14), floorY, 'ROOM 2');
+    hospitalDoor(Math.round(W*0.84), floorY, 'RESTROOMS');
+    // hanging directional sign near the right
+    ctx.fillStyle='#5a6068'; ctx.fillRect(Math.round(W*0.70), 44, 96, 16);
+    pixelLabel('RESTROOMS', Math.round(W*0.70)+6, 56, 6, '#eef2f6');
+    ctx.strokeStyle='#5a6068'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(Math.round(W*0.72),44); ctx.lineTo(Math.round(W*0.72),ceilB); ctx.stroke();
+    // sanitizer dispenser on the right wall
+    const sx=Math.round(W*0.78); ctx.fillStyle='#eef2f4'; ctx.fillRect(sx, floorY-96, 12, 22);
+    ctx.fillStyle='#8fd0e0'; ctx.fillRect(sx+2, floorY-92, 8, 8);
+
+    // --- tiled floor with perspective seams ---
+    ctx.fillStyle='#d8cdb2'; ctx.fillRect(0, floorY, W, gy-floorY);
+    ctx.strokeStyle='rgba(150,138,110,0.5)'; ctx.lineWidth=1;
+    for(let i=0;i<7;i++){ const y=floorY+ i*Math.round((gy-floorY)/6);   // horizontal tile lines
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    for(let x=-2;x<=8;x++){ const fx=vpx + (x-3)* (W*0.16);              // converging vertical seams
+      ctx.beginPath(); ctx.moveTo(vpx + (x-3)*40, floorY); ctx.lineTo(fx, gy); ctx.stroke(); }
+    // floor sheen highlights
+    ctx.fillStyle='rgba(255,255,255,0.25)';
+    for(let i=0;i<3;i++){ ctx.fillRect(Math.round(W*0.35)+i*70, floorY+30+i*20, 28, 6); }
+
+    // --- props: supply cart (left) + a baby bassinet stroller (right of center) ---
+    supplyCart(Math.round(W*0.10), gy);
+    bassinetStroller(Math.round(W*0.62), gy);
+  },
+
+  // walking hospital staff: nurses in blue scrubs drifting along the corridor.
+  hospitalWalkers(base, gy, pal, o){
+    const floorY = gy - 40;
+    for(let i=0;i<3;i++){
+      const r=((i*89+23)%100)/100;
+      const dir = (i%2===0)?1:-1;
+      const span = W - 120;
+      const speed = 0.3 + r*0.3;
+      const off = (state.time*speed + i*260) % span;
+      const x = 60 + (dir>0 ? off : span-off);
+      const id = (i%2===0)? 'nurse1':'nurse2';
+      const phase = state.time*0.18 + x*0.03;
+      if(!drawNpc(id, Math.round(x), floorY-2, 64, phase, dir, true)){
+        person(x, floorY, '#3a74b4', '#f2c39a', '#241a14', '#3a74b4');
+      }
+    }
   },
 
   // ===== LAKESIDE GARDEN WEDDING (event 9) =====
@@ -641,6 +715,51 @@ function shoreShrub(x, baseY, seed){
   ctx.beginPath(); ctx.arc(x, baseY, w*0.5,0,7); ctx.arc(x-w*0.4, baseY+2, w*0.36,0,7); ctx.arc(x+w*0.4, baseY+2, w*0.36,0,7); ctx.fill();
 }
 
+// --- hospital helpers ---
+// a closed hospital door with a small window and a wall sign above, feet at (x,floorY)
+function hospitalDoor(x, floorY, label){
+  x=Math.round(x);
+  const dw=44, dh=100, dy=floorY-dh;
+  ctx.fillStyle='#c3c7bf'; ctx.fillRect(x-dw/2-3, dy-3, dw+6, dh+3);   // frame
+  ctx.fillStyle='#b3a68c'; ctx.fillRect(x-dw/2, dy, dw, dh);           // door slab
+  ctx.fillStyle='#9a8e75'; ctx.fillRect(x-dw/2, dy, 4, dh);            // hinge shade
+  ctx.fillStyle='#cfe0e6'; ctx.fillRect(x-10, dy+16, 20, 26);          // vision window
+  ctx.fillStyle='#e6eef1'; ctx.fillRect(x-10, dy+16, 20, 8);
+  ctx.fillStyle='#5a5f55'; ctx.fillRect(x+dw/2-8, dy+dh/2, 5, 3);      // handle
+  // wall sign above the door
+  ctx.fillStyle='#4a6b8a'; ctx.fillRect(x-30, dy-16, 60, 12);
+  pixelLabel(label, x-26, dy-6, 6, '#eef2f6');
+}
+// a metal supply/medication cart on casters, feet at (x,gy)
+function supplyCart(x, gy){
+  x=Math.round(x);
+  const cy=gy-6, cw=54, chh=76, top=cy-chh;
+  ctx.fillStyle='#aeb4bb'; roundRect(x-cw/2, top, cw, chh, 4); ctx.fill();   // body
+  ctx.fillStyle='#c7ccd2'; ctx.fillRect(x-cw/2, top, cw, 6);                 // top surface
+  ctx.fillStyle='#8f959c';                                                   // drawer fronts
+  for(let d=0;d<3;d++){ const dy=top+14+d*20; ctx.fillRect(x-cw/2+4, dy, cw-8, 16);
+    ctx.fillStyle='#6f757c'; ctx.fillRect(x-6, dy+6, 12, 3); ctx.fillStyle='#8f959c'; }
+  // casters
+  ctx.fillStyle='#2f3338'; ctx.beginPath(); ctx.arc(x-cw/2+8, cy, 5,0,7); ctx.arc(x+cw/2-8, cy, 5,0,7); ctx.fill();
+  // a small item on top
+  ctx.fillStyle='#e6eef1'; ctx.fillRect(x-8, top-8, 16, 8);
+}
+// a hospital baby bassinet on a wheeled cart (the "stroller"), feet at (x,gy)
+function bassinetStroller(x, gy){
+  x=Math.round(x);
+  const cy=gy-6;
+  // clear acrylic bassinet tub on an angled stand
+  ctx.fillStyle='#d7e6ec'; roundRect(x-22, cy-52, 44, 20, 8); ctx.fill();     // tub
+  ctx.strokeStyle='#a9b6bc'; ctx.lineWidth=2; roundRect(x-22, cy-52, 44, 20, 8); ctx.stroke();
+  ctx.fillStyle='#ffffff'; ctx.fillRect(x-16, cy-42, 32, 8);                  // little blanket
+  ctx.fillStyle='#ffd0da'; ctx.fillRect(x-4, cy-46, 8, 6);                    // tiny swaddled baby head
+  // chrome stand + legs
+  ctx.strokeStyle='#9aa1a8'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(x-16, cy-32); ctx.lineTo(x-16, cy); ctx.moveTo(x+16, cy-32); ctx.lineTo(x+16, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x-16, cy-14); ctx.lineTo(x+16, cy-14); ctx.stroke();
+  ctx.fillStyle='#2f3338'; ctx.beginPath(); ctx.arc(x-16, cy, 5,0,7); ctx.arc(x+16, cy, 5,0,7); ctx.fill();
+}
+
 // tiling + parallax wrapper for a single layer
 function drawSceneryLayer(kind, speed, pal, opts){
   const fn=LAYER_DRAW[kind]; if(!fn) return;
@@ -666,7 +785,7 @@ function deriveScenery(ev){
     mountain_resort_vineyard:[ {kind:'mountains',speed:0.18,opts:{snow:true}}, {kind:'vineyard',speed:0.55} ],
     theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.4}, {kind:'coaster',speed:0.5}, {kind:'parkProps',speed:0.6}, {kind:'parkKids',speed:0.75} ],
     cozy_winter_city:      [ {kind:'mountains',speed:0.12,opts:{color:'#c3ccdb',snow:true,peaks:[[0,520,220],[420,620,300],[900,560,240]]}}, {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
-    cozy_indoor_care:      [ {kind:'indoorCare',speed:0.3} ],
+    cozy_indoor_care:      [ {kind:'indoorCare',speed:0,opts:{screenSpace:true}}, {kind:'hospitalWalkers',speed:0,opts:{screenSpace:true}} ],
     lakeside_trees_wedding:[ {kind:'lakeBackdrop',speed:0,opts:{screenSpace:true}}, {kind:'weddingGrounds',speed:0.4}, {kind:'weddingChairs',speed:0.55}, {kind:'weddingCanopy',speed:0,opts:{screenSpace:true}} ],
   };
   return { layers: M[t] || [ {kind:'hills',speed:0.2,opts:{h:100}}, {kind:'trees',speed:0.55,opts:{density:6}} ] };
