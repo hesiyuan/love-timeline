@@ -127,7 +127,8 @@ const LAYER_DRAW = {
     for(let x=base+40; x<base+W-30; x+=140) ctx.fillRect(x, topWall+8, 70, 5);
 
     // 2) glass curtain wall showing the tarmac/apron + parked planes beyond
-    const gx0 = base+250, gx1 = base+W-250, gTop = topWall+26, gBot = gy-70;
+    //    floor-to-ceiling: from just under the ceiling band down to the floor line
+    const gx0 = base+250, gx1 = base+W-250, gTop = topWall+24, gBot = gy;
     airportGlassWall(gx0, gTop, gx1-gx0, gBot-gTop);
 
     // 3) interior tiled floor
@@ -161,8 +162,13 @@ const LAYER_DRAW = {
     // 9) walking travellers with luggage (deterministic)
     for(let i=0;i<9;i++){
       const r=((i*97)%100)/100, r2=((i*151)%100)/100;
-      const x = base + 60 + Math.round(i*((W-120)/9) + r*30);
-      npcWalker(x, gy-1, r, r2);
+      const dir = (i%2===0) ? 1 : -1;                    // half walk left, half right
+      const span = W - 100;
+      const speed = 0.35 + r*0.5;                        // px/frame, varied
+      // horizontal drift that wraps across the concourse
+      let off = (state.time*speed + i*160) % span;
+      let x = base + 50 + (dir>0 ? off : span-off);
+      npcWalker(Math.round(x), gy-1, r, r2, dir);
     }
   },
   // animated flight: a plane climbs across the sky (already airborne) and loops.
@@ -495,20 +501,23 @@ function seatedRow(x, gy, n){
   }
 }
 
-// a walking traveller with a rolling suitcase (deterministic look from r/r2)
-function npcWalker(x, gy, r, r2){
+// a walking traveller with a rolling suitcase; drifts horizontally (dir = +1/-1)
+function npcWalker(x, gy, r, r2, dir){
+  dir = dir || 1;
   const shirt = ['#4a7fc0','#c0553f','#4f9f6f','#8a5a3a','#b06fb0','#3a3f52'][Math.floor(r*6)%6];
   const pants = r2<0.5 ? '#2f3a5c' : '#3a3a3f';
   const skin  = r<0.5 ? '#f2c39a' : '#c98a5a';
-  const bob = Math.round(Math.abs(Math.sin((state.time*0.05)+(x)))*2);
+  // small walk-bob tied to horizontal progress (feet-cadence, not levitation)
+  const bob = Math.round(Math.abs(Math.sin(x*0.18))*1.5);
   const y = gy - bob;
   person(x, y, shirt, skin, r2<0.5?'#241a14':'#3a2a22', pants);
-  // rolling suitcase beside some of them
+  // rolling suitcase trailing BEHIND the direction of travel
   if(r2>0.45){
-    const cx=x+ (r<0.5?10:-10);
+    const cx = x - dir*11;
     ctx.fillStyle=['#8a2f2f','#2f5a8a','#3f7f5f','#7a5f2f'][Math.floor(r2*4)%4];
-    ctx.fillRect(cx-4, y-26, 9, 18);                                   // case
-    ctx.strokeStyle='#333'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx+ (r<0.5?5:-5), y-26); ctx.lineTo(x, y-34); ctx.stroke(); // handle
+    ctx.fillStyle='#241d1a'; ctx.fillRect(cx-5, y-27, 11, 20);         // case outline
+    ctx.fillStyle=['#8a2f2f','#2f5a8a','#3f7f5f','#7a5f2f'][Math.floor(r2*4)%4]; ctx.fillRect(cx-4, y-26, 9, 18);
+    ctx.strokeStyle='#333'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx, y-27); ctx.lineTo(x-dir*2, y-34); ctx.stroke(); // handle
   }
 }
 
