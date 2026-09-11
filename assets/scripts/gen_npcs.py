@@ -36,6 +36,9 @@ VARIANTS = {
   # child2 = kid in grey hoodie (dark hair). age='c' => strong downscale (feet-aligned).
   "child1": dict(base="husband", shirt=(86,132,196),shirtShade=(58,98,156), skin=(247,206,160),skinSh=(214,150,110), hair=(96,64,36),hairHi=(132,92,52), style="short", glasses=False, age="c", overalls=True),
   "child2": dict(base="husband", shirt=(150,156,162),shirtShade=(108,114,120),skin=(224,170,132),skinSh=(190,132,96), hair=(30,28,34),hairHi=(66,60,64), style="short", glasses=False, age="c", hood=True),
+  # nurses / medical staff in blue scrubs (solid medical blue top+recolor, V-neck + badge)
+  "nurse1": dict(base="wife",    shirt=(58,116,180),shirtShade=(40,86,140),  skin=(247,206,160),skinSh=(214,150,110), hair=(40,34,30),hairHi=(80,66,58), style="bun",  glasses=False, age="a", scrubs=True),
+  "nurse2": dict(base="husband", shirt=(48,132,168),shirtShade=(32,98,128),  skin=(224,170,132),skinSh=(190,132,96),  hair=(30,28,34),hairHi=(66,60,64), style="short",glasses=True,  age="a", scrubs=True),
 }
 
 def paint(px,w,h,v):
@@ -148,6 +151,22 @@ def child_details(px,w,h,v):
             if px[x,8][3]>0: px[x,8]=HOOD
         px[2,7]=HOOD; px[w-3,7]=HOOD    # hood peaks at the shoulders
 
+def scrubs_details(px,w,h,v):
+    # medical scrubs painted over the recolored base: recolor the trouser tone to the same
+    # scrub blue (scrubs = matching top+bottom), add a small V-neck notch and an ID badge.
+    BLUE=v["shirt"]+(255,); BLUE_SH=v["shirtShade"]+(255,)
+    LEG_TONES={(72,62,62),(57,64,106),(39,64,106)}      # base trouser/leg tones -> scrub blue
+    for y in range(h-6,h):
+        for x in range(w):
+            r,g,b,a=px[x,y]
+            if a==0: continue
+            if (r,g,b) in LEG_TONES: px[x,y]=(BLUE if (x+y)%2 else BLUE_SH)
+    # V-neck notch at the collar (rows 8-9, center)
+    cx=w//2; SKIN=v["skin"]+(255,)
+    px[cx,8]=SKIN; px[cx-1,9]=SKIN; px[cx+1,9]=SKIN
+    # little ID badge clip on the chest (row 11, off-center)
+    px[cx-2,11]=(238,242,248,255); px[cx-2,12]=(150,160,172,255)
+
 def uniform_details(px,w,h,v):
     # flight-attendant extras painted over the recolored base:
     WHITE=(238,242,248,255); RED=(196,40,52,255); NAVY=(30,42,74,255); NAVY_HI=(52,66,104,255)
@@ -170,6 +189,7 @@ def make_walk(v,i):
     im=Image.open(src).convert("RGBA"); px=im.load(); w,h=im.size
     paint(px,w,h,v); hair_and_features(px,w,h,v)
     if v.get("uniform"): uniform_details(px,w,h,v)
+    if v.get("scrubs"): scrubs_details(px,w,h,v)
     if v.get("overalls") or v.get("hood"): child_details(px,w,h,v)
     return age_transform(im,v)
 
