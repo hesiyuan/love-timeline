@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Our Story — A Love Timeline</title>
-<link rel="preload" href="game.bundle.js?v=1.6.9" as="script" />
-<link rel="preload" href="timeline.json?v=1.6.9" as="fetch" crossorigin="anonymous" />
+<link rel="preload" href="game.bundle.js?v=1.7.0" as="script" />
+<link rel="preload" href="timeline.json?v=1.7.0" as="fetch" crossorigin="anonymous" />
 <meta name="description" content="A side-scrolling journey through our years together." />
 <style>
   :root{
@@ -56,6 +56,9 @@
   #hud-right .items{ font-size:22px; font-weight:800; }
   #hud-right .items small{ font-size:12px; opacity:.7; font-weight:600; }
   #hud-right .party{ margin-top:6px; font-size:20px; letter-spacing:2px; }
+  #hud-right .party{ display:flex; flex-wrap:wrap; gap:3px; justify-content:flex-end; max-width:180px; }
+  .hud-item{ image-rendering:pixelated; image-rendering:crisp-edges; width:20px; height:20px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
 
   /* progress bar */
   #progress{
@@ -199,6 +202,6 @@
   </div>
 </div>
 
-<script src="game.bundle.js?v=1.6.9" defer></script>
+<script src="game.bundle.js?v=1.7.0" defer></script>
 </body>
 </html>
