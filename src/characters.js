@@ -9,6 +9,7 @@
    the frame index cycles with walkPhase, the whole sprite bobs, and it mirrors on facing. */
 const SPRITE_IMGS = { husband:[], wife:[], creamy:[], ready:false };
 const NPC_IMGS = {};   // { npc1:[Image x8], ... } background-people sprites
+const NPC_SIT_IMGS = {}; // { npc1:Image, ... } seated pose per NPC
 function loadSprites(){
   let pending=0, done=0;
   for(const who of ['husband','wife','creamy']){
@@ -27,9 +28,27 @@ function loadSprites(){
       NPC_IMGS[id] = NPC_SPRITES[id].map(src=>{ const im=new Image(); im.src=src; return im; });
     }
   }
+  if(typeof NPC_SIT !== 'undefined'){
+    for(const id in NPC_SIT){ const im=new Image(); im.src=NPC_SIT[id]; NPC_SIT_IMGS[id]=im; }
+  }
   if(pending===0) SPRITE_IMGS.ready=true;
 }
-const NPC_IDS = ['npc1','npc2','npc3','npc4','npc5','npc6'];
+const NPC_IDS = ['npc1','npc2','npc3','npc4','npc5','npc6','npc7','npc8'];
+
+// draw a SEATED NPC sprite (uses the dedicated sit frame), feet/seat at (x,gy)
+function drawNpcSit(id, x, gy, displayH, facing){
+  const img = NPC_SIT_IMGS[id];
+  if(!img || !img.complete || !img.naturalWidth) return false;
+  const scale = displayH / img.naturalHeight;
+  const w = img.naturalWidth*scale, h = displayH;
+  ctx.save();
+  ctx.imageSmoothingEnabled=false;
+  ctx.translate(Math.round(x), Math.round(gy));
+  if(facing<0) ctx.scale(-1,1);
+  ctx.drawImage(img, Math.round(-w/2), Math.round(-h), Math.round(w), Math.round(h));
+  ctx.restore();
+  return true;
+}
 
 // draw a background NPC sprite: feet at (x,gy), scaled to displayH, frame-cycled.
 // `phase` drives the walk frame; moving=false holds a stance frame (for seated/standing).
