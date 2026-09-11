@@ -412,7 +412,168 @@ const LAYER_DRAW = {
     ctx.fillStyle='rgba(180,205,235,0.5)'; roundRect(base+W*0.55,gy-210,200,150,10); ctx.fill();
     ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillRect(base+W*0.55,gy-64,210,10);   // sill
   },
+
+  // ===== LAKESIDE GARDEN WEDDING (event 9) =====
+  // Reference: cascading wisteria + hanging Edison bulbs overhead, floral-arch aisle,
+  // white-flower pedestals with ceramic vases, cross-back wooden chairs with seated guests,
+  // topiary, and a calm lake with far mountains. Built as several parallax layers.
+
+  // far shore: lake water band + soft distant treeline + a hint of mountains.
+  lakeBackdrop(base, gy, pal, o){
+    const horizon = gy - 150;
+    // pale sky-blue lake
+    const g=ctx.createLinearGradient(0,horizon,0,gy-70);
+    g.addColorStop(0,'#bcd6dd'); g.addColorStop(1,'#a9c8cf');
+    ctx.fillStyle=g; ctx.fillRect(0, horizon, W, (gy-70)-horizon);
+    // distant mountains behind the lake
+    ctx.fillStyle='#8fa9ad';
+    for(const mx of [0.1,0.4,0.72]){ const x=base+Math.round(W*mx);
+      ctx.beginPath(); ctx.moveTo(x-90, horizon+6); ctx.lineTo(x, horizon-30); ctx.lineTo(x+90, horizon+6); ctx.closePath(); ctx.fill(); }
+    // soft willow/tree line along the far shore (rounded green blobs)
+    for(let i=0;i<10;i++){ const x=base+i*Math.round(W/9); const h=26+((i*53)%22);
+      ctx.fillStyle= i%2? '#6f9a5e':'#5f8a52';
+      ctx.beginPath(); ctx.arc(x, horizon+4, h,0,7); ctx.fill();
+      ctx.fillRect(x-2, horizon+4, 4, 14); }
+    // subtle water shimmer lines
+    ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=1;
+    for(let i=0;i<4;i++){ const y=horizon+34+i*16; ctx.beginPath(); ctx.moveTo(0,y);
+      for(let x=0;x<=W;x+=40) ctx.lineTo(x, y+Math.sin((x+state.time*2)*0.03+i)*2); ctx.stroke(); }
+  },
+
+  // ceremony grounds: lawn, floral arch over the aisle, topiary, pedestal vases, aisle flowers.
+  weddingGrounds(base, gy, pal, o){
+    // green lawn from the lake edge down to the ground
+    const lawnTop = gy - 70;
+    const lg=ctx.createLinearGradient(0,lawnTop,0,gy); lg.addColorStop(0,'#6fa24f'); lg.addColorStop(1,'#5b8f43');
+    ctx.fillStyle=lg; ctx.fillRect(0, lawnTop, W, gy-lawnTop);
+    // grassy aisle center strip (a touch lighter)
+    ctx.fillStyle='#79ad57'; ctx.fillRect(base+Math.round(W*0.30), lawnTop, Math.round(W*0.40), gy-lawnTop);
+
+    // floral arch spanning the aisle (two posts + arched top wrapped in white flowers)
+    const ax=base+Math.round(W*0.50), ar=64, ay=lawnTop+6;
+    ctx.strokeStyle='#7a5f3a'; ctx.lineWidth=6;
+    ctx.beginPath(); ctx.arc(ax, ay, ar, Math.PI, 0); ctx.stroke();     // arch frame
+    ctx.beginPath(); ctx.moveTo(ax-ar, ay); ctx.lineTo(ax-ar, gy-8); ctx.moveTo(ax+ar, ay); ctx.lineTo(ax+ar, gy-8); ctx.stroke();
+    flowerCluster(ax-ar, ay-6, 16);                                    // flowers on the arch corners
+    flowerCluster(ax+ar, ay-6, 16);
+    for(let a=Math.PI; a<=2*Math.PI; a+=0.5){ flowerCluster(ax+Math.cos(a)*ar, ay+Math.sin(a)*ar, 7); }
+
+    // topiary tree (tall trimmed cone) to the right, like the reference
+    const tx=base+Math.round(W*0.74);
+    ctx.fillStyle='#6b4a2f'; ctx.fillRect(tx-3, gy-70, 6, 70);
+    ctx.fillStyle='#4f8046'; for(let k=0;k<3;k++){ ctx.beginPath(); ctx.arc(tx, gy-74-k*20, 24-k*5,0,7); ctx.fill(); }
+
+    // white-flower pedestals w/ ceramic vases flanking the aisle front
+    weddingPedestal(base+Math.round(W*0.40), gy);
+    weddingPedestal(base+Math.round(W*0.60), gy);
+    // aisle-edge flower mounds along both sides
+    for(let i=0;i<5;i++){ flowerCluster(base+Math.round(W*0.30)-6, lawnTop+14+i*Math.round((gy-lawnTop)/5), 12);
+      flowerCluster(base+Math.round(W*0.70)+6, lawnTop+14+i*Math.round((gy-lawnTop)/5), 12); }
+  },
+
+  // rows of cross-back wooden chairs with seated guests, both sides of the aisle.
+  weddingChairs(base, gy, pal, o){
+    const rows=3, chairW=30;
+    for(let side of [-1,1]){
+      const startX = base + Math.round(W*(side<0?0.06:0.72));
+      for(let r=0;r<rows;r++){
+        const rx = startX + (side<0? 0 : 0);
+        const ry = gy - r*4;                       // slight back-row lift for depth
+        for(let c=0;c<3;c++){
+          const cxp = rx + c*chairW;
+          woodenChair(cxp, ry);
+          // seated guest sprite (regular NPCs), some facing the aisle
+          const id = NPC_IDS[((r*3+c)+Math.floor(startX/57)) % NPC_IDS.length];
+          const face = side<0? 1 : -1;             // face toward the center aisle
+          if(!drawNpcSit(id, cxp+ (chairW-4)/2, ry-6, 52, face)){
+            ctx.fillStyle=['#c0553f','#3f6bc0','#4f9f6f','#b06fb0','#c9a23f'][(r+c)%5];
+            ctx.fillRect(cxp+8, ry-22, 12, 12);
+          }
+        }
+      }
+    }
+  },
+
+  // overhead canopy: cascading wisteria drapes + a string of hanging Edison bulbs.
+  // screen-space overlay so it frames the whole top of the view like the reference photo.
+  weddingCanopy(base, gy, pal, o){
+    const t=state.time;
+    // 1) a soft tent/awning band across the very top
+    ctx.fillStyle='rgba(244,244,236,0.9)'; ctx.fillRect(0,0,W,26);
+    ctx.fillStyle='rgba(228,228,216,0.9)';
+    for(let x=0;x<W;x+=90){ ctx.beginPath(); ctx.moveTo(x,26); ctx.lineTo(x+45,40); ctx.lineTo(x+90,26); ctx.closePath(); ctx.fill(); }
+    // 2) cascading wisteria: many vertical strands of pale-green/cream blossom clusters
+    for(let x=6; x<W; x+=14){
+      const len = 90 + Math.round(Math.abs(Math.sin(x*0.13))*80) + ((x*37)%40);   // varied drop
+      const sway = Math.sin(t*0.02 + x*0.05)*2;
+      ctx.strokeStyle='rgba(150,170,110,0.5)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x, 24); ctx.lineTo(x+sway, 24+len); ctx.stroke();
+      // blossom dots down the strand
+      for(let y=30; y<24+len; y+=7){
+        const c = ((x+y)>>1)%3;
+        ctx.fillStyle = c===0? '#eef0d6' : c===1? '#e6e6a0' : '#dce6c0';
+        const px = x + sway*(y/(24+len));
+        ctx.fillRect(Math.round(px)-1, y, 3, 3);
+      }
+    }
+    // 3) hanging Edison bulbs on thin cords, staggered depth, warm glow
+    for(let i=0; i<14; i++){
+      const x = Math.round(W*(0.10 + i*0.06));
+      const cord = 150 + ((i*53)%70);
+      ctx.strokeStyle='rgba(40,36,30,0.7)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x, 24); ctx.lineTo(x, cord); ctx.stroke();
+      // socket + glowing bulb
+      ctx.fillStyle='#2f2a24'; ctx.fillRect(x-2, cord, 4, 4);
+      ctx.fillStyle='rgba(255,214,120,0.35)'; ctx.beginPath(); ctx.arc(x, cord+9, 9,0,7); ctx.fill();  // halo
+      ctx.fillStyle='#ffdf8a'; ctx.beginPath(); ctx.arc(x, cord+9, 4.5,0,7); ctx.fill();               // filament bulb
+      ctx.fillStyle='#fff3c8'; ctx.fillRect(x-1, cord+7, 2, 3);
+    }
+  },
 };
+
+// --- wedding helpers ---
+// a soft cluster of little white flowers (with a few green sprigs) centered at (x,y)
+function flowerCluster(x, y, r){
+  x=Math.round(x); y=Math.round(y);
+  // greenery base
+  ctx.fillStyle='#5f8a52';
+  for(let i=0;i<r;i++){ const a=(i/r)*7, rr=r*0.7; ctx.fillRect(Math.round(x+Math.cos(a)*rr), Math.round(y+Math.sin(a)*rr*0.6), 2,2); }
+  // white blossoms
+  for(let i=0;i<r*1.4;i++){ const a=(i*2.399), rr=(i%2? r*0.5 : r);
+    const px=Math.round(x+Math.cos(a)*rr), py=Math.round(y+Math.sin(a)*rr*0.6);
+    ctx.fillStyle= i%5? '#ffffff' : '#f2f0e0'; ctx.beginPath(); ctx.arc(px,py,2,0,7); ctx.fill();
+    ctx.fillStyle='#e9d98a'; ctx.fillRect(px,py,1,1);   // tiny yellow center
+  }
+}
+// a white ceramic vase on a white pedestal, topped with a white-flower arrangement.
+function weddingPedestal(x, gy){
+  x=Math.round(x);
+  ctx.fillStyle='#eef0f2'; ctx.fillRect(x-14, gy-54, 28, 54);        // pedestal column
+  ctx.fillStyle='#dfe3e7'; ctx.fillRect(x+6, gy-54, 8, 54);          // shaded side
+  ctx.fillStyle='#f6f7f8'; ctx.fillRect(x-16, gy-58, 32, 5);         // cap
+  // ceramic vase
+  ctx.fillStyle='#f4f5f6'; roundRect(x-9, gy-72, 18, 20, 6); ctx.fill();
+  ctx.fillStyle='#e2e6ea'; ctx.fillRect(x+3, gy-70, 5, 16);
+  // white flower arrangement spilling out
+  flowerCluster(x, gy-78, 16);
+}
+// a cross-back wooden ceremony chair (side view), feet at (x,gy)
+function woodenChair(x, gy){
+  x=Math.round(x);
+  const W1='#a9865a', W2='#8a6a42';
+  // seat
+  ctx.fillStyle=W1; ctx.fillRect(x, gy-16, 20, 4);
+  // front + back legs
+  ctx.fillStyle=W2; ctx.fillRect(x+1, gy-16, 3, 16); ctx.fillRect(x+16, gy-16, 3, 16);
+  // back frame
+  ctx.fillStyle=W1; ctx.fillRect(x+15, gy-34, 3, 18);
+  ctx.fillStyle=W2; ctx.fillRect(x+2, gy-34, 3, 18);
+  ctx.fillStyle=W1; ctx.fillRect(x+2, gy-34, 16, 3);            // top rail
+  // the signature cross-back "X"
+  ctx.strokeStyle=W2; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x+3, gy-32); ctx.lineTo(x+17, gy-18);
+  ctx.moveTo(x+17, gy-32); ctx.lineTo(x+3, gy-18); ctx.stroke();
+}
 
 // tiling + parallax wrapper for a single layer
 function drawSceneryLayer(kind, speed, pal, opts){
@@ -440,7 +601,7 @@ function deriveScenery(ev){
     theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.4}, {kind:'coaster',speed:0.5}, {kind:'parkProps',speed:0.6}, {kind:'parkKids',speed:0.75} ],
     cozy_winter_city:      [ {kind:'mountains',speed:0.12,opts:{color:'#c3ccdb',snow:true,peaks:[[0,520,220],[420,620,300],[900,560,240]]}}, {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
     cozy_indoor_care:      [ {kind:'indoorCare',speed:0.3} ],
-    lakeside_trees_wedding:[ {kind:'mountains',speed:0.18,opts:{peaks:[[80,400,180]]}}, {kind:'hills',speed:0.28,opts:{h:90}}, {kind:'trees',speed:0.55,opts:{density:8}} ],
+    lakeside_trees_wedding:[ {kind:'lakeBackdrop',speed:0.15}, {kind:'weddingGrounds',speed:0.4}, {kind:'weddingChairs',speed:0.55}, {kind:'weddingCanopy',speed:0,opts:{screenSpace:true}} ],
   };
   return { layers: M[t] || [ {kind:'hills',speed:0.2,opts:{h:100}}, {kind:'trees',speed:0.55,opts:{density:6}} ] };
 }
