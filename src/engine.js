@@ -5,6 +5,8 @@
 /* =====================================================================
    UPDATE + RENDER LOOP
    ===================================================================== */
+let WIFE_MEET_X = null;   // fixed world-X where the wife waits at the airport (set in update)
+
 function update(){
   if(!state.running) return;
   state.time++;
@@ -26,7 +28,15 @@ function update(){
   const seg = segmentAt(state.hero.x);
   if(seg !== state.currentEvent){ state.currentEvent = seg; updateHUD(); }
   const ev = gameTimeline[seg];
-  if(ev.partyMembers.includes('wife')) state.wifeActive=true;
+
+  // Wife is PRE-PLACED at the airport (segment 0): she stands at a fixed spot near the
+  // boarding board facing the approaching husband, so she never pops in. Once he reaches
+  // her (or once we pass into event 2), she JOINS and trails him like a normal party member.
+  if(WIFE_MEET_X == null) WIFE_MEET_X = SEGMENT_W*0.80;   // fixed meet point in segment 0
+  if(!state.wifeJoined){
+    if(state.hero.x >= WIFE_MEET_X - 70 || seg >= 1){ state.wifeJoined = true; state.wifeActive = true; }
+  }
+  if(ev.partyMembers.includes('wife') && seg >= 1) state.wifeActive=true;
   if(ev.partyMembers.includes('creamy_dog')) state.creamyActive=true;
 
   // wardrobe: swap outfits + fire transition FX when a milestone changes them
@@ -107,9 +117,17 @@ function render(){
   if(state.creamyActive){
     drawCreamy(heroScreenX - 118, gy, walk*1.1, face, moving);
   }
-  if(state.wifeActive){
+  if(state.wifeJoined){
+    // joined: wife trails the husband as a normal party member
     drawHuman(heroScreenX - 62, gy, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
       dress:'#ff9ec2', longHair:true, walkPhase:walk+0.6, facing:face, moving});
+  } else {
+    // pre-placed: wife stands still at the airport meet point, facing LEFT toward the husband
+    const wifeScreenX = (WIFE_MEET_X||SEGMENT_W*0.80) - state.camX;
+    if(wifeScreenX > -40 && wifeScreenX < W+40){
+      drawHuman(wifeScreenX, gy, {who:'wife', skin:'#f6c9a8', shirt:'#ff8fb1', hair:'#3a2a22',
+        dress:'#ff9ec2', longHair:true, walkPhase:0, facing:-1, moving:false});
+    }
   }
   // hero
   drawHuman(heroScreenX, gy, {who:'husband', skin:'#f2c39a', shirt:'#4a7fc0', pants:'#2f3a5c', hair:'#241a14',
@@ -136,6 +154,7 @@ function startGame(){
   state.hero.x=200; state.camX=0; state.currentEvent=0;
   state.collected=new Set(); state.particles=[]; state.finished=false;
   state.wifeActive=false; state.creamyActive=false;
+  state.wifeJoined=false; WIFE_MEET_X=null;
   state.wardrobePop={};
   WardrobeManager.reset();
   document.getElementById('startOverlay').classList.add('hidden');
