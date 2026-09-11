@@ -114,6 +114,57 @@ const LAYER_DRAW = {
     ctx.fillStyle=col; ctx.fillRect(base+W*0.7,gy-210,26,210);
     ctx.fillStyle='rgba(210,235,255,0.85)'; roundRect(base+W*0.7-8,gy-224,42,26,6); ctx.fill();
   },
+
+  // ---- RICH INTERIOR AIRPORT TERMINAL (event 1) ------------------------------
+  // Departures hall: glass curtain wall with tarmac + parked planes beyond, plus
+  // interior fixtures — storefronts, a gate, a flight board, seated + walking people.
+  airportInterior(base, gy, pal, o){
+    const topWall = gy - 300;                 // interior ceiling line
+    // 1) back wall / interior fill above the floor
+    ctx.fillStyle = '#c3ccd6'; ctx.fillRect(base, topWall, W, gy-topWall);
+    ctx.fillStyle = '#aab4c0'; ctx.fillRect(base, topWall, W, 22);            // ceiling band
+    ctx.fillStyle = 'rgba(255,248,220,0.7)';                                  // light strips
+    for(let x=base+40; x<base+W-30; x+=140) ctx.fillRect(x, topWall+8, 70, 5);
+
+    // 2) glass curtain wall showing the tarmac/apron + parked planes beyond
+    const gx0 = base+250, gx1 = base+W-250, gTop = topWall+26, gBot = gy-70;
+    airportGlassWall(gx0, gTop, gx1-gx0, gBot-gTop);
+
+    // 3) interior tiled floor
+    ctx.fillStyle = '#cfd6de'; ctx.fillRect(base, gy, W, H-gy);
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+    for(let x=base; x<base+W; x+=34){ ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x, gy+40); ctx.stroke(); }
+    ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(base, gy, W, 3);
+
+    // 4) storefronts left + right
+    storefront(base+40,   gy, 150, 118, '#7a1f22', "TERRY'S DINER", '#ffd24a');
+    storefront(base+205,  gy, 120, 118, '#3a5a78', "BOOK NOOK",     '#eaf2ff');
+    storefront(base+W-190,gy, 150, 118, '#8a2f2f', "DUTY FREE",     '#ffe08a');
+    signBox(base+W-232, gy-152, 86, 24, 'RESTROOMS', '#2f6f9f', '#eaf6ff');
+
+    // 5) DEPARTURES sign + a control tower through the glass
+    signBox(base+50, topWall+34, 150, 28, 'DEPARTURES', '#111', '#ffd24a');
+    ctx.fillStyle='#8fa0b0'; ctx.fillRect(base+W-150, gTop-4, 20, 120);
+    ctx.fillStyle='rgba(210,235,255,0.9)'; roundRect(base+W-160, gTop-18, 40, 20, 4); ctx.fill();
+
+    // 6) GATE A13 sign + flight-status board
+    signBox(base+Math.round(W*0.66), gy-152, 74, 40, 'GATE', '#0b0b0b', '#ffd24a', 'A13');
+    flightBoard(base+Math.round(W*0.48), gy-152, 150, 44);
+
+    // 7) gate desk + attendant
+    gateDesk(base+Math.round(W*0.40), gy);
+
+    // 8) seated traveller rows
+    seatedRow(base+Math.round(W*0.50), gy-2, 6);
+    seatedRow(base+Math.round(W*0.72), gy-2, 5);
+
+    // 9) walking travellers with luggage (deterministic)
+    for(let i=0;i<9;i++){
+      const r=((i*97)%100)/100, r2=((i*151)%100)/100;
+      const x = base + 60 + Math.round(i*((W-120)/9) + r*30);
+      npcWalker(x, gy-1, r, r2);
+    }
+  },
   // animated flight: a plane climbs across the sky (already airborne) and loops.
   // screenSpace layer — positions itself from state.time (independent of camera).
   airplane(base, gy, pal, o){
@@ -244,7 +295,7 @@ function drawSceneryLayer(kind, speed, pal, opts){
 function deriveScenery(ev){
   const t=ev.backgroundType;
   const M={
-    airport_terminal:      [ {kind:'skyline',speed:0.5,opts:{count:5,h:90}}, {kind:'terminal',speed:0.25}, {kind:'airplane',speed:0,opts:{screenSpace:true,scale:1.1}} ],
+    airport_terminal:      [ {kind:'airportInterior',speed:0.25}, {kind:'airplane',speed:0,opts:{screenSpace:true,scale:1.0}} ],
     park_and_city:         [ {kind:'hills',speed:0.2,opts:{h:120,h2:80}}, {kind:'skyline',speed:0.4,opts:{count:4,w:60,h:150}}, {kind:'trees',speed:0.55,opts:{density:7}} ],
     suburban_driveway:     [ {kind:'hills',speed:0.2,opts:{h:110}}, {kind:'trees',speed:0.55,opts:{density:6}} ],
     ocean_ferry_cruise:    [ {kind:'hills',speed:0.2,opts:{h:70}}, {kind:'sailboats',speed:0.5} ],
@@ -328,9 +379,155 @@ function drawPlane(x, y, ang, s, t){
   ctx.restore();
 }
 
+/* ============ AIRPORT INTERIOR HELPERS ============ */
+
+// glass curtain wall showing sky + tarmac apron + parked planes beyond, with mullions
+function airportGlassWall(x, y, w, h){
+  // sky above the horizon, tarmac below
+  const horizon = y + Math.round(h*0.5);
+  ctx.fillStyle = '#bcd7ee'; ctx.fillRect(x, y, w, horizon-y);   // sky
+  ctx.fillStyle = '#6f7d74'; ctx.fillRect(x, horizon, w, y+h-horizon);                                // grass/apron edge
+  ctx.fillStyle = '#5a5f66'; ctx.fillRect(x, horizon+Math.round(h*0.16), w, y+h-(horizon+Math.round(h*0.16))); // tarmac
+  // runway markings
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  for(let rx=x+10; rx<x+w-16; rx+=48) ctx.fillRect(rx, horizon+Math.round(h*0.30), 24, 3);
+  // a couple of parked planes beyond the glass
+  tarmacPlane(x+Math.round(w*0.30), horizon+Math.round(h*0.20), 1.0, '#e8edf2', '#3a78c0');
+  tarmacPlane(x+Math.round(w*0.66), horizon+Math.round(h*0.30), 0.8, '#f2ede8', '#e08a3a');
+  // glass tint + vertical mullions + horizontal transom
+  ctx.fillStyle = 'rgba(180,215,245,0.16)'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#9aa7b4';
+  for(let mx=x; mx<=x+w; mx+=Math.round(w/8)) ctx.fillRect(mx-2, y, 4, h);   // mullions
+  ctx.fillRect(x, y+Math.round(h*0.5)-2, w, 4);                              // transom
+  ctx.fillRect(x-3, y-3, w+6, 5); ctx.fillRect(x-3, y+h-2, w+6, 5);          // frame top/bottom
+}
+
+// small parked airliner seen through the glass (simple side view on the apron)
+function tarmacPlane(x, y, s, body, accent){
+  ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.scale(s, s);
+  ctx.fillStyle = body; roundRect(-46, -9, 92, 18, 9); ctx.fill();       // fuselage
+  ctx.beginPath(); ctx.moveTo(46,-7); ctx.lineTo(60,0); ctx.lineTo(46,7); ctx.closePath(); ctx.fill(); // nose
+  ctx.beginPath(); ctx.moveTo(-46,-7); ctx.lineTo(-58,-24); ctx.lineTo(-36,-7); ctx.closePath(); ctx.fill(); // tail fin
+  ctx.fillStyle = accent; ctx.fillRect(-40, -2, 78, 4);                  // livery stripe
+  ctx.fillStyle = '#8fb3d6'; for(let wx=-36; wx<40; wx+=8) ctx.fillRect(wx, -3, 4, 4); // windows
+  ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(-30, 9, 60, 3);       // ground shadow
+  ctx.restore();
+}
+
+// storefront: awning + fascia sign + lit window with silhouettes
+function storefront(x, gy, w, h, color, label, textCol){
+  const top = gy - h;
+  ctx.fillStyle = '#e7ebf0'; ctx.fillRect(x, top, w, h);                 // shop interior wall
+  ctx.fillStyle = 'rgba(255,240,200,0.55)'; ctx.fillRect(x+6, top+22, w-12, h-30); // lit window
+  // silhouettes / product shelves inside
+  ctx.fillStyle = 'rgba(60,70,90,0.35)';
+  for(let sx=x+12; sx<x+w-12; sx+=16) ctx.fillRect(sx, gy-Math.round(h*0.5), 8, Math.round(h*0.5)-4);
+  // fascia sign
+  ctx.fillStyle = color; ctx.fillRect(x, top, w, 20);
+  pixelLabel(label, x+6, top+14, Math.max(6, Math.round((w-12)/(label.length))), textCol);
+  // frame
+  ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1; ctx.strokeRect(x, top, w, h);
+}
+
+// a rectangular sign box with a label (and optional big secondary text, e.g. GATE + A13)
+function signBox(x, y, w, h, label, bg, textCol, big){
+  ctx.fillStyle = bg; roundRect(x, y, w, h, 4); ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(x, y, w, h);
+  if(big){
+    pixelLabel(label, x+6, y+12, 5, textCol);
+    pixelLabel(big, x+6, y+h-6, 12, textCol);
+  } else {
+    pixelLabel(label, x+5, y+Math.round(h/2)+3, Math.max(6, Math.round((w-10)/label.length)), textCol);
+  }
+}
+
+// dark flight-status board with amber departures text
+function flightBoard(x, y, w, h){
+  ctx.fillStyle = '#0c1016'; roundRect(x, y, w, h, 3); ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,0.5)'; ctx.strokeRect(x, y, w, h);
+  pixelLabel('BA203 LONDON', x+6, y+14, 6, '#ffd24a');
+  pixelLabel('BOARDING', x+6, y+30, 6, '#8fe08a');
+  // blinking cursor
+  if(Math.floor(state.time/30)%2===0){ ctx.fillStyle='#8fe08a'; ctx.fillRect(x+w-16, y+24, 8, 8); }
+}
+
+// gate desk with a standing attendant + a traveller at the counter
+function gateDesk(x, gy){
+  const w=70, h=34, top=gy-h;
+  ctx.fillStyle='#4a5a72'; ctx.fillRect(x, top, w, h);                 // desk body
+  ctx.fillStyle='#6f83a0'; ctx.fillRect(x, top, w, 6);                 // counter top
+  ctx.fillStyle='#1a2230'; ctx.fillRect(x+w-20, top-10, 16, 12);       // monitor
+  ctx.fillStyle='rgba(140,200,240,0.7)'; ctx.fillRect(x+w-18, top-8, 12, 8);
+  person(x+14, gy, '#2f3a52', '#f2c39a', '#241a14');                    // attendant behind
+  person(x-14, gy, '#7a5a3a', '#f6c9a8', '#3a2a22');                    // traveller in front
+}
+
+// a row of seats with seated travellers
+function seatedRow(x, gy, n){
+  const seatW=26;
+  for(let i=0;i<n;i++){
+    const sx = x + i*seatW;
+    // seat
+    ctx.fillStyle='#3f4756'; ctx.fillRect(sx, gy-16, seatW-4, 16);
+    ctx.fillStyle='#4d566a'; ctx.fillRect(sx, gy-30, 4, 30);           // seat back post
+    // seated person (deterministic colours)
+    const r=((i*61+x)%100)/100;
+    const shirt = ['#c0553f','#3f6bc0','#4f9f6f','#b06fb0','#c9a23f'][i%5];
+    const skin  = r<0.5 ? '#f2c39a' : '#c98a5a';
+    ctx.fillStyle=shirt; ctx.fillRect(sx+5, gy-24, 12, 14);            // torso
+    ctx.fillStyle=skin;  ctx.beginPath(); ctx.arc(sx+11, gy-28, 5, 0, 7); ctx.fill(); // head
+    ctx.fillStyle='#2a2028'; ctx.fillRect(sx+6, gy-31, 10, 4);         // hair
+    ctx.fillStyle='#39406a'; ctx.fillRect(sx+6, gy-11, 11, 8);         // lap/legs
+  }
+}
+
+// a walking traveller with a rolling suitcase (deterministic look from r/r2)
+function npcWalker(x, gy, r, r2){
+  const shirt = ['#4a7fc0','#c0553f','#4f9f6f','#8a5a3a','#b06fb0','#3a3f52'][Math.floor(r*6)%6];
+  const pants = r2<0.5 ? '#2f3a5c' : '#3a3a3f';
+  const skin  = r<0.5 ? '#f2c39a' : '#c98a5a';
+  const bob = Math.round(Math.abs(Math.sin((state.time*0.05)+(x)))*2);
+  const y = gy - bob;
+  person(x, y, shirt, skin, r2<0.5?'#241a14':'#3a2a22', pants);
+  // rolling suitcase beside some of them
+  if(r2>0.45){
+    const cx=x+ (r<0.5?10:-10);
+    ctx.fillStyle=['#8a2f2f','#2f5a8a','#3f7f5f','#7a5f2f'][Math.floor(r2*4)%4];
+    ctx.fillRect(cx-4, y-26, 9, 18);                                   // case
+    ctx.strokeStyle='#333'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(cx+ (r<0.5?5:-5), y-26); ctx.lineTo(x, y-34); ctx.stroke(); // handle
+  }
+}
+
+// simple standing pixel-person (torso, head, hair, legs)
+function person(x, y, shirt, skin, hair, pants){
+  x=Math.round(x); y=Math.round(y);
+  ctx.fillStyle = pants||'#39406a'; ctx.fillRect(x-5, y-16, 4, 16); ctx.fillRect(x+1, y-16, 4, 16); // legs
+  ctx.fillStyle = shirt; ctx.fillRect(x-6, y-32, 12, 17);            // torso
+  ctx.fillStyle = skin;  ctx.beginPath(); ctx.arc(x, y-37, 5, 0, 7); ctx.fill(); // head
+  ctx.fillStyle = hair||'#241a14'; ctx.fillRect(x-5, y-41, 10, 4);   // hair
+}
+
+// tiny bitmap-ish label: draws chunky uppercase blocks approximating text (readable at scene scale)
+function pixelLabel(text, x, y, size, color){
+  ctx.save();
+  ctx.fillStyle = color || '#fff';
+  ctx.font = `bold ${Math.max(8,size+3)}px "Courier New", monospace`;
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(text, Math.round(x), Math.round(y));
+  ctx.restore();
+}
+
 /* ground / path */
 function drawGround(pal, bg){
   const gy=groundY();
+  // airport interior supplies its own tiled floor + seated people; don't paint over them
+  if(bg.backgroundType==='airport_terminal'){
+    ctx.strokeStyle='rgba(255,255,255,0.30)'; ctx.lineWidth=4; ctx.setLineDash([26,26]);
+    ctx.lineDashOffset = -state.camX%52;
+    ctx.beginPath(); ctx.moveTo(0,gy+ (H-gy)*0.62); ctx.lineTo(W,gy+(H-gy)*0.62); ctx.stroke();
+    ctx.setLineDash([]);
+    return;
+  }
   ctx.fillStyle=pal.ground;
   ctx.fillRect(0,gy,W,H-gy);
   // water surface for ferry
