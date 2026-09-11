@@ -39,6 +39,13 @@ function update(){
   if(ev.partyMembers.includes('wife') && seg >= 1) state.wifeActive=true;
   if(ev.partyMembers.includes('creamy_dog')) state.creamyActive=true;
 
+  // Ferry voyage (segment index 3): progress = fraction walked across that segment.
+  // Drives the ferryScene (coastline scroll, ramps on/off) so walking right = sailing.
+  const FERRY_SEG = gameTimeline.findIndex(e=>e.backgroundType==='ocean_ferry_cruise');
+  if(seg === FERRY_SEG && FERRY_SEG >= 0){
+    state.ferryProgress = Math.max(0, Math.min(1, (state.hero.x - FERRY_SEG*SEGMENT_W)/SEGMENT_W));
+  }
+
   // wardrobe: swap outfits + fire transition FX when a milestone changes them
   WardrobeManager.syncToEvent(seg);
   // decay the frame-pop punch
