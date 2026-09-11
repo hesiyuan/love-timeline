@@ -408,80 +408,62 @@ const LAYER_DRAW = {
   },
   // cozy indoor: warm wall + window with sill
   indoorCare(base, gy, pal, o){
-    // ===== HOSPITAL CORRIDOR (event 7) — screen-space, but SCROLLS with the camera =====
-    // Drawn once (screenSpace, no wrapper translate). To make it move as the hero walks,
-    // we shift everything by a camera-derived offset and tile the repeating band across
-    // three screen widths [-W .. 2W] so it wraps seamlessly (like a parallax interior).
-    const floorY = gy - 40;
-    const ceilB  = 84;
-    const off = (state.camX * 0.5) % W;          // parallax scroll amount (wrapped)
-    ctx.save();
-    ctx.translate(-off, 0);
-    for(let tile=-1; tile<=1; tile++){
-      const bx = tile*W;                          // this tile's left edge (in scrolled space)
-      // --- walls ---
-      ctx.fillStyle='#d7dad2'; ctx.fillRect(bx, 0, W+1, floorY);
-      ctx.fillStyle='#cdd0c8'; ctx.fillRect(bx, floorY-40, W+1, 40);
-      // --- drop ceiling grid + lit fluorescent panels ---
-      ctx.fillStyle='#c4c7bf'; ctx.fillRect(bx,0,W+1,ceilB);
-      ctx.strokeStyle='rgba(120,124,116,0.5)'; ctx.lineWidth=1;
-      for(let x=0;x<=W;x+=64){ ctx.beginPath(); ctx.moveTo(bx+x,0); ctx.lineTo(bx+x,ceilB); ctx.stroke(); }
-      ctx.beginPath(); ctx.moveTo(bx,ceilB); ctx.lineTo(bx+W,ceilB); ctx.stroke();
-      for(let x=28;x<W;x+=128){
-        ctx.fillStyle='rgba(255,244,200,0.35)'; ctx.fillRect(bx+x-10, 12, 56, 20);
-        ctx.fillStyle='#fdf6df'; ctx.fillRect(bx+x, 16, 36, 12);
-        ctx.strokeStyle='#b9bcb2'; ctx.strokeRect(bx+x, 16, 36, 12);
-      }
-      // --- corridor vanishing-point doorway on the back wall (center of each tile) ---
-      const vpx=bx+Math.round(W*0.5), vw=120, vh=150, vy=floorY-vh;
-      ctx.fillStyle='#b8bcb2'; ctx.fillRect(vpx-vw/2, vy, vw, vh);
-      ctx.fillStyle='#e9ece6'; ctx.fillRect(vpx-vw/2+8, vy+8, vw-16, vh-16);
-      ctx.fillStyle='#cfd3ca'; ctx.fillRect(vpx-vw/2+8, vy+8, vw-16, 6);
-      ctx.fillStyle='#f3f5ef'; ctx.fillRect(vpx-24, vy+40, 48, vh-46);
-      ctx.fillStyle='#7a2f2f'; ctx.fillRect(vpx-92, vy-4, 184, 18);
-      pixelLabel('MEDICAL IMAGING', vpx-84, vy+9, 7, '#f4e7c8');
-      const chips=[['#c0553f','RED'],['#3f6bc0','BLUE'],['#c9a23f','YEL']];
-      chips.forEach((c,i)=>{ const cx=vpx-72+i*56; ctx.fillStyle=c[0]; ctx.fillRect(cx, vy+18, 48, 12);
-        pixelLabel(c[1], cx+4, vy+28, 6, '#fff'); });
-      // --- wall handrails both sides of the doorway ---
-      ctx.fillStyle='#a9865a'; ctx.fillRect(bx, floorY-70, (vpx-vw/2)-bx, 6); ctx.fillRect(vpx+vw/2, floorY-70, (bx+W)-(vpx+vw/2), 6);
-      ctx.fillStyle='#8a6a42'; ctx.fillRect(bx, floorY-64, (vpx-vw/2)-bx, 3); ctx.fillRect(vpx+vw/2, floorY-64, (bx+W)-(vpx+vw/2), 3);
-      // --- doors + signage ---
-      hospitalDoor(bx+Math.round(W*0.14), floorY, 'ROOM 2');
-      hospitalDoor(bx+Math.round(W*0.84), floorY, 'RESTROOMS');
-      ctx.fillStyle='#5a6068'; ctx.fillRect(bx+Math.round(W*0.70), 44, 96, 16);
-      pixelLabel('RESTROOMS', bx+Math.round(W*0.70)+6, 56, 6, '#eef2f6');
-      ctx.strokeStyle='#5a6068'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx+Math.round(W*0.72),44); ctx.lineTo(bx+Math.round(W*0.72),ceilB); ctx.stroke();
-      const sx=bx+Math.round(W*0.78); ctx.fillStyle='#eef2f4'; ctx.fillRect(sx, floorY-96, 12, 22);
-      ctx.fillStyle='#8fd0e0'; ctx.fillRect(sx+2, floorY-92, 8, 8);
-      // --- tiled floor with perspective seams ---
-      ctx.fillStyle='#d8cdb2'; ctx.fillRect(bx, floorY, W+1, gy-floorY);
-      ctx.strokeStyle='rgba(150,138,110,0.5)'; ctx.lineWidth=1;
-      for(let i=0;i<7;i++){ const y=floorY+ i*Math.round((gy-floorY)/6);
-        ctx.beginPath(); ctx.moveTo(bx,y); ctx.lineTo(bx+W,y); ctx.stroke(); }
-      for(let x=-2;x<=8;x++){
-        ctx.beginPath(); ctx.moveTo(vpx + (x-3)*40, floorY); ctx.lineTo(vpx + (x-3)*(W*0.16), gy); ctx.stroke(); }
-      // --- props ---
-      supplyCart(bx+Math.round(W*0.10), gy);
-      bassinetStroller(bx+Math.round(W*0.62), gy);
+    // ===== HOSPITAL CORRIDOR (event 7) — modeled on the airport interior =====
+    // A normal PARALLAX layer (base-relative, tiled by the wrapper) so it scrolls with the
+    // camera. The interior is a BAND near the floor; above it a glass wall shows the outside
+    // weather (rainy). Nurses are drawn here in world space (base+x) so they scroll with the
+    // corridor at the same rate — no weird relative speed.
+    const topWall = gy - 300;                     // interior ceiling line (band, not full screen)
+    // 1) interior fill above the floor + ceiling band with light strips
+    ctx.fillStyle='#d7dad2'; ctx.fillRect(base, topWall, W, gy-topWall);
+    ctx.fillStyle='#c4c7bf'; ctx.fillRect(base, topWall, W, 24);                 // ceiling band
+    ctx.strokeStyle='rgba(120,124,116,0.5)'; ctx.lineWidth=1;
+    for(let x=base; x<=base+W; x+=64){ ctx.beginPath(); ctx.moveTo(x, topWall); ctx.lineTo(x, topWall+24); ctx.stroke(); }
+    for(let x=base+40; x<base+W-30; x+=140){                                     // fluorescent panels
+      ctx.fillStyle='rgba(255,244,200,0.4)'; ctx.fillRect(x-8, topWall+6, 78, 14);
+      ctx.fillStyle='#fdf6df'; ctx.fillRect(x, topWall+8, 60, 9);
     }
-    ctx.restore();
-  },
+    // 2) glass curtain wall showing the rainy outside (hospital view: sky, city, rain)
+    const gx0=base+250, gx1=base+W-250, gTop=topWall+30, gBot=gy;
+    const wthr=(gameTimeline[state.currentEvent]||{}).weather;
+    hospitalWindow(gx0, gTop, gx1-gx0, gBot-gTop, wthr);
 
-  // walking hospital staff: nurses in blue scrubs drifting along the corridor.
-  hospitalWalkers(base, gy, pal, o){
-    const floorY = gy - 40;
+    // 3) interior tiled floor
+    ctx.fillStyle='#d8cdb2'; ctx.fillRect(base, gy, W, H-gy);
+    ctx.strokeStyle='rgba(150,138,110,0.5)'; ctx.lineWidth=1;
+    for(let x=base; x<base+W; x+=34){ ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x, gy+40); ctx.stroke(); }
+    ctx.fillStyle='rgba(255,255,255,0.18)'; for(let i=0;i<3;i++) ctx.fillRect(base+Math.round(W*0.4)+i*80, gy+16+i*12, 26, 5);
+
+    // 4) wall handrail across the interior wall (below the glass, above the floor)
+    ctx.fillStyle='#a9865a'; ctx.fillRect(base, gy-70, W, 6);
+    ctx.fillStyle='#8a6a42'; ctx.fillRect(base, gy-64, W, 3);
+
+    // 5) doors + signage flanking the glass wall
+    hospitalDoor(base+Math.round(W*0.12), gy, 'ROOM 2');
+    hospitalDoor(base+Math.round(W*0.88), gy, 'RESTROOMS');
+    signBox(base+Math.round(W*0.30), topWall+34, 150, 26, 'MEDICAL IMAGING', '#7a2f2f', '#f4e7c8');
+    signBox(base+Math.round(W*0.62), gy-152, 86, 24, 'RESTROOMS', '#2f6f9f', '#eaf6ff');
+    // sanitizer dispenser near the right door
+    const sx=base+Math.round(W*0.80); ctx.fillStyle='#eef2f4'; ctx.fillRect(sx, gy-96, 12, 22);
+    ctx.fillStyle='#8fd0e0'; ctx.fillRect(sx+2, gy-92, 8, 8);
+
+    // 6) props: supply cart (left) + baby bassinet stroller (right of center)
+    supplyCart(base+Math.round(W*0.06), gy);
+    bassinetStroller(base+Math.round(W*0.66), gy);
+
+    // 7) nurse staff walking the corridor (WORLD space: base+x, so they scroll with the room).
+    //    Their small extra drift comes only from a gentle time term, not the camera.
     for(let i=0;i<3;i++){
       const r=((i*89+23)%100)/100;
-      const dir = (i%2===0)?1:-1;
-      const span = W - 120;
-      const speed = 0.3 + r*0.3;
-      const off = (state.time*speed + i*260) % span;
-      const x = 60 + (dir>0 ? off : span-off);
-      const id = (i%2===0)? 'nurse1':'nurse2';
-      const phase = state.time*0.18 + x*0.03;
-      if(!drawNpc(id, Math.round(x), floorY-2, 64, phase, dir, true)){
-        person(x, floorY, '#3a74b4', '#f2c39a', '#241a14', '#3a74b4');
+      const dir=(i%2===0)?1:-1;
+      const span=W-140;
+      const speed=0.28+r*0.22;
+      const drift=(state.time*speed + i*260) % span;
+      const x=base + 70 + (dir>0 ? drift : span-drift);
+      const id=(i%2===0)?'nurse1':'nurse2';
+      const phase=state.time*0.18 + x*0.03;
+      if(!drawNpc(id, Math.round(x), gy-1, 64, phase, dir, true)){
+        person(x, gy, '#3a74b4', '#f2c39a', '#241a14', '#3a74b4');
       }
     }
   },
@@ -743,6 +725,56 @@ function supplyCart(x, gy){
   // a small item on top
   ctx.fillStyle='#e6eef1'; ctx.fillRect(x-8, top-8, 16, 8);
 }
+// a hospital window (glass curtain wall) showing the outside: sky + clouds + a distant city
+// skyline and treeline, with weather (rain/snow) falling. No aviation props. Frame + mullions.
+function hospitalWindow(x, y, w, h, weather){
+  x=Math.round(x); y=Math.round(y); w=Math.round(w); h=Math.round(h);
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  const horizon = y + Math.round(h*0.55);
+  const overcast = (weather==='gentle_rain' || weather==='snow_light' || weather==='cloudy_coastal');
+  // sky
+  ctx.fillStyle = overcast ? '#c2ccd6' : '#cfe6fb'; ctx.fillRect(x, y, w, horizon-y);
+  ctx.fillStyle = overcast ? '#d4dbe2' : '#eaf4ff'; ctx.fillRect(x, horizon-Math.round(h*0.05), w, Math.round(h*0.05));
+  // drifting clouds
+  ctx.fillStyle='rgba(255,255,255,0.8)';
+  for(let k=0;k<3;k++){ const cx=x+((k*Math.round(w/3)+Math.round(state.time*0.2))%(w+60))-30; const cy=y+Math.round(h*0.16)+k*7;
+    ctx.beginPath(); ctx.arc(cx,cy,9,0,7); ctx.arc(cx+11,cy+3,7,0,7); ctx.arc(cx-9,cy+3,6,0,7); ctx.fill(); }
+  // distant city skyline (muted buildings) sitting on the horizon
+  ctx.fillStyle = overcast ? '#8f9aa6' : '#9fb0c0';
+  for(let bx=x-10; bx<x+w; bx+=Math.round(w/8)){ const bh=18+((bx*37)%34); const bw=Math.round(w/9);
+    ctx.fillRect(bx, horizon-bh, bw, bh);
+    ctx.fillStyle='rgba(255,244,200,0.5)';                                  // a few lit windows
+    for(let wy=horizon-bh+4; wy<horizon-4; wy+=8) for(let wx=bx+3; wx<bx+bw-3; wx+=7)
+      if(((wx+wy)|0)%3===0) ctx.fillRect(wx,wy,2,3);
+    ctx.fillStyle = overcast ? '#8f9aa6' : '#9fb0c0';
+  }
+  // treeline + ground band at the base
+  ctx.fillStyle = overcast ? '#6f8a63' : '#7fa06a';
+  for(let tx=x; tx<x+w; tx+=26){ ctx.beginPath(); ctx.arc(tx, horizon+2, 9,0,7); ctx.fill(); }
+  ctx.fillStyle = overcast ? '#7f8a70' : '#8aa06a'; ctx.fillRect(x, horizon+6, w, (y+h)-(horizon+6));
+  // WEATHER through the glass
+  if(weather==='gentle_rain'){
+    ctx.strokeStyle='rgba(200,220,240,0.5)'; ctx.lineWidth=1;
+    for(let i=0;i<60;i++){ const rx=x+((i*53+state.time*6)%w); const ry=y+((i*97+state.time*9)%h);
+      ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx-2,ry+8); ctx.stroke(); }
+  } else if(weather==='snow_light'){
+    ctx.fillStyle='rgba(255,255,255,0.9)';
+    for(let i=0;i<50;i++){ const sx=x+((i*61+Math.sin(state.time*0.02+i)*20+w)%w); const sy=y+((i*83+state.time*2)%h);
+      ctx.beginPath(); ctx.arc(sx,sy,1.5,0,7); ctx.fill(); }
+  }
+  // glass sheen
+  ctx.fillStyle='rgba(190,220,250,0.08)'; ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=14;
+  ctx.beginPath(); ctx.moveTo(x+Math.round(w*0.2), y+h); ctx.lineTo(x+Math.round(w*0.2)+h, y); ctx.stroke();
+  ctx.restore();
+  // frame + mullions (over the clip)
+  ctx.strokeStyle='#aeb4bb'; ctx.lineWidth=4; ctx.strokeRect(x,y,w,h);
+  ctx.lineWidth=2;
+  for(let mx=x+Math.round(w/4); mx<x+w; mx+=Math.round(w/4)){ ctx.beginPath(); ctx.moveTo(mx,y); ctx.lineTo(mx,y+h); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(x, y+Math.round(h*0.5)); ctx.lineTo(x+w, y+Math.round(h*0.5)); ctx.stroke();
+}
+
 // a hospital baby bassinet on a wheeled cart (the "stroller"), feet at (x,gy)
 function bassinetStroller(x, gy){
   x=Math.round(x);
@@ -784,7 +816,7 @@ function deriveScenery(ev){
     mountain_resort_vineyard:[ {kind:'mountains',speed:0.18,opts:{snow:true}}, {kind:'vineyard',speed:0.55} ],
     theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.4}, {kind:'coaster',speed:0.5}, {kind:'parkProps',speed:0.6}, {kind:'parkKids',speed:0.75} ],
     cozy_winter_city:      [ {kind:'mountains',speed:0.12,opts:{color:'#c3ccdb',snow:true,peaks:[[0,520,220],[420,620,300],[900,560,240]]}}, {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
-    cozy_indoor_care:      [ {kind:'indoorCare',speed:0,opts:{screenSpace:true}}, {kind:'hospitalWalkers',speed:0,opts:{screenSpace:true}} ],
+    cozy_indoor_care:      [ {kind:'indoorCare',speed:0.25} ],
     lakeside_trees_wedding:[ {kind:'lakeBackdrop',speed:0,opts:{screenSpace:true}}, {kind:'weddingGrounds',speed:0.4}, {kind:'weddingChairs',speed:0.55}, {kind:'weddingCanopy',speed:0,opts:{screenSpace:true}} ],
   };
   return { layers: M[t] || [ {kind:'hills',speed:0.2,opts:{h:100}}, {kind:'trees',speed:0.55,opts:{density:6}} ] };
