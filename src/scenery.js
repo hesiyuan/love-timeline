@@ -667,7 +667,7 @@ function deriveScenery(ev){
     theme_park_castles:    [ {kind:'hills',speed:0.2,opts:{h:80}}, {kind:'castles',speed:0.4}, {kind:'coaster',speed:0.5}, {kind:'parkProps',speed:0.6}, {kind:'parkKids',speed:0.75} ],
     cozy_winter_city:      [ {kind:'mountains',speed:0.12,opts:{color:'#c3ccdb',snow:true,peaks:[[0,520,220],[420,620,300],[900,560,240]]}}, {kind:'winterCity',speed:0.25}, {kind:'trees',speed:0.55,opts:{density:8,color:'#e9eef6',scale:0.8}} ],
     cozy_indoor_care:      [ {kind:'indoorCare',speed:0.3} ],
-    lakeside_trees_wedding:[ {kind:'lakeBackdrop',speed:0.15}, {kind:'weddingGrounds',speed:0.4}, {kind:'weddingChairs',speed:0.55}, {kind:'weddingCanopy',speed:0,opts:{screenSpace:true}} ],
+    lakeside_trees_wedding:[ {kind:'lakeBackdrop',speed:0,opts:{screenSpace:true}}, {kind:'weddingGrounds',speed:0.4}, {kind:'weddingChairs',speed:0.55}, {kind:'weddingCanopy',speed:0,opts:{screenSpace:true}} ],
   };
   return { layers: M[t] || [ {kind:'hills',speed:0.2,opts:{h:100}}, {kind:'trees',speed:0.55,opts:{density:6}} ] };
 }
