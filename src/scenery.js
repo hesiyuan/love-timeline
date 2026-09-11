@@ -250,8 +250,8 @@ const LAYER_DRAW = {
     for(const off of [0,6]){ ctx.strokeStyle=off?TRACK2:TRACK; ctx.lineWidth=4;
       ctx.beginPath(); ctx.arc(lx, ly, lr-off*0.5, 0, Math.PI*2); ctx.stroke(); }
     ctx.strokeStyle=SUP; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(lx, ly+lr); ctx.lineTo(lx, gy); ctx.stroke();
-    // the coaster car riding the hill (animated along t)
-    const ct = (0.5 + Math.sin(state.time*0.02)*0.5) * 0.85;    // slides back and forth
+    // the coaster car riding the hill (animated slowly along t)
+    const ct = (0.5 + Math.sin(state.time*0.007)*0.5) * 0.85;    // gentle glide back and forth
     const carX = x0 + span*ct, carY = ty(ct);
     ctx.fillStyle=CAR; roundRect(carX-16, carY-16, 32, 16, 4); ctx.fill();
     ctx.fillStyle='#b3901f'; ctx.fillRect(carX-16, carY-4, 32, 4);
