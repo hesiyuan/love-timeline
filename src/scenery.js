@@ -161,13 +161,12 @@ const LAYER_DRAW = {
     seatedRow(base+Math.round(W*0.72), gy-2, 5);
 
     // 9) walking travellers with luggage (deterministic)
-    for(let i=0;i<9;i++){
-      const r=((i*97)%100)/100, r2=((i*151)%100)/100;
-      const dir = (i%2===0) ? 1 : -1;                    // half walk left, half right
+    for(let i=0;i<2;i++){
+      const r=((i*97+37)%100)/100, r2=((i*151+11)%100)/100;
+      const dir = (i%2===0) ? 1 : -1;
       const span = W - 100;
-      const speed = 0.35 + r*0.5;                        // px/frame, varied
-      // horizontal drift that wraps across the concourse
-      let off = (state.time*speed + i*160) % span;
+      const speed = 0.35 + r*0.4;
+      let off = (state.time*speed + i*300) % span;
       let x = base + 50 + (dir>0 ? off : span-off);
       npcWalker(Math.round(x), gy-1, r, r2, dir);
     }
@@ -526,23 +525,22 @@ function gateDesk(x, gy){
   if(!drawNpc('npc1', x-16, gy,    64, 0,  1, false)) person(x-14, gy, '#7a5a3a', '#f6c9a8', '#3a2a22');
 }
 
-// a row of seats with seated NPC sprites (neutral frame, lower body tucked behind the seat)
+// a row of seats with SEATED NPC sprites (dedicated sit pose)
 function seatedRow(x, gy, n){
   const seatW=30;
   for(let i=0;i<n;i++){
     const sx = Math.round(x + i*seatW);
     // seat back + cushion
-    ctx.fillStyle='#3f4756'; ctx.fillRect(sx, gy-14, seatW-4, 14);
-    ctx.fillStyle='#4d566a'; ctx.fillRect(sx-1, gy-34, 4, 34);
-    // seated NPC: draw the sprite short (so legs hide) sitting on the cushion
-    const id = NPC_IDS[(i+ Math.floor(x/97)) % NPC_IDS.length];
+    ctx.fillStyle='#3f4756'; ctx.fillRect(sx, gy-13, seatW-4, 13);
+    ctx.fillStyle='#4d566a'; ctx.fillRect(sx-1, gy-32, 4, 32);
+    const id = NPC_IDS[(i*3 + Math.floor(x/71)) % NPC_IDS.length];
     const cx = sx + Math.round((seatW-4)/2);
-    if(!drawNpc(id, cx, gy-10, 46, 0, (i%2?1:-1), false)){
+    if(!drawNpcSit(id, cx, gy-4, 58, (i%2?1:-1))){
       ctx.fillStyle=['#c0553f','#3f6bc0','#4f9f6f','#b06fb0','#c9a23f'][i%5];
       ctx.fillRect(cx-6, gy-24, 12, 13);
     }
-    // seat front (over the sprite's lower legs so it reads as sitting)
-    ctx.fillStyle='#353c49'; ctx.fillRect(sx, gy-8, seatW-4, 8);
+    // seat front bar over the lower legs
+    ctx.fillStyle='#353c49'; ctx.fillRect(sx, gy-6, seatW-4, 6);
   }
 }
 
