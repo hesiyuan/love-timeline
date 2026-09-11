@@ -103,9 +103,9 @@ def age_transform(im,v):
     if v["age"]=="o":
         return im  # (grey hair already conveys age; keep height)
     if v["age"]=="c":
-        # child: strong feet-aligned downscale so kids read clearly smaller than adults
+        # child: feet-aligned downscale so kids read clearly smaller than adults
         w,h=im.size
-        small=im.resize((max(1,round(w*0.62)), max(1,round(h*0.62))), Image.NEAREST)
+        small=im.resize((max(1,round(w*0.68)), max(1,round(h*0.68))), Image.NEAREST)
         canvas=Image.new("RGBA",(w,h),(0,0,0,0))
         canvas.paste(small,( (w-small.width)//2, h-small.height))  # feet-aligned
         return canvas
@@ -120,6 +120,16 @@ def age_transform(im,v):
 def child_details(px,w,h,v):
     # kid-clothing extras painted over the recolored base (before downscale):
     OL=OUTLINE+(255,)
+    # ---- FACE: bold eyes + mouth so they survive the strong child downscale ----
+    # face box is roughly x in [2..w-3]; visible face rows ~5-7 (hair covers rows 0-4).
+    cxl, cxr = 4, w-5                     # left/right eye columns
+    ey = 5                                # eye row
+    for ex in (cxl, cxr):
+        px[ex,ey]=OL; px[ex,ey+1]=OL      # 1x2 dark eye block (still reads after shrink)
+    # mouth: a short dark line on row 7 between the eyes
+    my = 7
+    for mx in range(cxl+1, cxr):
+        if px[mx,my][3]>0: px[mx,my]=OL
     if v.get("overalls"):
         # denim overalls: a bib panel on the torso + two shoulder straps
         DENIM=v["shirt"]+(255,); DEN_SH=v["shirtShade"]+(255,)
