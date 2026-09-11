@@ -119,10 +119,13 @@ function render(){
   // On the ferry segment, the walking surface rises up the ramp / onto the deck / down the
   // far ramp — so the couple's feet-Y follows ferryFloorY(progress) instead of the ground.
   const onFerry = bg.backgroundType==='ocean_ferry_cruise';
-  const floorY = onFerry ? ferryFloorY(state.ferryProgress||0, gy) : gy;
+  const ferryP = state.ferryProgress||0;
+  const floorY = onFerry ? ferryFloorY(ferryP, gy) : gy;
 
   // party — draw trailing members behind hero
-  const heroScreenX = state.hero.x - state.camX;
+  // On the ferry, the hero's screen-X follows the on-screen ramp/deck path (so feet meet
+  // the ramp); off-ferry it's the usual camera-relative position.
+  const heroScreenX = onFerry ? ferryFloorX(ferryP, gy) : (state.hero.x - state.camX);
   const walk = state.hero.phase;
   const moving = state.moving;
   const face = state.hero.facing;
