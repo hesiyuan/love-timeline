@@ -35,7 +35,9 @@ function update(){
   // her (or once we pass into event 2), she JOINS and trails him like a normal party member.
   if(WIFE_MEET_X == null) WIFE_MEET_X = SEGMENT_W*0.80;   // fixed meet point in segment 0
   if(!state.wifeJoined){
-    if(state.hero.x >= WIFE_MEET_X - 70 || seg >= 1){ state.wifeJoined = true; state.wifeActive = true; }
+    // she joins ONLY once the husband has walked PAST her (to her right), so she turns
+    // and follows him — not before he reaches her. Small margin so he's clearly past.
+    if(state.hero.x > WIFE_MEET_X + 24){ state.wifeJoined = true; state.wifeActive = true; }
   }
   if(ev.partyMembers.includes('wife') && seg >= 1) state.wifeActive=true;
   if(ev.partyMembers.includes('creamy_dog')) state.creamyActive=true;
