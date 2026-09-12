@@ -12,7 +12,7 @@
 
 /* Game version — shown on the start screen and used to cache-bust the <script> tags
    in index.html (keep the ?v=… query strings in sync when you bump this). */
-const GAME_VERSION = '1.9.12';
+const GAME_VERSION = '1.9.13';
 
 
 /* ---------------- MEMORY ITEM ICONS (32x32 pixel-art, base64) ---------------- */
