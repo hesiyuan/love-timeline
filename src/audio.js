@@ -9,7 +9,7 @@
    start overlay). Played on a looping HTMLAudioElement with a gentle fade-in.
    A very quiet procedural arpeggio (WebAudio) sits underneath as light texture,
    and the collectible pickup chime is procedural. */
-let audioCtx=null, musicGain=null, musicTimer=null, currentMood=null;
+let audioCtx=null, musicGain=null, sfxGain=null, musicTimer=null, currentMood=null;
 let bgMusic=null, bgStarted=false;
 const MUSIC_SRC = 'audio/mood_piece.mp3';
 const MUSIC_TARGET_VOL = 0.5;
@@ -37,12 +37,16 @@ function startBgTrack(){
 
 function ensureAudio(){
   startBgTrack();               // real tranquil loop (primary)
-  if(audioCtx) return;
+  if(audioCtx){ if(audioCtx.state==='suspended') audioCtx.resume(); return; }
   try{
     audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();   // unlock on the gesture
     musicGain = audioCtx.createGain();
     musicGain.gain.value = 0.018;  // quiet texture layer under the real track
     musicGain.connect(audioCtx.destination);
+    sfxGain = audioCtx.createGain();
+    sfxGain.gain.value = 0.9;      // pickup cues play at full, audible volume
+    sfxGain.connect(audioCtx.destination);
     startMusic();
   }catch(e){ /* audio optional */ }
 }
@@ -67,19 +71,20 @@ function startMusic(){
     step++;
   }, 480);
 }
-function playTone(freq, dur, type, vol){
+function playTone(freq, dur, type, vol, dest){
   if(!audioCtx) return;
   const o=audioCtx.createOscillator(), g=audioCtx.createGain();
   o.type=type; o.frequency.value=freq;
   g.gain.setValueAtTime(0, audioCtx.currentTime);
   g.gain.linearRampToValueAtTime(vol, audioCtx.currentTime+0.05);
   g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
-  o.connect(g); g.connect(musicGain);
+  o.connect(g); g.connect(dest||musicGain);
   o.start(); o.stop(audioCtx.currentTime+dur+0.05);
 }
-function chime(){ // pickup cue: quick 3-note sparkle
+function chime(){ // pickup cue: quick 3-note sparkle — routed to the audible SFX bus
   if(!audioCtx) return;
+  if(audioCtx.state==='suspended') audioCtx.resume();
   [0,4,7].forEach((s,i)=>{
-    setTimeout(()=>playTone(midiToFreq(72+s), 0.4, 'sine', 0.09), i*70);
+    setTimeout(()=>playTone(midiToFreq(72+s), 0.4, 'sine', 0.32, sfxGain), i*70);
   });
 }
