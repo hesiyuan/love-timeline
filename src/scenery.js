@@ -440,9 +440,8 @@ const LAYER_DRAW = {
 
     // 5) doors + signage flanking the glass wall
     hospitalDoor(base+Math.round(W*0.12), gy, 'ROOM 2');
-    hospitalDoor(base+Math.round(W*0.88), gy, 'RESTROOMS');
+    hospitalDoor(base+Math.round(W*0.88), gy, 'ROOM 1');
     signBox(base+Math.round(W*0.30), topWall+34, 150, 26, 'MEDICAL IMAGING', '#7a2f2f', '#f4e7c8');
-    signBox(base+Math.round(W*0.62), gy-152, 86, 24, 'RESTROOMS', '#2f6f9f', '#eaf6ff');
     // sanitizer dispenser near the right door
     const sx=base+Math.round(W*0.80); ctx.fillStyle='#eef2f4'; ctx.fillRect(sx, gy-96, 12, 22);
     ctx.fillStyle='#8fd0e0'; ctx.fillRect(sx+2, gy-92, 8, 8);
