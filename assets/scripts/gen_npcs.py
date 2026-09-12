@@ -94,7 +94,10 @@ def hair_and_features(px,w,h,v):
     elif st=="cap":
         band=v["shirt"]+(255,)
         for x in range(hx0,hx1+1): px[x,2]=band; px[x,3]=band   # cap band over the flat hair
-        for x in range(w//2, hx1+1): px[x,4]=band                # brim to one side
+        # brim juts to one side at the HAT line (row 3), NOT over the eyes (row 4) — so both
+        # eyes stay visible. Extends one pixel beyond the head edge for a peaked-cap look.
+        for x in range(w//2, hx1+2):
+            if x < w: px[x,3]=band
     # glasses: dark bar across the eyes (row 4-5)
     if v.get("glasses"):
         for x in range(3,w-3):
