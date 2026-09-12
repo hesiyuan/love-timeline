@@ -1066,9 +1066,13 @@ function airportGlassWall(x, y, w, h, weather){
   ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();   // everything stays inside the window
   const horizon = y + Math.round(h*0.42);
   const overcast = (weather==='gentle_rain' || weather==='snow_light' || weather==='cloudy_coastal');
-  // sky (dimmer if overcast)
-  ctx.fillStyle = overcast ? '#c2ccd6' : '#cfe6fb'; ctx.fillRect(x, y, w, horizon-y);
-  ctx.fillStyle = overcast ? '#d4dbe2' : '#eaf4ff'; ctx.fillRect(x, horizon-Math.round(h*0.06), w, Math.round(h*0.06));
+  // sky THROUGH THE GLASS = the SAME outdoor sky shown above the roof (live palette), so the
+  // weather color matches inside and outside the glass. Faint glass tint added later.
+  const pal = state.paletteCur || PALETTES.clear_day;
+  const skyG = ctx.createLinearGradient(0, y, 0, horizon);
+  skyG.addColorStop(0, pal.skyT); skyG.addColorStop(1, pal.skyB);
+  ctx.fillStyle = skyG; ctx.fillRect(x, y, w, horizon-y);
+  ctx.fillStyle = pal.skyB; ctx.fillRect(x, horizon-Math.round(h*0.06), w, Math.round(h*0.06));
   // drifting clouds (animate so the window feels alive)
   ctx.fillStyle='rgba(255,255,255,0.85)';
   for(let k=0;k<3;k++){ const cx=x+((k*Math.round(w/3)+Math.round(state.time*0.2))%(w+60))-30; const cy=y+Math.round(h*0.13)+k*8;
