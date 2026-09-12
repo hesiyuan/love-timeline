@@ -732,9 +732,12 @@ function hospitalWindow(x, y, w, h, weather){
   ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
   const horizon = y + Math.round(h*0.55);
   const overcast = (weather==='gentle_rain' || weather==='snow_light' || weather==='cloudy_coastal');
-  // sky
-  ctx.fillStyle = overcast ? '#c2ccd6' : '#cfe6fb'; ctx.fillRect(x, y, w, horizon-y);
-  ctx.fillStyle = overcast ? '#d4dbe2' : '#eaf4ff'; ctx.fillRect(x, horizon-Math.round(h*0.05), w, Math.round(h*0.05));
+  // sky THROUGH THE GLASS = the SAME outdoor sky shown above the roof (live palette)
+  const pal = state.paletteCur || PALETTES.clear_day;
+  const skyG = ctx.createLinearGradient(0, y, 0, horizon);
+  skyG.addColorStop(0, pal.skyT); skyG.addColorStop(1, pal.skyB);
+  ctx.fillStyle = skyG; ctx.fillRect(x, y, w, horizon-y);
+  ctx.fillStyle = pal.skyB; ctx.fillRect(x, horizon-Math.round(h*0.05), w, Math.round(h*0.05));
   // drifting clouds
   ctx.fillStyle='rgba(255,255,255,0.8)';
   for(let k=0;k<3;k++){ const cx=x+((k*Math.round(w/3)+Math.round(state.time*0.2))%(w+60))-30; const cy=y+Math.round(h*0.16)+k*7;
