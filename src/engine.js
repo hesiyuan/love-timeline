@@ -6,6 +6,7 @@
    UPDATE + RENDER LOOP
    ===================================================================== */
 let WIFE_MEET_X = null;   // fixed world-X where the wife waits at the airport (set in update)
+let CREAMY_MEET_X = null; // fixed world-X where Creamy waits by the Tesla (event 3)
 
 function update(){
   if(!state.running) return;
@@ -40,7 +41,18 @@ function update(){
     if(state.hero.x > WIFE_MEET_X + 24){ state.wifeJoined = true; state.wifeActive = true; }
   }
   if(ev.partyMembers.includes('wife') && seg >= 1) state.wifeActive=true;
-  if(ev.partyMembers.includes('creamy_dog')) state.creamyActive=true;
+  // Creamy waits on the RIGHT side of the Tesla (event 3) and only JOINS + follows once the
+  // husband has walked PAST her (mirrors the wife's airport gate). Until then she is a fixed,
+  // stationary sprite that turns her head left/right in place.
+  if(ev.partyMembers.includes('creamy_dog')){
+    if(CREAMY_MEET_X == null){
+      const teslaWorldX = 2*SEGMENT_W + SEGMENT_W*0.45;   // must match drawSpecialObjects
+      CREAMY_MEET_X = teslaWorldX + 210;                   // just right of the ~200px-wide Tesla
+    }
+    if(!state.creamyJoined && state.hero.x > CREAMY_MEET_X + 24){
+      state.creamyJoined = true; state.creamyActive = true;
+    }
+  }
 
   // (Ferry is world scenery now — no progress state needed; feet-Y comes from ferryFloorAt.)
 
@@ -127,10 +139,18 @@ function render(){
   const walk = state.hero.phase;
   const moving = state.moving;
   const face = state.hero.facing;
-  if(state.creamyActive){
+  if(state.creamyJoined){
+    // joined: Creamy trails the husband as a normal party member
     const cWorld = heroWorldX - 118;
     const cy = onFerry ? ferryFloorAt(cWorld, gy) : floorY;
     drawCreamy(cWorld - state.camX, cy, walk*1.1, face, moving);
+  } else if(CREAMY_MEET_X != null){
+    // pre-placed: Creamy waits by the Tesla, turning her head left/right (rotates in place)
+    const cScreenX = CREAMY_MEET_X - state.camX;
+    if(cScreenX > -40 && cScreenX < W+40){
+      const look = (Math.floor(state.time/60) % 2) ? 1 : -1;   // flip facing ~every 1s
+      drawCreamy(cScreenX, gy, 0, look, false);
+    }
   }
   if(state.wifeJoined){
     // joined: wife trails the husband as a normal party member
@@ -172,6 +192,7 @@ function startGame(){
   state.collected=new Set(); state.particles=[]; state.finished=false;
   state.wifeActive=false; state.creamyActive=false;
   state.wifeJoined=false; WIFE_MEET_X=null;
+  state.creamyJoined=false; CREAMY_MEET_X=null;
   state.wardrobePop={};
   WardrobeManager.reset();
   document.getElementById('startOverlay').classList.add('hidden');
