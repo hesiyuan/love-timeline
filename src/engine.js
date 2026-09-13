@@ -225,7 +225,11 @@ function applyMute(){
   if(bgMusic) bgMusic.muted = isMuted;
   if(musicGain) musicGain.gain.value = isMuted ? 0 : 0.018;
   const btn=document.getElementById('muteBtn');
-  btn.textContent = isMuted ? '🔇' : '🔊';
+  // pixel-art speaker icon (sprite PNG) instead of an emoji
+  const src = (typeof OBJECT_SPRITES!=='undefined') ? OBJECT_SPRITES[isMuted?'sound_off':'sound_on'] : null;
+  if(src){ btn.innerHTML = '<img alt="'+(isMuted?'muted':'sound on')+'" src="'+src+'" '
+      + 'style="width:22px;height:22px;image-rendering:pixelated;display:block">'; }
+  else { btn.textContent = isMuted ? '🔇' : '🔊'; }   // fallback
   btn.classList.toggle('muted', isMuted);
   btn.title = isMuted ? 'Unmute music' : 'Mute music';
 }
@@ -235,6 +239,7 @@ document.getElementById('muteBtn').addEventListener('click', (e)=>{
   isMuted = !isMuted;
   applyMute();
 });
+applyMute();   // set the initial pixel-art icon on load (unmuted)
 
 /* kick things off: load the timeline JSON, then boot the engine */
 async function loadTimeline(){
