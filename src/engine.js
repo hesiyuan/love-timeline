@@ -28,7 +28,7 @@ function update(){
 
   // current event + activation of party members
   const seg = segmentAt(state.hero.x);
-  if(seg !== state.currentEvent){ state.currentEvent = seg; updateHUD(); }
+  if(seg !== state.currentEvent){ state.currentEvent = seg; updateHUD(); dismissToasts(); }
   const ev = gameTimeline[seg];
 
   // Wife is PRE-PLACED at the airport (segment 0): she stands at a fixed spot near the
