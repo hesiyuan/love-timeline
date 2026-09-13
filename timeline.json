@@ -93,8 +93,8 @@
     "backgroundType": "cozy_indoor_care",
     "weather": "gentle_rain",
     "title": "In Sickness and In Health",
-    "eventNote": "Taking care of my wife alongside her mother for a week of recovery.",
-    "collectible": { "name": "Warm Soup & Care", "icon": "heart" }
+    "eventNote": "Taking care of my wife for a week of recovery.",
+    "collectible": { "name": "Warm Soup & Care", "icon": "soup" }
   },
   {
     "id": 9,
