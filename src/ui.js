@@ -11,7 +11,6 @@ function showToast(ev){
     ? `<img class="toast-icon" src="${iconSrc}" alt="${ev.collectible.name}" width="64" height="64">`
     : '';
   t.innerHTML=`<div class="h">${ev.title}</div>
-    <div class="b">${ev.eventNote}</div>
     ${iconImg}
     <div class="item">✨ Collected: ${ev.collectible.name}</div>`;
   wrap.appendChild(t);
