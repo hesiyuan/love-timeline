@@ -17,6 +17,15 @@ function showToast(ev){
   setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),500); }, 4200);
 }
 
+// dismiss any live collect toast — called on scene change so a message never bleeds into
+// the next scene (one message at a time). Fades out gracefully, then removes.
+function dismissToasts(){
+  const wrap=document.getElementById('toasts'); if(!wrap) return;
+  for(const t of wrap.querySelectorAll('.toast:not(.out)')){
+    t.classList.add('out'); setTimeout(()=>t.remove(), 500);
+  }
+}
+
 /* ---------------- HUD ---------------- */
 function updateHUD(){
   const ev = gameTimeline[state.currentEvent];
