@@ -10,6 +10,7 @@
 const SPRITE_IMGS = { husband:[], wife:[], creamy:[], ready:false };
 const NPC_IMGS = {};   // { npc1:[Image x8], ... } background-people sprites
 const NPC_SIT_IMGS = {}; // { npc1:Image, ... } seated pose per NPC
+const OBJECT_IMGS = {}; // { tesla:Image, ... } single-frame prop sprites
 function loadSprites(){
   let pending=0, done=0;
   for(const who of ['husband','wife','creamy']){
@@ -27,6 +28,10 @@ function loadSprites(){
     for(const id in NPC_SPRITES){
       NPC_IMGS[id] = NPC_SPRITES[id].map(src=>{ const im=new Image(); im.src=src; return im; });
     }
+  }
+  // Object sprites (single-frame props, e.g. the Tesla)
+  if(typeof OBJECT_SPRITES !== 'undefined'){
+    for(const id in OBJECT_SPRITES){ const im=new Image(); im.src=OBJECT_SPRITES[id]; OBJECT_IMGS[id]=im; }
   }
   if(typeof NPC_SIT !== 'undefined'){
     for(const id in NPC_SIT){ const im=new Image(); im.src=NPC_SIT[id]; NPC_SIT_IMGS[id]=im; }
@@ -68,6 +73,20 @@ function drawNpc(id, x, gy, displayH, phase, facing, moving){
   ctx.translate(Math.round(x), Math.round(gy - bob));
   if(facing<0) ctx.scale(-1,1);
   ctx.drawImage(img, Math.round(-w/2), Math.round(-h), Math.round(w), Math.round(h));
+  ctx.restore();
+  return true;
+}
+
+// draw a single-frame object/prop sprite: LEFT edge at x, BOTTOM at gy, scaled to displayW.
+// crisp nearest-neighbor scaling. Returns false until the image has loaded (vector fallback).
+function drawObject(id, x, gy, displayW){
+  const img = OBJECT_IMGS[id];
+  if(!img || !img.complete || !img.naturalWidth) return false;
+  const scale = displayW / img.naturalWidth;
+  const w = displayW, h = img.naturalHeight*scale;
+  ctx.save();
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(img, Math.round(x), Math.round(gy-h), Math.round(w), Math.round(h));
   ctx.restore();
   return true;
 }
