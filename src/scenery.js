@@ -968,6 +968,20 @@ function ferryFloorAt(worldX, gy){
 // draw the ferry vessel + ramps FROM the same path (converted world->screen via camX).
 function drawFerry(gy){
   const wp=ferryWorldPath(gy); if(!wp) return;
+  // Prefer the pixel-art ferry sprite (chunky pixels matching the characters). It was
+  // generated aligned to ferryWorldPath: native col0 = segBase+468 screen-x, native row0 =
+  // gy-136, SCALE=4. So deck-top and both ramps line up with ferryFloorAt automatically.
+  const seg = ferrySegIndex();
+  if(seg>=0 && typeof drawObject==='function'){
+    const segBase = seg*SEGMENT_W;
+    const SX0=468, SY0=-136, SCALE=4;
+    const bob = Math.round(Math.sin((state.time||0)*0.04)*2);   // gentle heave (match path)
+    const sxScreen = segBase + SX0 - state.camX;
+    const NWnat = 152; // native width of the sprite (see gen_ferry.py output)
+    if(sxScreen < W+80 && sxScreen + NWnat*SCALE > -80){
+      if(drawObjectAt('ferry', sxScreen, gy + SY0 + bob + 2, NWnat*SCALE)) return;
+    }
+  }
   // convert the 4 world nodes to screen space, then bookend with the two dock ends so the
   // railing/plank helpers keep the original 6-node shape.
   const toScr = n => ({ x: Math.round(n.wx - state.camX), y: n.y });
