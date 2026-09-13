@@ -17,7 +17,7 @@
     "partyMembers": ["husband", "wife"],
     "backgroundType": "park_and_city",
     "weather": "sunset",
-    "title": "Declaration of Love",
+    "title": "First \"I Love You\"",
     "eventNote": "A confession of love at the Safeway parking lot after a day in Stanley Park.",
     "collectible": { "name": "Warm Water Bottle", "icon": "water_bottle" }
   },
@@ -92,7 +92,7 @@
     "partyMembers": ["husband", "wife", "creamy_dog"],
     "backgroundType": "cozy_indoor_care",
     "weather": "gentle_rain",
-    "title": "In Sickness and In Health",
+    "title": "Through the Hard Days",
     "eventNote": "Taking care of my wife for a week of recovery.",
     "collectible": { "name": "Warm Soup & Care", "icon": "soup" }
   },
