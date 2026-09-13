@@ -12,7 +12,7 @@
 
 /* Game version — shown on the start screen and used to cache-bust the <script> tags
    in index.html (keep the ?v=… query strings in sync when you bump this). */
-const GAME_VERSION = '1.9.31';
+const GAME_VERSION = '1.9.32';
 
 
 /* ---------------- MEMORY ITEM ICONS (32x32 pixel-art, base64) ---------------- */
@@ -28,7 +28,7 @@ let gameTimeline = [];
 /* ---------------- LAYOUT / WORLD CONSTANTS ---------------- */
 const SEGMENT_W = 1400;                 // world px per timeline event
 let   WORLD_W = 0;                       // = SEGMENT_W * gameTimeline.length, set after timeline loads
-const WALK_SPEED = 4.2;
+const WALK_SPEED = 3.4;
 const GROUND_RATIO = 0.80;              // ground line as fraction of height
 
 /* ---------------- PALETTES PER WEATHER/BG ----------------
