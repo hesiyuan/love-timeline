@@ -1462,7 +1462,15 @@ function drawCollectibles(){
     g.addColorStop(0,'rgba(255,215,150,0.55)'); g.addColorStop(1,'rgba(255,215,150,0)');
     ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sx,fy,34,0,7); ctx.fill();
     ctx.restore();
-    drawIcon(c.data.collectible.icon, sx, fy);
+    // draw the actual item PNG icon (matches the HUD/toast/modal); vector fallback until loaded
+    const iid = c.data.collectible.icon;
+    const im = (typeof ITEM_IMGS!=='undefined') ? ITEM_IMGS[iid] : null;
+    if(im && im.complete && im.naturalWidth){
+      const D=40; ctx.save(); ctx.imageSmoothingEnabled=false;
+      ctx.drawImage(im, Math.round(sx-D/2), Math.round(fy-D/2), D, D); ctx.restore();
+    } else {
+      drawIcon(iid, sx, fy);
+    }
   }
 }
 function drawIcon(icon, x, y){
