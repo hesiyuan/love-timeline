@@ -387,11 +387,12 @@ const LAYER_DRAW = {
     for(let i=0;i<7;i++){ const wy=horizon+26+i*18 + Math.sin(t*0.05+i)*2;
       ctx.beginPath(); ctx.moveTo(base,wy);
       for(let x=0;x<=W;x+=46){ ctx.lineTo(base+x, wy+Math.sin((base+x+t*3)*0.03+i)*3);} ctx.stroke(); }
-    // 2) distant coastlines — placed by world-X so they scroll with the camera (drawn once)
+    // 2) BIG diverse green mountains across the horizon — layered, varied shapes, NO labels.
+    //    Two ridges (far paler, near richer green) for depth. World-anchored so they scroll.
     if(base===0){
       const seg=ferrySegIndex(); const sbase=(seg<0?0:seg*SEGMENT_W);
-      drawCoast(Math.round(sbase + SEGMENT_W*0.05 - state.camX), horizon, 300, 60, '#6f8f74', 'Departure Bay');
-      drawCoast(Math.round(sbase + SEGMENT_W*0.85 - state.camX), horizon, 340, 72, '#5f8f7a', 'Nanaimo');
+      greenMountains(sbase - state.camX, horizon, 0);   // far ridge (pale, taller, back)
+      greenMountains(sbase - state.camX, horizon, 1);   // near ridge (rich green, front)
       // 3) the ferry vessel + ramps + approach docks, all world-anchored
       const wp=ferryWorldPath(gy);
       if(wp){
@@ -928,6 +929,55 @@ function drawCoast(x, horizon, w, h, color, label){
   // label
   ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='bold 11px "Courier New",monospace';
   ctx.fillText(label, Math.round(x+w*0.3), Math.round(horizon-h*0.5));
+}
+
+// big diverse GREEN mountains for the island getaway — two depth ridges of varied shapes
+// (rounded, sharp peak, twin-peak, plateau), NO text labels. originX = segment origin in
+// screen space (world-anchored so they scroll). ridge 0 = far/pale/taller-back, 1 = near/rich.
+function greenMountains(originX, horizon, ridge){
+  const SEG = (typeof SEGMENT_W!=='undefined')?SEGMENT_W:1400;
+  // ridge palette + baseline
+  const far  = ridge===0;
+  const baseY = horizon + (far? 10 : 22);           // near ridge sits a bit lower/front
+  const cols = far ? ['#7fa576','#8fb184'] : ['#5f9256','#6ba063'];
+  // a chain of mountains spanning the whole segment width, deterministic per index so it wraps
+  const count = far ? 7 : 6;
+  for(let i=0;i<count;i++){
+    const cx = originX + Math.round(SEG*( (i+0.5)/count ));
+    const r1=((i*97+ridge*31)%100)/100, r2=((i*53+ridge*17)%100)/100, r3=((i*181)%100)/100;
+    const w = Math.round((far?260:320) + r1*180);   // BIG: 260–520 wide
+    const h = Math.round((far?150:210) + r2*140);   // BIG: 150–350 tall
+    if(cx+w/2 < -60 || cx-w/2 > W+60) continue;      // cull off-screen
+    ctx.fillStyle = cols[i%2];
+    const x=cx-w/2, top=baseY-h;
+    const shape = i % 4;
+    ctx.beginPath();
+    if(shape===0){                                    // rounded dome
+      ctx.moveTo(x, baseY);
+      ctx.quadraticCurveTo(cx, top-Math.round(h*0.15), cx, top);
+      ctx.quadraticCurveTo(cx, top-Math.round(h*0.15), x+w, baseY);
+    } else if(shape===1){                              // sharp single peak
+      ctx.moveTo(x, baseY); ctx.lineTo(cx, top); ctx.lineTo(x+w, baseY);
+    } else if(shape===2){                              // twin peak
+      ctx.moveTo(x, baseY);
+      ctx.lineTo(cx-w*0.18, top+Math.round(h*0.12));
+      ctx.lineTo(cx-w*0.02, top+Math.round(h*0.34));
+      ctx.lineTo(cx+w*0.16, top);
+      ctx.lineTo(x+w, baseY);
+    } else {                                           // broad plateau / mesa
+      ctx.moveTo(x, baseY);
+      ctx.lineTo(x+Math.round(w*0.28), top+Math.round(h*0.10));
+      ctx.lineTo(x+Math.round(w*0.72), top+Math.round(h*0.10));
+      ctx.lineTo(x+w, baseY);
+    }
+    ctx.closePath(); ctx.fill();
+    // sunlit left face (lighter wedge) for depth
+    ctx.fillStyle = far ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.12)';
+    ctx.beginPath(); ctx.moveTo(x, baseY); ctx.lineTo(cx, top); ctx.lineTo(cx, baseY); ctx.closePath(); ctx.fill();
+    // a few tree-dot textures near the base of the NEAR ridge
+    if(!far){ ctx.fillStyle='rgba(40,80,50,0.35)';
+      for(let k=0;k<5;k++){ const tx=x+Math.round(w*(0.2+0.15*k)); ctx.beginPath(); ctx.arc(tx, baseY-6, 6,0,7); ctx.fill(); } }
+  }
 }
 
 // ================= FERRY (world-space, single shared path) =================
