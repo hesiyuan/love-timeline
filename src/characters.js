@@ -91,6 +91,19 @@ function drawObject(id, x, gy, displayW){
   return true;
 }
 
+// draw an object sprite anchored TOP-LEFT at (x,y), scaled to displayW (crisp). For sprites
+// (e.g. the ferry) whose native row 0 must land at a specific screen y.
+function drawObjectAt(id, x, y, displayW){
+  const img = OBJECT_IMGS[id];
+  if(!img || !img.complete || !img.naturalWidth) return false;
+  const scale = displayW / img.naturalWidth;
+  ctx.save();
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(img, Math.round(x), Math.round(y), Math.round(displayW), Math.round(img.naturalHeight*scale));
+  ctx.restore();
+  return true;
+}
+
 /* =====================================================================
    WARDROBE / CHARACTER-STATE SYSTEM
    ---------------------------------------------------------------------
