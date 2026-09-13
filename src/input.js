@@ -22,4 +22,7 @@ function bindTouch(el, which){
 }
 bindTouch(document.getElementById('btnL'),'left');
 bindTouch(document.getElementById('btnR'),'right');
-if('ontouchstart' in window){ document.getElementById('touch').style.display='flex'; }
+if('ontouchstart' in window){
+  document.getElementById('touch').style.display='flex';     // show the on-screen D-pad
+  const hint=document.getElementById('hint'); if(hint) hint.style.display='none';  // hide the A/D keyboard hint on mobile
+}
