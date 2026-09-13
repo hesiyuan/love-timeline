@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>Our Story — A Love Timeline</title>
-<link rel="preload" href="game.bundle.js?v=1.9.23" as="script" />
-<link rel="preload" href="timeline.json?v=1.9.23" as="fetch" crossorigin="anonymous" />
+<link rel="preload" href="game.bundle.js?v=1.9.24" as="script" />
+<link rel="preload" href="timeline.json?v=1.9.24" as="fetch" crossorigin="anonymous" />
 <meta name="description" content="A side-scrolling journey through our years together." />
 <style>
   :root{
@@ -132,16 +132,16 @@
     position:absolute; display:none; z-index:7;
     /* keep buttons clear of rounded/curved screen edges + notch cutouts (safe-area insets) */
     left:0; right:0;
-    bottom:calc(14px + env(safe-area-inset-bottom, 0px));
-    padding-left:calc(28px + env(safe-area-inset-left, 0px));
-    padding-right:calc(28px + env(safe-area-inset-right, 0px));
+    bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-left:calc(24px + env(safe-area-inset-left, 0px));
+    padding-right:calc(24px + env(safe-area-inset-right, 0px));
     justify-content:space-between;
     box-sizing:border-box;
   }
   .tbtn{
-    width:76px; height:76px; border-radius:50%;
+    width:56px; height:56px; border-radius:50%;
     background:var(--hud-bg); border:1px solid var(--hud-border);
-    color:#fff; font-size:30px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:24px; display:flex; align-items:center; justify-content:center;
     user-select:none; -webkit-user-select:none; backdrop-filter:blur(8px);
     box-shadow:0 6px 18px rgba(0,0,0,.4);
   }
@@ -237,6 +237,6 @@
   </div>
 </div>
 
-<script src="game.bundle.js?v=1.9.23" defer></script>
+<script src="game.bundle.js?v=1.9.24" defer></script>
 </body>
 </html>
