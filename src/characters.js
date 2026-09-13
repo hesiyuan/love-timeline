@@ -11,6 +11,7 @@ const SPRITE_IMGS = { husband:[], wife:[], creamy:[], ready:false };
 const NPC_IMGS = {};   // { npc1:[Image x8], ... } background-people sprites
 const NPC_SIT_IMGS = {}; // { npc1:Image, ... } seated pose per NPC
 const OBJECT_IMGS = {}; // { tesla:Image, ... } single-frame prop sprites
+const ITEM_IMGS = {};   // { ticket:Image, ... } memory-item icons for in-world collectibles
 function loadSprites(){
   let pending=0, done=0;
   for(const who of ['husband','wife','creamy']){
@@ -32,6 +33,10 @@ function loadSprites(){
   // Object sprites (single-frame props, e.g. the Tesla)
   if(typeof OBJECT_SPRITES !== 'undefined'){
     for(const id in OBJECT_SPRITES){ const im=new Image(); im.src=OBJECT_SPRITES[id]; OBJECT_IMGS[id]=im; }
+  }
+  // Memory-item icons (for the in-world collectibles on the canvas)
+  if(typeof ITEM_ICONS !== 'undefined'){
+    for(const id in ITEM_ICONS){ const im=new Image(); im.src=ITEM_ICONS[id]; ITEM_IMGS[id]=im; }
   }
   if(typeof NPC_SIT !== 'undefined'){
     for(const id in NPC_SIT){ const im=new Image(); im.src=NPC_SIT[id]; NPC_SIT_IMGS[id]=im; }
