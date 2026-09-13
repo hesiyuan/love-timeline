@@ -811,7 +811,7 @@ function drawSceneryLayer(kind, speed, pal, opts){
 function deriveScenery(ev){
   const t=ev.backgroundType;
   const M={
-    airport_terminal:      [ {kind:'airportInterior',speed:0.25}, {kind:'airplane',speed:0,opts:{screenSpace:true,scale:1.0}} ],
+    airport_terminal:      [ {kind:'airportInterior',speed:0.25} ],
     park_and_city:         [ {kind:'hills',speed:0.2,opts:{h:120,h2:80}}, {kind:'skyline',speed:0.4,opts:{count:4,w:60,h:150}}, {kind:'trees',speed:0.55,opts:{density:7}} ],
     suburban_driveway:     [ {kind:'hills',speed:0.2,opts:{h:110}}, {kind:'trees',speed:0.55,opts:{density:6}} ],
     ocean_ferry_cruise:    [ {kind:'ferryScene',speed:0,opts:{screenSpace:true}} ],
@@ -1092,6 +1092,20 @@ function airportGlassWall(x, y, w, h, weather){
   baggageCarts(x+Math.round(w*0.58), horizon+Math.round(h*0.42));
   groundCrew(x+Math.round(w*0.18), horizon+Math.round(h*0.44));
   groundCrew(x+Math.round(w*0.72), horizon+Math.round(h*0.46));
+  // ANIMATED TAKEOFF PLANE — flies across the sky INSIDE the glass (clipped here, so it
+  // sits BEHIND the glass frame/mullions and the interior fixtures, not in front of them).
+  {
+    const period=520; const t=(state.time%period)/period;
+    if(t < 0.82){
+      const p=t/0.82;
+      const startY=horizon-6;                 // lifts off near the apron horizon
+      const climbTop=y+Math.round(h*0.12);     // climbs toward the top of the window
+      const px=x-60 + p*(w+120);               // sweeps left→right across the window
+      const py=startY - (p*p)*(startY-climbTop);
+      const ang=-0.34*Math.min(1, p*2.2);
+      drawPlane(px, py, ang, 0.8, Math.max(0.25, p));
+    }
+  }
   // WEATHER through the glass, consistent with the scene
   if(weather==='gentle_rain'){
     ctx.strokeStyle='rgba(200,220,240,0.5)'; ctx.lineWidth=1;
