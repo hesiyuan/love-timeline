@@ -230,14 +230,32 @@ def rings():
     px(im, 14, 12, (200, 240, 255, 255)); px(im, 13, 13, (255,255,255,255))
     return im
 
+# vertically center an icon's opaque content within the 32x32 canvas (removes big gaps)
+def center_v(im):
+    px=im.load()
+    ys=[y for y in range(N) for x in range(N) if px[x,y][3]>0]
+    if not ys: return im
+    top, bot = min(ys), max(ys)
+    dy = (N - (top+bot))//2          # shift so bbox is centered
+    if dy==0: return im
+    out=new(); opx=out.load()
+    for y in range(N):
+        for x in range(N):
+            c=px[x,y]
+            if c[3]>0 and 0 <= y+dy < N: opx[x, y+dy]=c
+    return out
+
 ICONS = {
     "ticket": ticket, "water_bottle": water_bottle, "dog_bone": dog_bone,
     "ship": ship, "wine": wine, "star": star, "scroll": scroll,
     "heart": heart, "rings": rings, "soup": soup,
 }
+# icons that need vertical re-centering (drawn in only part of the canvas)
+CENTER_V = {"star"}
 
 for name, fn in ICONS.items():
     img = fn()
+    if name in CENTER_V: img = center_v(img)
     img.save(os.path.join(OUT, f"{name}.png"))
     print("wrote", name)
 print("done")
