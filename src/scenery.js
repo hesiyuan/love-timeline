@@ -1336,6 +1336,10 @@ function drawSpecialObjects(){
 
 // smooth side-profile Tesla Model Y (nose to the left, open liftgate at the rear-right)
 function drawTeslaModelY(x, gy){
+  // Prefer the generated pixel-art sprite; fall back to the vector draw until it loads.
+  // Sprite native 118x46; display ~236 wide keeps the original footprint. Bottom (wheels)
+  // sits just below gy so the tires rest on the ground line.
+  if(typeof drawObject === 'function' && drawObject('tesla', x, gy+2, 236)) return;
   const RED='#d42630', RED_SH='#a81c26', GLASS='#20242b', GLASS_HI='#3a4552', TIRE='#111', RIM='#c9ced6';
   const baseY = gy-14;                 // wheel-contact / body bottom
   ctx.save();
